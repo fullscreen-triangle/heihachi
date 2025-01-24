@@ -311,7 +311,7 @@ graph LR
 ### Neurofunk-Specific Analysis
 
 #### Bass Sound Design Analysis
-```python
+
 1. Reese Bass Components:
    - Fundamental frequency tracking
    - Phase relationship analysis
@@ -323,10 +323,10 @@ graph LR
    - Envelope characteristics
    - Distortion analysis
    - Phase alignment
-```
+
 
 #### Effect Chain Detection
-```python
+
 1. Signal Chain Analysis:
    - Compression detection
    - Distortion identification
@@ -337,10 +337,10 @@ graph LR
    - Pre/post processing detection
    - Parallel processing identification
    - Send/return effect analysis
-```
+
 
 #### Pattern Transformation Analysis
-```python
+
 1. Rhythmic Transformations:
    - Time-stretching detection
    - Beat shuffling analysis
@@ -352,34 +352,34 @@ graph LR
    - Harmonic manipulation
    - Formant preservation
    - Resynthesis detection
-```
+
 
 ## Implementation Details
 
 ### Audio Processing Pipeline
 
 1. **Preprocessing**
-   ```python
+   
    - Sample rate normalization (44.1 kHz)
    - Stereo to mono conversion when needed
    - Segment-wise processing for large files
-   ```
+  
 
 2. **Feature Extraction**
-   ```python
+   
    - Multi-threaded processing
    - GPU acceleration where available
    - Efficient memory management
    - Caching system for intermediate results
-   ```
+  
 
 3. **Analysis Flow**
-   ```python
+  
    - Cascading analysis system
    - Component-wise processing
    - Result fusion and validation
    - Confidence scoring
-   ```
+  
 
 ### Performance Optimizations
 
@@ -441,54 +441,6 @@ The framework includes comprehensive visualization tools for:
 - Transition points
 - Similarity matrices
 - Analysis confidence scores
-
-## Future Directions
-
-1. **Enhanced Neural Processing**
-   - Integration of deep learning models
-   - Real-time processing capabilities
-   - Adaptive threshold optimization
-
-2. **Extended Analysis Capabilities**
-   - Additional genre support
-   - Extended effect detection
-   - Advanced pattern recognition
-
-3. **Improved Visualization**
-   - Interactive dashboards
-   - 3D visualization options
-   - Real-time visualization
-
-## Extended References
-
-1. Chen, J. L., Penhune, V. B., & Zatorre, R. J. (2008). Listening to musical rhythms recruits motor regions of the brain. Cerebral Cortex, 18(12), 2844-2854.
-
-2. Cannon, J. J., & Patel, A. D. (2020). How beat perception co-opts motor neurophysiology. Trends in Cognitive Sciences, 24(1), 51-64.
-
-3. Fukuie, T., et al. (2022). Neural entrainment reflects temporal predictions guiding speech comprehension. Current Biology, 32(5), 1051-1067.
-
-4. Smith, J. O. (2011). Spectral Audio Signal Processing. W3K Publishing.
-
-5. Bello, J. P., et al. (2005). A Tutorial on Onset Detection in Music Signals. IEEE Transactions on Speech and Audio Processing.
-
-6. Gouyon, F., & Dixon, S. (2005). A Review of Automatic Rhythm Description Systems. Computer Music Journal.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Citation
-
-If you use this framework in your research, please cite:
-
-```bibtex
-@software{heihachi2024,
-  title = {Heihachi: Neural Processing of Electronic Music},
-  author = {[Author Names]},
-  year = {2024},
-  url = {https://github.com/[username]/heihachi}
-}
-```
 
 ### Extended System Architecture
 
@@ -573,78 +525,54 @@ graph TD
     end
 ```
 
-### Technical Implementation Details
+## Future Directions
 
-#### Bass Sound Design Analysis
-```python
-class BassAnalyzer:
-    """Advanced bass analysis system."""
-    
-    def analyze_reese(self, audio: np.ndarray) -> Dict:
-        """
-        Analyze Reese bass characteristics.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            Dict containing:
-            - modulation_depth: Float
-            - phase_correlation: Float
-            - harmonic_content: np.ndarray
-            - stereo_width: Float
-        """
-        pass
+1. **Enhanced Neural Processing**
+   - Integration of deep learning models
+   - Real-time processing capabilities
+   - Adaptive threshold optimization
 
-    def analyze_sub(self, audio: np.ndarray) -> Dict:
-        """
-        Analyze sub bass characteristics.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            Dict containing:
-            - fundamental_freq: Float
-            - energy: Float
-            - phase_alignment: Float
-            - distortion: Float
-        """
-        pass
+2. **Extended Analysis Capabilities**
+   - Additional genre support
+   - Extended effect detection
+   - Advanced pattern recognition
+
+3. **Improved Visualization**
+   - Interactive dashboards
+   - 3D visualization options
+   - Real-time visualization
+
+## Extended References
+
+1. Chen, J. L., Penhune, V. B., & Zatorre, R. J. (2008). Listening to musical rhythms recruits motor regions of the brain. Cerebral Cortex, 18(12), 2844-2854.
+
+2. Cannon, J. J., & Patel, A. D. (2020). How beat perception co-opts motor neurophysiology. Trends in Cognitive Sciences, 24(1), 51-64.
+
+3. Fukuie, T., et al. (2022). Neural entrainment reflects temporal predictions guiding speech comprehension. Current Biology, 32(5), 1051-1067.
+
+4. Smith, J. O. (2011). Spectral Audio Signal Processing. W3K Publishing.
+
+5. Bello, J. P., et al. (2005). A Tutorial on Onset Detection in Music Signals. IEEE Transactions on Speech and Audio Processing.
+
+6. Gouyon, F., & Dixon, S. (2005). A Review of Automatic Rhythm Description Systems. Computer Music Journal.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Citation
+
+If you use this framework in your research, please cite:
+
+```bibtex
+@software{heihachi2024,
+  title = {Heihachi: Neural Processing of Electronic Music},
+  author = {[Kundai Sachikonye]},
+  year = {2024},
+  url = {https://github.com/fullscreen-triangle/heihachi}
+}
 ```
 
-#### Effect Chain Analysis
-```python
-class EffectChainAnalyzer:
-    """Advanced effect chain analysis."""
-    
-    def detect_chain(self, audio: np.ndarray) -> List[Dict]:
-        """
-        Detect processing chain order.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            List[Dict] containing detected effects in order:
-            - effect_type: str
-            - parameters: Dict
-            - confidence: Float
-        """
-        pass
 
-    def analyze_parallel(self, audio: np.ndarray) -> Dict:
-        """
-        Analyze parallel processing.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            Dict containing:
-            - bands: List[Dict]
-            - routing: Dict
-            - blend_type: str
-        """
-        pass
-```
+
+
