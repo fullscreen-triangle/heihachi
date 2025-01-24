@@ -1,0 +1,14 @@
+
+3. `LICENSE` - Your project's license (e.g., MIT, Apache, etc.)
+
+4. `requirements.txt` or dependencies in `pyproject.toml` - For package dependencies
+
+5. `tox.ini` (optional) - For testing in multiple Python environments:
+```ini
+[tox]
+envlist = py38, py39, py310, py311
+isolated_build = True
+
+[testenv]
+deps = pytest
+commands = pytest
