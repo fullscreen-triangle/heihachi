@@ -555,6 +555,7 @@ graph TD
 5. Bello, J. P., et al. (2005). A Tutorial on Onset Detection in Music Signals. IEEE Transactions on Speech and Audio Processing.
 
 6. Gouyon, F., & Dixon, S. (2005). A Review of Automatic Rhythm Description Systems. Computer Music Journal.
+7. [Sachikonye, K. (2025). Information Processing in Musical Pattern Recognition: A Case Study of Predictive Auditory Processing and Biological Maxwell Demons](./biological_maxwell_demons.pdf)
 
 ## License
 
