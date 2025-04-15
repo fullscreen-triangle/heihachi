@@ -1,0 +1,107 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "heihachi"
+version = "0.1.0"
+description = "A high-performance audio analysis framework for electronic music with focus on neurofunk and drum & bass"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Kundai Sachikonye", email = "kundai@example.com"}
+]
+maintainers = [
+    {name = "Kundai Sachikonye", email = "kundai@example.com"}
+]
+keywords = ["audio", "music", "analysis", "electronic", "neurofunk", "drum and bass"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+    "librosa>=0.9.0",
+    "torch>=2.0.0",
+    "scikit-learn>=1.0.0",
+    "matplotlib>=3.4.0",
+    "pyyaml>=6.0",
+    "h5py>=3.7.0",
+    "psutil>=5.9.0",
+    "numba>=0.56.0",
+    "tqdm>=4.64.0",
+    "fastdtw>=0.3.4",
+    "madmom>=0.16.1",
+    "networkx>=3.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/heihachi"
+"Bug Tracker" = "https://github.com/yourusername/heihachi/issues"
+"Documentation" = "https://heihachi.readthedocs.io/"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "flake8>=6.0.0",
+    "pre-commit>=3.0.0",
+]
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "myst-parser>=2.0.0",
+]
+visualization = [
+    "plotly>=5.13.0",
+    "ipython>=8.0.0",
+    "jupyter>=1.0.0",
+]
+
+[project.scripts]
+heihachi = "src.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["heihachi*"]
+exclude = ["tests*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"

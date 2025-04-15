@@ -1,0 +1,39 @@
+# configs/default.yaml
+audio:
+  sample_rate: 22050
+  hop_length: 512
+  chunk_size: 1048576
+  segment_threshold: 0.05
+  min_segment_length: 2.0  # seconds
+  max_segments: 100
+
+processing:
+  n_workers: 4
+  batch_size: 16
+  use_gpu: false
+  cache_results: true
+
+segmentation:
+  onset_threshold: 0.05
+  minimum_silence: 0.5
+  peak_pick_pre_max: 30
+  peak_pick_post_max: 30
+  peak_pick_pre_avg: 100
+  peak_pick_post_avg: 100
+
+similarity:
+  threshold: 0.8
+  clustering_eps: 1.5
+  min_samples: 2
+
+storage:
+  format: "h5"  # or "pickle"
+  compression_level: 9
+  cache_dir: "cache"
+  results_dir: "results"
+  database_dir: "database"
+
+visualization:
+  dpi: 300
+  figure_size: [12, 8]
+  color_scheme: "viridis"

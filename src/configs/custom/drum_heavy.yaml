@@ -1,0 +1,11 @@
+audio:
+  segment_threshold: 0.08
+  min_segment_length: 1.5
+
+segmentation:
+  onset_threshold: 0.08
+  peak_pick_pre_max: 40
+  peak_pick_post_max: 40
+
+similarity:
+  threshold: 0.75
