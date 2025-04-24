@@ -48,7 +48,69 @@ class MemoryMonitor(threading.Thread):
         elapsed = time.time() - self._start_time
         if elapsed % 5 < self.interval:
             self._logger.debug(f"Memory usage: {memory_mb:.2f} MB (Peak: {self.peak_memory:.2f} MB)")
+"""
+Logging utilities for Heihachi.
 
+This module provides logging configuration and utilities for the Heihachi framework.
+"""
+
+import logging
+import os
+import sys
+from typing import Optional
+
+
+def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> None:
+    """
+    Set up logging configuration.
+    
+    Args:
+        log_level: Logging level (default: INFO)
+        log_file: Path to log file (default: None, console only)
+    """
+    # Create logger
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+    
+    # Remove existing handlers to avoid duplicates
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
+    # Create formatter
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # Create console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    # Create file handler if log_file is specified
+    if log_file:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        
+        # Create file handler
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger with the specified name.
+    
+    Args:
+        name: Logger name
+        
+    Returns:
+        Logger instance
+    """
+    return logging.getLogger(name)
 class LogFormatter(logging.Formatter):
     """Custom formatter with color support for console output"""
     COLORS = {

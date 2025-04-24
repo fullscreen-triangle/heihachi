@@ -1,0 +1,78 @@
+# Heihachi Performance Configuration
+
+# Processing settings
+processing:
+  # Parallel processing settings
+  num_workers: 4               # Number of worker threads/processes
+  batch_size: 16               # Default batch size for batch processing
+  chunk_size: 4096             # Chunk size for processing large files
+  max_file_size_mb: 100        # Maximum file size to process without chunking
+  memory_limit_mb: 1024        # Memory usage limit in MB
+  num_threads: 4               # Number of threads for parallel operations
+  
+  # Memory management
+  use_memmap: true             # Use memory mapping for large files
+  use_parallel_loading: true   # Load files in parallel
+  
+  # Performance strategies
+  lazy_loading: true           # Use lazy loading for resource-intensive components
+  prefetch: true               # Prefetch data when possible
+  use_cache: true              # Use caching for intermediate results
+  
+# Audio processing
+audio:
+  sample_rate: 44100           # Sample rate for audio processing
+  normalize: true              # Normalize audio during loading
+  n_fft: 2048                  # FFT size for spectrogram computation
+  hop_length: 512              # Hop length for spectrogram computation
+  
+# Cache settings
+cache:
+  enabled: true                # Enable caching
+  memory_cache_mb: 512         # Maximum memory cache size in MB
+  disk_cache_mb: 2048          # Maximum disk cache size in MB
+  compression_level: 6         # Compression level for disk cache (0-9)
+  ttl_seconds: 86400           # Time-to-live for cached items (24 hours)
+  
+# Storage settings
+storage:
+  cache_dir: "../cache"                         # Cache directory
+  results_dir: "../results"                     # Results directory
+  visualizations_dir: "../visualizations"       # Visualizations directory
+  profiles_dir: "../profiling"                  # Profiling directory
+  compression_level: 6                          # Compression level for stored data
+  
+# GPU acceleration
+gpu:
+  enabled: true                # Use GPU acceleration if available
+  memory_fraction: 0.7         # Fraction of GPU memory to use
+  mixed_precision: true        # Use mixed precision for better performance
+  
+# Resource management
+resources:
+  max_unused_time: 300         # Maximum time in seconds a resource can remain unused
+  memory_threshold: 0.8        # Memory usage threshold to trigger cleanup (0.0-1.0)
+  
+# Visualization
+visualization:
+  enable: true                 # Enable visualization generation
+  resolution: "medium"         # Resolution of visualizations (low, medium, high)
+  dpi: 150                     # DPI for generated images
+  interactive: true            # Generate interactive visualizations where possible
+
+# Logging
+logging:
+  level: "INFO"                # Logging level (DEBUG, INFO, WARNING, ERROR)
+  show_progress: true          # Show progress for long-running operations
+  memory_monitoring: true      # Monitor memory usage during processing
+  
+# Advanced options
+advanced:
+  feature_extraction:
+    parallel: true             # Extract features in parallel
+    batch_size: 32             # Batch size for feature extraction
+    compression: "float16"     # Use compressed data types for memory efficiency
+  
+  memory_management:
+    force_gc: true             # Force garbage collection between processing steps
+    clear_cuda_cache: true     # Clear CUDA cache between GPU operations 

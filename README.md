@@ -8,6 +8,171 @@
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+# Heihachi Audio Analysis Framework
+
+Advanced audio analysis framework for processing, analyzing, and visualizing audio files with optimized performance.
+
+## Features
+
+- High-performance audio file processing
+- Batch processing for handling multiple files
+- Memory optimization for large audio files
+- Parallel processing capabilities
+- Visualization tools for spectrograms and waveforms
+- Interactive results exploration
+- Export options in multiple formats (JSON, CSV, YAML, etc.)
+- Comprehensive CLI with shell completion
+
+## Installation
+
+### Quick Install
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/heihachi.git
+cd heihachi
+
+# Run the setup script
+python scripts/setup.py
+```
+
+### Options
+
+The setup script supports several options:
+
+```
+--install-dir DIR     Installation directory
+--dev                 Install development dependencies
+--no-gpu              Skip GPU acceleration dependencies
+--no-interactive      Skip interactive mode dependencies
+--shell-completion    Install shell completion scripts
+--no-confirm          Skip confirmation prompts
+--venv                Create and use a virtual environment
+--venv-dir DIR        Virtual environment directory (default: .venv)
+```
+
+### Manual Installation
+
+If you prefer to install manually:
+
+```bash
+# Create and activate virtual environment (optional)
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install the package
+pip install -e .
+```
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Process a single audio file
+heihachi process audio.wav --output results/
+
+# Process a directory of audio files
+heihachi process audio_dir/ --output results/
+
+# Batch processing with different configurations
+heihachi batch audio_dir/ --config configs/performance.yaml
+```
+
+### Interactive Mode
+
+```bash
+# Start interactive mode with processed results
+heihachi interactive results/
+
+# Compare multiple results
+heihachi compare results1/ results2/
+```
+
+### Export Options
+
+```bash
+# Export results to different formats
+heihachi export results/ --format json
+heihachi export results/ --format csv
+heihachi export results/ --format markdown
+```
+
+## Performance Tuning
+
+Heihachi can be optimized for different hardware configurations:
+
+```bash
+# Use GPU acceleration
+heihachi process audio.wav --gpu
+
+# Specify number of processing workers
+heihachi process audio_dir/ --workers 4
+
+# Adjust memory usage
+heihachi process audio_dir/ --memory-limit 2048
+```
+
+A full list of performance settings can be found in `configs/performance.yaml`.
+
+## Advanced Usage
+
+### Custom Pipelines
+
+```yaml
+# Example pipeline configuration (pipeline.yaml)
+stages:
+  - name: load
+    processor: AudioLoader
+    params:
+      sample_rate: 44100
+  
+  - name: analyze
+    processor: SpectrumAnalyzer
+    params:
+      n_fft: 2048
+      hop_length: 512
+  
+  - name: extract
+    processor: FeatureExtractor
+    params:
+      features: [mfcc, chroma, tonnetz]
+```
+
+Run with custom pipeline:
+```bash
+heihachi process audio.wav --pipeline pipeline.yaml
+```
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test modules
+pytest tests/test_audio_processing.py
+```
+
+### Code Formatting
+
+```bash
+# Format code
+black src/ tests/
+
+# Check typing
+mypy src/
+```
+
+## License
+
+MIT
+
 # Heihachi: Neural Processing of Electronic Music
 
 ## Overview
@@ -245,6 +410,98 @@ graph LR
     C2 --> C3[Rhythmic]
     end
 ```
+
+## Command Line Interface (CLI)
+
+Heihachi provides a powerful command-line interface to analyze audio files. The CLI allows you to process individual audio files or entire directories of audio files.
+
+### Installation
+
+First, ensure the package is installed:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/heihachi.git
+cd heihachi
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install the package in development mode
+pip install -e .
+```
+
+### Basic Usage
+
+The basic command structure is:
+
+```bash
+python -m src.main [input_file] [options]
+```
+
+Where `[input_file]` can be either a single audio file or a directory containing multiple audio files.
+
+### Command-Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `input_file` | Path to audio file or directory (required) | - |
+| `-c, --config` | Path to configuration file | ../configs/default.yaml |
+| `-o, --output` | Path to output directory | ../results |
+| `--cache-dir` | Path to cache directory | ../cache |
+| `-v, --verbose` | Enable verbose logging | False |
+
+### Examples
+
+#### Process a single audio file:
+
+```bash
+python -m src.main /path/to/track.wav
+```
+
+#### Process an entire directory of audio files:
+
+```bash
+python -m src.main /path/to/audio/folder
+```
+
+#### Use a custom configuration file:
+
+```bash
+python -m src.main /path/to/track.wav -c /path/to/custom_config.yaml
+```
+
+#### Specify custom output directory:
+
+```bash
+python -m src.main /path/to/track.wav -o /path/to/custom_output
+```
+
+#### Enable verbose logging:
+
+```bash
+python -m src.main /path/to/track.wav -v
+```
+
+### Processing Results
+
+After processing, the results are saved to the output directory (default: `../results`). For each audio file, the following is generated:
+
+1. **Analysis data**: JSON files containing detailed analysis results
+2. **Visualizations**: Graphs and plots showing various aspects of the audio analysis
+3. **Summary report**: Overview of the key findings and detected patterns
+
+### Amen Break Analysis
+
+For specific Amen break analysis, ensure the reference Amen break sample is available in the `../public/amen_break.wav` path. The analysis will detect Amen break variations, their timing, and provide confidence scores.
+
+Example for specifically analyzing Amen breaks:
+
+```bash
+python -m src.main /path/to/jungle_track.wav
+```
+
+The output will indicate if Amen break patterns were detected, along with timestamps and variation information.
 
 ### Neurofunk Component Analysis
 

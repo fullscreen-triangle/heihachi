@@ -15,3 +15,23 @@ __all__ = [
     'MixAnalyzer',
     'AudioSceneAnalyzer',
 ]
+"""
+Core module for Heihachi.
+
+This module contains the core components and pipeline for the Heihachi audio analysis framework.
+"""
+
+# Import core components to make them available at package level
+from .pipeline import Pipeline
+
+__all__ = ['Pipeline']
+"""
+Core module for Heihachi.
+
+This module contains the core components and pipeline for the Heihachi audio analysis framework.
+"""
+
+# Import core components to make them available at package level
+from .pipeline import Pipeline
+
+__all__ = ['Pipeline']

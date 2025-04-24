@@ -32,8 +32,55 @@ storage:
   cache_dir: "cache"
   results_dir: "results"
   database_dir: "database"
+# Default configuration for Heihachi Audio Analysis
 
+# General settings
+general:
+  sample_rate: 44100
+  channels: 2
+  chunk_size: 4096
+  cache_enabled: true
+
+# Feature extraction settings
+feature_extraction:
+  window_size: 2048
+  hop_size: 512
+  window_type: "hann"
+  fft_size: 2048
+  spectral:
+    enable: true
+    mel_bands: 128
+    mfcc_coeffs: 13
+  temporal:
+    enable: true
+  rhythmic:
+    enable: true
+    beat_tracking: true
+
+# Analysis settings
+analysis:
+  bass_analysis:
+    enable: true
+    min_freq: 20
+    max_freq: 250
+  drum_analysis:
+    enable: true
+  effect_detection:
+    enable: true
+  pattern_recognition:
+    enable: true
+
+# Visualization settings
 visualization:
-  dpi: 300
-  figure_size: [12, 8]
-  color_scheme: "viridis"
+  enable: true
+  plot_spectrograms: true
+  plot_waveforms: true
+  plot_features: true
+  colormap: "viridis"
+
+# Export settings
+export:
+  json: true
+  csv: false
+  images: true
+
