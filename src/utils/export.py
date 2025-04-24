@@ -2,557 +2,245 @@
 """
 Export utilities for Heihachi analysis results.
 
-This module provides functions to export analysis results in various formats,
-including JSON, CSV, YAML, Markdown, and HTML.
+This module provides functions for exporting analysis results
+to various formats like JSON, CSV, YAML, etc.
 """
 
 import os
 import json
 import csv
-import time
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
 import logging
+from typing import Dict, List, Any, Optional, Union
+import numpy as np
+import pandas as pd
+
+# Try to import yaml, but make it optional
+try:
+    import yaml
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
 
 from src.utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
-def export_results(results: Dict[str, Any], 
-                 format_type: str, 
-                 output_dir: Union[str, Path],
-                 filename_prefix: str = "results") -> str:
-    """Export results in the specified format.
+class NumpyEncoder(json.JSONEncoder):
+    """Custom JSON encoder for NumPy types."""
+    
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        return super().default(obj)
+
+def export_to_json(data: Any, file_path: str) -> bool:
+    """Export data to JSON format.
     
     Args:
-        results: Analysis results to export
-        format_type: Format to export (json, csv, yaml, md, markdown, html, xml)
-        output_dir: Directory to save exported files
-        filename_prefix: Prefix for output filename
+        data: Data to export
+        file_path: Path to save the JSON file
         
     Returns:
-        Path to the exported file
+        True if export was successful, False otherwise
     """
-    # Convert output_dir to Path if it's a string
-    if isinstance(output_dir, str):
-        output_dir = Path(output_dir)
-    
-    # Ensure output directory exists
-    output_dir.mkdir(exist_ok=True, parents=True)
-    
-    # Generate timestamp for filename
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
-    
-    # Call appropriate export function based on format
-    format_type = format_type.lower()
-    
-    if format_type == 'json':
-        return export_json(results, output_dir, filename_prefix, timestamp)
-    elif format_type == 'csv':
-        return export_csv(results, output_dir, filename_prefix, timestamp)
-    elif format_type in ('yaml', 'yml'):
-        return export_yaml(results, output_dir, filename_prefix, timestamp)
-    elif format_type in ('md', 'markdown'):
-        return export_markdown(results, output_dir, filename_prefix, timestamp)
-    elif format_type == 'html':
-        return export_html(results, output_dir, filename_prefix, timestamp)
-    elif format_type == 'xml':
-        return export_xml(results, output_dir, filename_prefix, timestamp)
-    else:
-        raise ValueError(f"Unsupported export format: {format_type}")
-
-
-def export_json(results: Dict[str, Any], 
-               output_dir: Path,
-               filename_prefix: str,
-               timestamp: str) -> str:
-    """Export results as JSON.
-    
-    Args:
-        results: Analysis results to export
-        output_dir: Directory to save exported files
-        filename_prefix: Prefix for output filename
-        timestamp: Timestamp string for the filename
-        
-    Returns:
-        Path to the exported file
-    """
-    filepath = output_dir / f"{filename_prefix}_{timestamp}.json"
-    
     try:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Exported results as JSON to {filepath}")
-        return str(filepath)
-    
+        with open(file_path, 'w') as f:
+            json.dump(data, f, cls=NumpyEncoder, indent=2)
+        logger.info(f"Data exported to JSON: {file_path}")
+        return True
     except Exception as e:
-        logger.error(f"Error exporting to JSON: {str(e)}")
-        raise
+        logger.error(f"Failed to export to JSON: {e}")
+        return False
 
-
-def export_csv(results: Dict[str, Any], 
-              output_dir: Path,
-              filename_prefix: str,
-              timestamp: str) -> str:
-    """Export results as CSV.
+def export_to_csv(data: Any, file_path: str) -> bool:
+    """Export data to CSV format.
     
     Args:
-        results: Analysis results to export
-        output_dir: Directory to save exported files
-        filename_prefix: Prefix for output filename
-        timestamp: Timestamp string for the filename
+        data: Data to export (must be convertible to DataFrame)
+        file_path: Path to save the CSV file
         
     Returns:
-        Path to the exported file
+        True if export was successful, False otherwise
     """
-    filepath = output_dir / f"{filename_prefix}_{timestamp}.csv"
-    
     try:
-        # Extract metrics and metadata to flatten
-        flattened_data = flatten_dict(results)
+        # Handle different data types
+        if isinstance(data, dict):
+            # Try to convert dict to dataframe
+            # For nested dicts, flatten to single level
+            flat_data = {}
+            
+            def flatten_dict(d, parent_key=''):
+                for key, value in d.items():
+                    new_key = f"{parent_key}_{key}" if parent_key else key
+                    
+                    if isinstance(value, dict):
+                        flatten_dict(value, new_key)
+                    elif isinstance(value, (list, np.ndarray)) and len(value) > 0:
+                        # For arrays, serialize to JSON string to preserve in CSV
+                        if isinstance(value, np.ndarray):
+                            value = value.tolist()
+                        flat_data[new_key] = json.dumps(value)
+                    elif not isinstance(value, (dict, list, np.ndarray)):
+                        # Only include scalar values
+                        flat_data[new_key] = value
+            
+            flatten_dict(data)
+            
+            # Convert to DataFrame
+            df = pd.DataFrame([flat_data])
+        
+        elif isinstance(data, (list, np.ndarray)):
+            # For 1D arrays, create a single column dataframe
+            if isinstance(data, np.ndarray):
+                if len(data.shape) == 1:
+                    df = pd.DataFrame(data, columns=['value'])
+                elif len(data.shape) == 2:
+                    # For 2D arrays, create a multi-column dataframe
+                    if data.shape[1] < 100:  # Reasonable number of columns
+                        df = pd.DataFrame(data)
+                    else:
+                        # Too many columns, transpose if needed
+                        if data.shape[0] < data.shape[1]:
+                            data = data.T
+                        df = pd.DataFrame(data)
+                else:
+                    # For higher dimensional arrays, flatten to JSON
+                    df = pd.DataFrame([{'data': json.dumps(data.tolist())}])
+            else:
+                # Regular list
+                if all(isinstance(item, (int, float, str, bool)) for item in data):
+                    df = pd.DataFrame(data, columns=['value'])
+                else:
+                    # List of complex objects, convert to JSON strings
+                    df = pd.DataFrame([{'data': json.dumps(data)}])
+        
+        else:
+            # Try to convert to DataFrame directly
+            df = pd.DataFrame([data])
         
         # Write to CSV
-        with open(filepath, 'w', newline='', encoding='utf-8') as f:
-            if flattened_data:
-                fieldnames = flattened_data[0].keys()
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(flattened_data)
-            else:
-                writer = csv.writer(f)
-                writer.writerow(["No data to export"])
+        df.to_csv(file_path, index=False)
+        logger.info(f"Data exported to CSV: {file_path}")
+        return True
         
-        logger.info(f"Exported results as CSV to {filepath}")
-        return str(filepath)
-    
     except Exception as e:
-        logger.error(f"Error exporting to CSV: {str(e)}")
-        raise
+        logger.error(f"Failed to export to CSV: {e}")
+        return False
 
-
-def export_yaml(results: Dict[str, Any], 
-               output_dir: Path,
-               filename_prefix: str,
-               timestamp: str) -> str:
-    """Export results as YAML.
+def export_to_yaml(data: Any, file_path: str) -> bool:
+    """Export data to YAML format.
     
     Args:
-        results: Analysis results to export
-        output_dir: Directory to save exported files
-        filename_prefix: Prefix for output filename
-        timestamp: Timestamp string for the filename
+        data: Data to export
+        file_path: Path to save the YAML file
         
     Returns:
-        Path to the exported file
+        True if export was successful, False otherwise
     """
-    filepath = output_dir / f"{filename_prefix}_{timestamp}.yaml"
+    if not YAML_AVAILABLE:
+        logger.error("PyYAML is not installed. Cannot export to YAML.")
+        return False
     
     try:
-        # Try to import YAML library
-        try:
-            import yaml
-        except ImportError:
-            logger.error("PyYAML library not found. Install with: pip install pyyaml")
-            raise ImportError("PyYAML library required for YAML export")
-        
-        # Export to YAML
-        with open(filepath, 'w', encoding='utf-8') as f:
-            yaml.dump(results, f, default_flow_style=False, sort_keys=False)
-        
-        logger.info(f"Exported results as YAML to {filepath}")
-        return str(filepath)
-    
+        # Convert NumPy arrays to lists
+        if isinstance(data, dict):
+            # Process dictionary recursively
+            processed_data = {}
+            
+            def process_dict(d):
+                result = {}
+                for key, value in d.items():
+                    if isinstance(value, dict):
+                        result[key] = process_dict(value)
+                    elif isinstance(value, np.ndarray):
+                        result[key] = value.tolist()
+                    elif isinstance(value, (list, tuple)):
+                        result[key] = process_list(value)
+                    else:
+                        result[key] = value
+                return result
+            
+            def process_list(lst):
+                result = []
+                for item in lst:
+                    if isinstance(item, dict):
+                        result.append(process_dict(item))
+                    elif isinstance(item, np.ndarray):
+                        result.append(item.tolist())
+                    elif isinstance(item, (list, tuple)):
+                        result.append(process_list(item))
+                    else:
+                        result.append(item)
+                return result
+            
+            processed_data = process_dict(data)
+            
+            # Write to YAML
+            with open(file_path, 'w') as f:
+                yaml.dump(processed_data, f, default_flow_style=False)
+            
+            logger.info(f"Data exported to YAML: {file_path}")
+            return True
+            
     except Exception as e:
-        logger.error(f"Error exporting to YAML: {str(e)}")
-        raise
+        logger.error(f"Failed to export to YAML: {e}")
+        return False
 
-
-def export_markdown(results: Dict[str, Any], 
-                  output_dir: Path,
-                  filename_prefix: str,
-                  timestamp: str) -> str:
-    """Export results as Markdown.
+def export_results(data: Any, file_path: str, format: str = "json") -> bool:
+    """Export analysis results to the specified format.
     
     Args:
-        results: Analysis results to export
-        output_dir: Directory to save exported files
-        filename_prefix: Prefix for output filename
-        timestamp: Timestamp string for the filename
+        data: Analysis result data
+        file_path: Path to save the exported file
+        format: Export format (json, csv, yaml)
         
     Returns:
-        Path to the exported file
+        True if export was successful, False otherwise
     """
-    filepath = output_dir / f"{filename_prefix}_{timestamp}.md"
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
     
-    try:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            # Write title
-            if 'metadata' in results and 'file_path' in results['metadata']:
-                title = f"Analysis Results for {os.path.basename(results['metadata']['file_path'])}"
-            else:
-                title = "Heihachi Analysis Results"
-            
-            f.write(f"# {title}\n\n")
-            
-            # Write timestamp
-            f.write(f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-            
-            # Write metadata section
-            if 'metadata' in results:
-                f.write("## Metadata\n\n")
-                f.write("| Property | Value |\n")
-                f.write("|----------|-------|\n")
-                
-                for key, value in results['metadata'].items():
-                    if key == 'processing_time' and isinstance(value, (int, float)):
-                        value = f"{value:.2f}s"
-                    f.write(f"| {key} | {value} |\n")
-                
-                f.write("\n")
-            
-            # Write metrics section
-            metrics = {}
-            if 'analysis' in results and 'mix' in results['analysis']:
-                mix = results['analysis']['mix']
-                if isinstance(mix, dict) and 'metrics' in mix:
-                    metrics = mix['metrics']
-            
-            if metrics:
-                f.write("## Analysis Metrics\n\n")
-                f.write("| Metric | Value |\n")
-                f.write("|--------|-------|\n")
-                
-                for key, value in metrics.items():
-                    if isinstance(value, (int, float)):
-                        value = f"{value:.4f}"
-                    f.write(f"| {key} | {value} |\n")
-                
-                f.write("\n")
-            
-            # Write segments section
-            if 'segments' in results:
-                f.write("## Track Segments\n\n")
-                f.write("| Start Time | End Time | Label | Confidence |\n")
-                f.write("|------------|----------|-------|------------|\n")
-                
-                for segment in results['segments']:
-                    start = segment.get('start_time', 0)
-                    end = segment.get('end_time', 0)
-                    label = segment.get('label', 'Unknown')
-                    confidence = segment.get('confidence', 0)
-                    
-                    f.write(f"| {start:.2f}s | {end:.2f}s | {label} | {confidence:.2f} |\n")
-                
-                f.write("\n")
-            
-            # Write additional sections based on result content
-            for section, content in results.items():
-                if section not in ('metadata', 'analysis', 'segments'):
-                    f.write(f"## {section.capitalize()}\n\n")
-                    f.write("```json\n")
-                    f.write(json.dumps(content, indent=2))
-                    f.write("\n```\n\n")
-        
-        logger.info(f"Exported results as Markdown to {filepath}")
-        return str(filepath)
+    # Export based on format
+    format = format.lower()
     
-    except Exception as e:
-        logger.error(f"Error exporting to Markdown: {str(e)}")
-        raise
-
-
-def export_html(results: Dict[str, Any], 
-               output_dir: Path,
-               filename_prefix: str,
-               timestamp: str) -> str:
-    """Export results as HTML.
-    
-    Args:
-        results: Analysis results to export
-        output_dir: Directory to save exported files
-        filename_prefix: Prefix for output filename
-        timestamp: Timestamp string for the filename
-        
-    Returns:
-        Path to the exported file
-    """
-    filepath = output_dir / f"{filename_prefix}_{timestamp}.html"
-    
-    try:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            # Get file name for title
-            title = "Heihachi Analysis Results"
-            if 'metadata' in results and 'file_path' in results['metadata']:
-                title = f"Analysis Results for {os.path.basename(results['metadata']['file_path'])}"
-            
-            # Write HTML header
-            f.write(f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }}
-        h1, h2 {{ color: #333; }}
-        table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; }}
-        th, td {{ text-align: left; padding: 8px; border: 1px solid #ddd; }}
-        th {{ background-color: #f2f2f2; }}
-        tr:nth-child(even) {{ background-color: #f9f9f9; }}
-        .metadata {{ background-color: #f5f5f5; padding: 10px; border-radius: 4px; }}
-        pre {{ background-color: #f0f0f0; padding: 10px; border-radius: 4px; overflow: auto; }}
-    </style>
-</head>
-<body>
-    <h1>{title}</h1>
-    <p>Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}</p>
-""")
-            
-            # Write metadata section
-            if 'metadata' in results:
-                f.write('<h2>Metadata</h2>\n<div class="metadata">\n<table>\n')
-                f.write('<tr><th>Property</th><th>Value</th></tr>\n')
-                
-                for key, value in results['metadata'].items():
-                    if key == 'processing_time' and isinstance(value, (int, float)):
-                        value = f"{value:.2f}s"
-                    f.write(f'<tr><td>{key}</td><td>{value}</td></tr>\n')
-                
-                f.write('</table>\n</div>\n')
-            
-            # Write metrics section
-            metrics = {}
-            if 'analysis' in results and 'mix' in results['analysis']:
-                mix = results['analysis']['mix']
-                if isinstance(mix, dict) and 'metrics' in mix:
-                    metrics = mix['metrics']
-            
-            if metrics:
-                f.write('<h2>Analysis Metrics</h2>\n<table>\n')
-                f.write('<tr><th>Metric</th><th>Value</th></tr>\n')
-                
-                for key, value in metrics.items():
-                    if isinstance(value, (int, float)):
-                        value = f"{value:.4f}"
-                    f.write(f'<tr><td>{key}</td><td>{value}</td></tr>\n')
-                
-                f.write('</table>\n')
-            
-            # Write segments section
-            if 'segments' in results:
-                f.write('<h2>Track Segments</h2>\n<table>\n')
-                f.write('<tr><th>Start Time</th><th>End Time</th><th>Label</th><th>Confidence</th></tr>\n')
-                
-                for segment in results['segments']:
-                    start = segment.get('start_time', 0)
-                    end = segment.get('end_time', 0)
-                    label = segment.get('label', 'Unknown')
-                    confidence = segment.get('confidence', 0)
-                    
-                    f.write(f'<tr><td>{start:.2f}s</td><td>{end:.2f}s</td><td>{label}</td><td>{confidence:.2f}</td></tr>\n')
-                
-                f.write('</table>\n')
-            
-            # Write additional sections based on result content
-            for section, content in results.items():
-                if section not in ('metadata', 'analysis', 'segments'):
-                    f.write(f'<h2>{section.capitalize()}</h2>\n')
-                    f.write('<pre>\n')
-                    f.write(json.dumps(content, indent=2))
-                    f.write('\n</pre>\n')
-            
-            # Write HTML footer
-            f.write("""
-</body>
-</html>
-""")
-        
-        logger.info(f"Exported results as HTML to {filepath}")
-        return str(filepath)
-    
-    except Exception as e:
-        logger.error(f"Error exporting to HTML: {str(e)}")
-        raise
-
-
-def export_xml(results: Dict[str, Any], 
-              output_dir: Path,
-              filename_prefix: str,
-              timestamp: str) -> str:
-    """Export results as XML.
-    
-    Args:
-        results: Analysis results to export
-        output_dir: Directory to save exported files
-        filename_prefix: Prefix for output filename
-        timestamp: Timestamp string for the filename
-        
-    Returns:
-        Path to the exported file
-    """
-    filepath = output_dir / f"{filename_prefix}_{timestamp}.xml"
-    
-    try:
-        # Try to import XML library
-        try:
-            import xml.dom.minidom as minidom
-            from xml.etree import ElementTree as ET
-        except ImportError:
-            logger.error("XML libraries not found")
-            raise ImportError("XML libraries required for XML export")
-        
-        # Create root element
-        root = ET.Element("HeihachResults")
-        
-        # Add generation timestamp
-        timestamp_elem = ET.SubElement(root, "GeneratedTimestamp")
-        timestamp_elem.text = time.strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Convert dictionary to XML recursively
-        for key, value in results.items():
-            _dict_to_xml(root, key, value)
-        
-        # Pretty print
-        rough_string = ET.tostring(root, 'utf-8')
-        reparsed = minidom.parseString(rough_string)
-        pretty_xml = reparsed.toprettyxml(indent="  ")
-        
-        # Write to file
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(pretty_xml)
-        
-        logger.info(f"Exported results as XML to {filepath}")
-        return str(filepath)
-    
-    except Exception as e:
-        logger.error(f"Error exporting to XML: {str(e)}")
-        raise
-
-
-def _dict_to_xml(parent, tag, data):
-    """
-    Recursively convert dictionary to XML.
-    
-    Args:
-        parent: Parent XML element
-        tag: Tag name for the element
-        data: Data to convert
-    """
-    if isinstance(data, dict):
-        elem = ET.SubElement(parent, tag)
-        for key, value in data.items():
-            _dict_to_xml(elem, key, value)
-    elif isinstance(data, list):
-        elem = ET.SubElement(parent, tag)
-        for i, value in enumerate(data):
-            item_tag = "item"
-            if all(isinstance(x, dict) for x in data):
-                item_tag = tag[:-1] if tag.endswith('s') else f"{tag}_item"
-            _dict_to_xml(elem, item_tag, value)
+    if format == "json":
+        return export_to_json(data, file_path)
+    elif format == "csv":
+        return export_to_csv(data, file_path)
+    elif format == "yaml":
+        return export_to_yaml(data, file_path)
     else:
-        elem = ET.SubElement(parent, tag)
-        elem.text = str(data)
+        logger.error(f"Unsupported export format: {format}")
+        return False
 
-
-def flatten_dict(data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Flatten a nested dictionary for CSV export.
+if __name__ == "__main__":
+    # For testing
+    import argparse
     
-    This function attempts to extract important metrics and statistics
-    from the results for tabular export.
+    parser = argparse.ArgumentParser(description="Export Heihachi analysis results")
+    parser.add_argument("input_file", help="Input JSON result file")
+    parser.add_argument("output_file", help="Output file path")
+    parser.add_argument("--format", choices=["json", "csv", "yaml"], default="json",
+                        help="Export format")
     
-    Args:
-        data: Results dictionary
-        
-    Returns:
-        List of flattened dictionaries
-    """
-    flattened = []
+    args = parser.parse_args()
     
-    # Check if this is a batch result
-    if 'stats' in data and 'results' in data:
-        # This is a batch result, extract stats from each file
-        file_results = []
+    # Load input data
+    try:
+        with open(args.input_file, 'r') as f:
+            data = json.load(f)
         
-        if 'files' in data:
-            # Direct file results available
-            for file_data in data['files']:
-                file_dict = {
-                    'filename': file_data.get('file', 'unknown'),
-                    'status': file_data.get('status', 'unknown'),
-                    'processing_time': file_data.get('processing_time', 0),
-                }
-                
-                # Extract metrics if available
-                if 'metrics' in file_data:
-                    for k, v in file_data['metrics'].items():
-                        file_dict[f'metric_{k}'] = v
-                
-                file_results.append(file_dict)
-        
-        # If no direct file results but we have a list of individual results
-        elif 'results' in data and isinstance(data['results'], list):
-            for result_item in data['results']:
-                if isinstance(result_item, dict) and 'results' in result_item:
-                    config = result_item.get('config', 'default')
-                    
-                    if 'files' in result_item['results']:
-                        for file_data in result_item['results']['files']:
-                            file_dict = {
-                                'config': config,
-                                'filename': file_data.get('file', 'unknown'),
-                                'status': file_data.get('status', 'unknown'),
-                                'processing_time': file_data.get('processing_time', 0),
-                            }
-                            
-                            # Extract metrics if available
-                            if 'metrics' in file_data:
-                                for k, v in file_data['metrics'].items():
-                                    file_dict[f'metric_{k}'] = v
-                            
-                            file_results.append(file_dict)
-        
-        if file_results:
-            flattened = file_results
+        # Export to specified format
+        if export_results(data, args.output_file, args.format):
+            print(f"Exported to {args.output_file}")
         else:
-            # Couldn't extract detailed file results, just return overall stats
-            flattened = [{
-                'total_files': data['stats'].get('total', 0),
-                'successful': data['stats'].get('success', 0),
-                'failed': data['stats'].get('failed', 0),
-                'total_time': data['stats'].get('total_time', 0),
-            }]
-    
-    # Check if this is a single file result
-    elif 'metadata' in data and 'file_path' in data['metadata']:
-        file_dict = {
-            'filename': os.path.basename(data['metadata']['file_path']),
-            'processing_time': data['metadata'].get('processing_time', 0),
-        }
-        
-        # Extract metrics from analysis results if available
-        if 'analysis' in data and 'mix' in data['analysis']:
-            mix = data['analysis']['mix']
-            if isinstance(mix, dict) and 'metrics' in mix:
-                for k, v in mix['metrics'].items():
-                    file_dict[f'metric_{k}'] = v
-        
-        flattened = [file_dict]
-    
-    # If we couldn't extract structured data, create a generic representation
-    if not flattened:
-        flat_dict = {}
-        
-        def _flatten_recursive(d, prefix=''):
-            for k, v in d.items():
-                key = f"{prefix}_{k}" if prefix else k
-                if isinstance(v, dict):
-                    _flatten_recursive(v, key)
-                elif isinstance(v, (int, float, str, bool)) or v is None:
-                    flat_dict[key] = v
-        
-        _flatten_recursive(data)
-        flattened = [flat_dict] if flat_dict else []
-    
-    return flattened 
+            print("Export failed")
+            
+    except Exception as e:
+        print(f"Error: {e}") 

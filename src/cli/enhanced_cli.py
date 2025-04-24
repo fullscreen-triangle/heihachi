@@ -17,6 +17,8 @@ import shutil
 import textwrap
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
+import readline
+import glob
 
 # Add project root to path if needed
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -31,8 +33,21 @@ from src.utils.cache import result_cache
 from src.utils.export import export_results
 from src.utils.result_viewer import ResultViewer
 from src.utils.error_handler import ErrorHandler, handle_error, suggest_solution
+from src.utils.progress import ProgressTracker, track_progress, update_progress, complete_progress
 
 logger = get_logger(__name__)
+
+# Terminal colors for pretty output
+class TermColors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 
 class HeihachiArgumentParser(argparse.ArgumentParser):
     """Enhanced argument parser with better formatting and examples."""
@@ -47,44 +62,57 @@ class HeihachiArgumentParser(argparse.ArgumentParser):
     def error(self, message):
         """Override error method to provide more helpful error messages."""
         self.print_usage(sys.stderr)
-        args = {'prog': self.prog, 'message': message}
-        self.exit(2, f'{self.prog}: error: {message}\n\nTry "{self.prog} --help" for more information.\n')
+        error_msg = f'{TermColors.RED}{TermColors.BOLD}Error:{TermColors.ENDC} {message}\n'
+        suggestion = suggest_solution(message)
+        if suggestion:
+            error_msg += f"\n{TermColors.YELLOW}Suggestion:{TermColors.ENDC} {suggestion}\n"
+        error_msg += f"\nTry '{TermColors.BOLD}{self.prog} --help{TermColors.ENDC}' for more information."
+        self.exit(2, error_msg)
     
     def add_examples(self):
         """Add usage examples to the parser."""
-        examples = """
-Examples:
+        examples = f"""
+{TermColors.BOLD}Examples:{TermColors.ENDC}
   # Process a single audio file with default settings
-  heihachi track.mp3
+  {TermColors.GREEN}heihachi track.mp3{TermColors.ENDC}
   
   # Process a file with custom configuration and output directory
-  heihachi track.mp3 -c custom_config.yaml -o results/
+  {TermColors.GREEN}heihachi track.mp3 -c custom_config.yaml -o results/{TermColors.ENDC}
   
   # Process all audio files in a directory
-  heihachi audio_folder/ --batch
+  {TermColors.GREEN}heihachi audio_folder/ --batch{TermColors.ENDC}
   
   # Resume interrupted batch processing
-  heihachi audio_folder/ --resume
+  {TermColors.GREEN}heihachi audio_folder/ --resume{TermColors.ENDC}
   
   # Process with performance profiling enabled
-  heihachi track.mp3 --profile
+  {TermColors.GREEN}heihachi track.mp3 --profile{TermColors.ENDC}
   
   # Export results in different formats
-  heihachi track.mp3 --export csv,json
+  {TermColors.GREEN}heihachi track.mp3 --export csv,json{TermColors.ENDC}
   
   # Use interactive mode to explore results
-  heihachi track.mp3 --interactive
+  {TermColors.GREEN}heihachi track.mp3 --interactive{TermColors.ENDC}
   
   # Process files with different configurations
-  heihachi audio_folder/ --batch --configs configs/dance.yaml,configs/ambient.yaml
+  {TermColors.GREEN}heihachi audio_folder/ --batch --configs configs/dance.yaml,configs/ambient.yaml{TermColors.ENDC}
+  
+  # Enable progress bar display
+  {TermColors.GREEN}heihachi track.mp3 --progress-bar{TermColors.ENDC}
+  
+  # Compare multiple audio files
+  {TermColors.GREEN}heihachi --compare track1.mp3,track2.mp3,track3.mp3{TermColors.ENDC}
+  
+  # Use a specific configuration profile
+  {TermColors.GREEN}heihachi track.mp3 --profile-name "dance-music"{TermColors.ENDC}
         """
         self.epilog = examples
 
 
 def create_parser() -> HeihachiArgumentParser:
     """Create enhanced argument parser with improved help and examples."""
-    description = """
-Heihachi Audio Analysis Framework
+    description = f"""
+{TermColors.BOLD}Heihachi Audio Analysis Framework{TermColors.ENDC}
 --------------------------------
 A comprehensive tool for analyzing audio files with a focus on electronic music.
 Extracts features, segments tracks, and provides detailed analysis.
@@ -113,7 +141,7 @@ Extracts features, segments tracks, and provides detailed analysis.
     )
     
     # Operation modes with improved descriptions
-    operation_group = parser.add_argument_group('Operation Modes')
+    operation_group = parser.add_argument_group(f'{TermColors.BOLD}Operation Modes{TermColors.ENDC}')
     
     operation_group.add_argument(
         "--batch",
@@ -140,7 +168,7 @@ Extracts features, segments tracks, and provides detailed analysis.
     )
     
     # Export options
-    export_group = parser.add_argument_group('Export Options')
+    export_group = parser.add_argument_group(f'{TermColors.BOLD}Export Options{TermColors.ENDC}')
     
     export_group.add_argument(
         "--export",
@@ -153,7 +181,7 @@ Extracts features, segments tracks, and provides detailed analysis.
     )
     
     # Batch configuration
-    batch_group = parser.add_argument_group('Batch Processing')
+    batch_group = parser.add_argument_group(f'{TermColors.BOLD}Batch Processing{TermColors.ENDC}')
     
     batch_group.add_argument(
         "--configs",
@@ -172,7 +200,7 @@ Extracts features, segments tracks, and provides detailed analysis.
     )
     
     # Performance options with better descriptions
-    perf_group = parser.add_argument_group('Performance Options')
+    perf_group = parser.add_argument_group(f'{TermColors.BOLD}Performance Options{TermColors.ENDC}')
     
     perf_group.add_argument(
         "--workers",
@@ -197,40 +225,39 @@ Extracts features, segments tracks, and provides detailed analysis.
         action="store_true",
         help="Disable GPU usage even if available"
     )
+
+    # User Experience enhancements
+    ux_group = parser.add_argument_group(f'{TermColors.BOLD}User Experience{TermColors.ENDC}')
     
-    perf_group.add_argument(
-        "--optimize",
+    ux_group.add_argument(
+        "--progress-bar",
         action="store_true",
-        help="Apply maximum performance optimizations (may use more memory)"
+        help="Display progress bars for long-running operations"
     )
     
-    # Debug and logging options
-    debug_group = parser.add_argument_group('Debug & Logging Options')
+    ux_group.add_argument(
+        "--compare",
+        help="Compare multiple audio files (comma-separated list of files)"
+    )
     
-    debug_group.add_argument(
-        "--debug",
+    ux_group.add_argument(
+        "--profile-name",
+        help="Use a specific named configuration profile"
+    )
+    
+    ux_group.add_argument(
+        "--web-ui",
         action="store_true",
-        help="Enable debug logging for troubleshooting"
+        help="Launch web interface after processing to visualize results"
     )
     
-    debug_group.add_argument(
-        "--no-cache",
+    ux_group.add_argument(
+        "--completion-install",
         action="store_true",
-        help="Disable result caching (forces recomputation of all results)"
+        help="Install command completion for your shell"
     )
     
-    debug_group.add_argument(
-        "--memory-monitor",
-        action="store_true",
-        help="Monitor and report memory usage during processing"
-    )
-    
-    debug_group.add_argument(
-        "--log-file",
-        help="Path to log file (default: logs/<timestamp>.log)"
-    )
-    
-    # Add examples section
+    # Add examples to help output
     parser.add_examples()
     
     return parser

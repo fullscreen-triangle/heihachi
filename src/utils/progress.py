@@ -1,267 +1,260 @@
-import time
+#!/usr/bin/env python3
+"""
+Progress bar utilities for long-running operations.
+
+This module provides functions and classes for displaying progress bars
+in both CLI and interactive contexts.
+"""
+
 import sys
-import threading
-import logging
-from typing import Any, Callable, Dict, List, Optional, Union
-from datetime import datetime, timedelta
+import time
+from typing import Optional, Union, Any, Iterator, Iterable, Dict, List, Callable
+from contextlib import contextmanager
+
+from tqdm import tqdm
+from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, SpinnerColumn
 
 from src.utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
-class ProgressTracker:
-    """Track progress of long-running operations with ETA calculation."""
+
+def cli_progress_bar(iterable: Optional[Iterable] = None, 
+                    total: Optional[int] = None,
+                    desc: str = "",
+                    unit: str = "it",
+                    leave: bool = True,
+                    **kwargs) -> tqdm:
+    """Create a simple progress bar for CLI operations using tqdm.
     
-    def __init__(self, total: int, description: str = "", log_interval: float = 1.0, log_to_console: bool = True):
-        """Initialize progress tracker with total items.
+    Args:
+        iterable: Optional iterable to wrap
+        total: Total number of iterations
+        desc: Description text
+        unit: Unit name
+        leave: Whether to leave the progress bar after completion
+        **kwargs: Additional arguments for tqdm
+        
+    Returns:
+        tqdm progress bar
+    """
+    return tqdm(
+        iterable=iterable,
+        total=total,
+        desc=desc,
+        unit=unit,
+        leave=leave,
+        **kwargs
+    )
+
+
+@contextmanager
+def progress_context(description: str = "Processing",
+                    total: int = 100,
+                    show_eta: bool = True) -> Iterator[Callable[[int, Optional[str]], None]]:
+    """Context manager for progress reporting.
+    
+    Args:
+        description: Operation description
+        total: Total steps
+        show_eta: Whether to show estimated time
+        
+    Yields:
+        Update function that accepts current step and optional status message
+    """
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeRemainingColumn() if show_eta else None,
+    ) as progress:
+        task_id = progress.add_task(description, total=total)
+        
+        def update_progress(step: int, status: Optional[str] = None):
+            if status:
+                progress.update(task_id, advance=step, description=f"[bold blue]{description}: {status}")
+            else:
+                progress.update(task_id, advance=step)
+        
+        try:
+            yield update_progress
+        except Exception as e:
+            logger.error(f"Operation failed: {e}")
+            raise
+
+
+class ProgressManager:
+    """Manager for handling multiple progress bars and operation statuses."""
+    
+    def __init__(self, enable: bool = True, quiet: bool = False):
+        """Initialize progress manager.
         
         Args:
-            total: Total number of items to process
+            enable: Whether to enable progress reporting
+            quiet: If True, suppresses all output
+        """
+        self.enable = enable
+        self.quiet = quiet
+        self.bars = {}
+        self.progress = None
+        
+    def start_operation(self, operation_id: str, description: str, total: int = 100) -> None:
+        """Start tracking a new operation.
+        
+        Args:
+            operation_id: Unique identifier for the operation
             description: Description of the operation
-            log_interval: Minimum interval between progress logs in seconds
-            log_to_console: Whether to print progress to console
+            total: Total steps in the operation
         """
-        self.total = total
-        self.description = description
-        self.completed = 0
-        self.start_time = time.time()
-        self.last_update_time = 0
-        self.log_interval = log_interval
-        self.log_to_console = log_to_console
-        self.active = False
-        self._lock = threading.Lock()
-        
-        logger.info(f"Progress tracker initialized: {description} (total: {total})")
-    
-    def start(self) -> None:
-        """Start or restart the progress tracker."""
-        with self._lock:
-            self.start_time = time.time()
-            self.last_update_time = 0
-            self.completed = 0
-            self.active = True
-        
-        self._log_progress()
-        logger.info(f"Progress tracker started: {self.description}")
-    
-    def update(self, increment: int = 1) -> None:
-        """Update progress count.
-        
-        Args:
-            increment: Number of items completed
-        """
-        with self._lock:
-            if not self.active:
-                return
-                
-            self.completed += increment
-            current_time = time.time()
-            
-            # Log progress at specified intervals
-            if current_time - self.last_update_time >= self.log_interval:
-                self.last_update_time = current_time
-                self._log_progress()
-    
-    def complete(self) -> None:
-        """Mark the task as completed."""
-        with self._lock:
-            self.completed = self.total
-            self.active = False
-            
-        self._log_progress(force=True)
-        
-        # Final update
-        elapsed = time.time() - self.start_time
-        logger.info(f"Task completed: {self.description} in {self._format_time(elapsed)}")
-    
-    def _log_progress(self, force: bool = False) -> None:
-        """Log progress with estimated time remaining.
-        
-        Args:
-            force: Force logging regardless of interval
-        """
-        if not self.active and not force:
+        if not self.enable or self.quiet:
             return
             
-        # Calculate progress percentage
-        if self.total > 0:
-            percentage = min(100, (self.completed / self.total) * 100)
+        if not self.progress:
+            self.progress = Progress(
+                SpinnerColumn(),
+                TextColumn("[bold blue]{task.description}"),
+                BarColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(),
+            )
+            self.progress.start()
+            
+        task_id = self.progress.add_task(description, total=total)
+        self.bars[operation_id] = task_id
+    
+    def update(self, operation_id: str, advance: int = 1, status: Optional[str] = None) -> None:
+        """Update progress for an operation.
+        
+        Args:
+            operation_id: Operation identifier
+            advance: How many steps to advance
+            status: Optional status message to display
+        """
+        if not self.enable or self.quiet or not self.progress:
+            return
+            
+        if operation_id in self.bars:
+            task_id = self.bars[operation_id]
+            if status:
+                # Get the current description and update it
+                current_desc = self.progress.tasks[task_id].description
+                base_desc = current_desc.split(':')[0] if ':' in current_desc else current_desc
+                self.progress.update(task_id, advance=advance, description=f"{base_desc}: {status}")
+            else:
+                self.progress.update(task_id, advance=advance)
+    
+    def complete(self, operation_id: str, message: Optional[str] = None) -> None:
+        """Mark an operation as complete.
+        
+        Args:
+            operation_id: Operation identifier
+            message: Optional completion message
+        """
+        if not self.enable or self.quiet or not self.progress:
+            return
+            
+        if operation_id in self.bars:
+            task_id = self.bars[operation_id]
+            if message:
+                self.progress.update(task_id, completed=100, description=f"✓ {message}")
+            else:
+                self.progress.update(task_id, completed=100)
+    
+    def error(self, operation_id: str, message: str) -> None:
+        """Mark an operation as failed.
+        
+        Args:
+            operation_id: Operation identifier
+            message: Error message
+        """
+        if not self.enable or self.quiet or not self.progress:
+            return
+            
+        if operation_id in self.bars:
+            task_id = self.bars[operation_id]
+            self.progress.update(task_id, description=f"✗ Error: {message}")
+    
+    def stop_all(self) -> None:
+        """Stop all progress reporting."""
+        if self.progress:
+            self.progress.stop()
+            self.progress = None
+            self.bars = {}
+    
+    def __enter__(self) -> 'ProgressManager':
+        """Context manager enter method."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Context manager exit method."""
+        self.stop_all()
+
+
+# Simple progress indicator for cases when tqdm or rich aren't suitable
+class SimpleProgress:
+    """Simple progress indicator for basic console output."""
+    
+    def __init__(self, total: int = 100, width: int = 40, 
+                desc: str = "Progress", output=sys.stdout,
+                show_percentage: bool = True):
+        """Initialize simple progress bar.
+        
+        Args:
+            total: Total number of steps
+            width: Bar width in characters
+            desc: Description to display
+            output: Output stream
+            show_percentage: Whether to display percentage
+        """
+        self.total = max(1, total)  # Ensure total is at least 1
+        self.width = width
+        self.desc = desc
+        self.output = output
+        self.show_percentage = show_percentage
+        self.current = 0
+        self.start_time = time.time()
+        self.last_update = 0
+    
+    def update(self, n: int = 1) -> None:
+        """Update progress by n steps.
+        
+        Args:
+            n: Number of steps to advance
+        """
+        self.current = min(self.total, self.current + n)
+        
+        # Throttle updates (max 10 per second)
+        current_time = time.time()
+        if current_time - self.last_update < 0.1 and self.current < self.total:
+            return
+            
+        self.last_update = current_time
+        
+        # Calculate percentage and bar
+        percentage = 100.0 * self.current / self.total
+        filled_width = int(self.width * self.current / self.total)
+        bar = '=' * filled_width + '>' + ' ' * (self.width - filled_width - 1)
+        
+        # Calculate elapsed time
+        elapsed = current_time - self.start_time
+        
+        # Format output
+        if self.show_percentage:
+            output_text = f"\r{self.desc}: [{bar}] {percentage:.1f}% ({self.current}/{self.total}) [{elapsed:.1f}s]"
         else:
-            percentage = 100
-            
-        # Calculate elapsed time and ETA
-        elapsed = time.time() - self.start_time
-        if self.completed > 0 and self.completed < self.total:
-            eta = (elapsed / self.completed) * (self.total - self.completed)
-        else:
-            eta = 0
-            
-        # Log progress
-        status = f"{self.description}: {percentage:.1f}% ({self.completed}/{self.total})"
-        status += f" | Elapsed: {self._format_time(elapsed)}"
+            output_text = f"\r{self.desc}: [{bar}] ({self.current}/{self.total}) [{elapsed:.1f}s]"
         
-        if eta > 0:
-            status += f" | ETA: {self._format_time(eta)}"
-            
-        logger.info(status)
+        # Write to output
+        self.output.write(output_text)
+        self.output.flush()
         
-        # Print to console if enabled
-        if self.log_to_console:
-            print(f"\r{status}", end="", flush=True)
-            if force or self.completed >= self.total:
-                print()  # Add newline at completion
+        # Print new line when complete
+        if self.current >= self.total:
+            self.output.write("\n")
     
-    def _format_time(self, seconds: float) -> str:
-        """Format time in human-readable format.
-        
-        Args:
-            seconds: Time in seconds
-            
-        Returns:
-            Formatted time string
-        """
-        if seconds < 60:
-            return f"{seconds:.1f}s"
-        elif seconds < 3600:
-            minutes = int(seconds // 60)
-            seconds = seconds % 60
-            return f"{minutes}m {int(seconds)}s"
-        else:
-            hours = int(seconds // 3600)
-            seconds %= 3600
-            minutes = int(seconds // 60)
-            return f"{hours}h {minutes}m"
-
-
-class ProgressReporter:
-    """Progress reporter for tracking and reporting progress of multiple operations."""
-    
-    def __init__(self):
-        """Initialize progress reporter with empty trackers."""
-        self.trackers: Dict[str, ProgressTracker] = {}
-        self._lock = threading.Lock()
-    
-    def create_tracker(self, name: str, total: int, description: str = "", 
-                      log_interval: float = 1.0, log_to_console: bool = True) -> ProgressTracker:
-        """Create a new progress tracker.
-        
-        Args:
-            name: Unique name for the tracker
-            total: Total number of items to process
-            description: Description of the operation
-            log_interval: Minimum interval between progress logs in seconds
-            log_to_console: Whether to print progress to console
-            
-        Returns:
-            The created tracker
-        """
-        with self._lock:
-            # If a tracker with this name already exists, stop it first
-            if name in self.trackers:
-                self.trackers[name].active = False
-                
-            # Create new tracker
-            tracker = ProgressTracker(total, description, log_interval, log_to_console)
-            self.trackers[name] = tracker
-            
-        return tracker
-    
-    def update(self, name: str, increment: int = 1) -> None:
-        """Update progress for a tracker.
-        
-        Args:
-            name: Name of the tracker
-            increment: Number of items completed
-        """
-        with self._lock:
-            if name in self.trackers:
-                self.trackers[name].update(increment)
-    
-    def complete(self, name: str) -> None:
-        """Mark a tracker as completed.
-        
-        Args:
-            name: Name of the tracker
-        """
-        with self._lock:
-            if name in self.trackers:
-                self.trackers[name].complete()
-                
-    def get_status(self) -> Dict[str, Dict[str, Any]]:
-        """Get status of all trackers.
-        
-        Returns:
-            Dictionary mapping tracker names to status information
-        """
-        status = {}
-        with self._lock:
-            for name, tracker in self.trackers.items():
-                if tracker.active:
-                    # Calculate progress
-                    percentage = (tracker.completed / tracker.total) * 100 if tracker.total > 0 else 100
-                    elapsed = time.time() - tracker.start_time
-                    
-                    # Calculate ETA
-                    if tracker.completed > 0 and tracker.completed < tracker.total:
-                        eta = (elapsed / tracker.completed) * (tracker.total - tracker.completed)
-                    else:
-                        eta = 0
-                        
-                    status[name] = {
-                        'description': tracker.description,
-                        'completed': tracker.completed,
-                        'total': tracker.total,
-                        'percentage': percentage,
-                        'elapsed': elapsed,
-                        'eta': eta,
-                        'active': tracker.active
-                    }
-        
-        return status
-
-
-# Global instance for easy access
-global_progress = ProgressReporter()
-
-def track_progress(name: str, total: int, description: str = "", 
-                  log_interval: float = 1.0, log_to_console: bool = True) -> ProgressTracker:
-    """Create and start a progress tracker using the global progress reporter.
-    
-    Args:
-        name: Unique name for the tracker
-        total: Total number of items to process
-        description: Description of the operation
-        log_interval: Minimum interval between progress logs in seconds
-        log_to_console: Whether to print progress to console
-        
-    Returns:
-        The created and started tracker
-    """
-    tracker = global_progress.create_tracker(name, total, description, log_interval, log_to_console)
-    tracker.start()
-    return tracker
-
-def update_progress(name: str, increment: int = 1) -> None:
-    """Update progress for a tracker using the global progress reporter.
-    
-    Args:
-        name: Name of the tracker
-        increment: Number of items completed
-    """
-    global_progress.update(name, increment)
-
-def complete_progress(name: str) -> None:
-    """Mark a tracker as completed using the global progress reporter.
-    
-    Args:
-        name: Name of the tracker
-    """
-    global_progress.complete(name)
-
-def get_all_progress() -> Dict[str, Dict[str, Any]]:
-    """Get status of all trackers using the global progress reporter.
-    
-    Returns:
-        Dictionary mapping tracker names to status information
-    """
-    return global_progress.get_status() 
+    def finish(self) -> None:
+        """Mark progress as complete."""
+        if self.current < self.total:
+            self.current = self.total
+            self.update(0)  # Force display update 
