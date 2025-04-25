@@ -83,8 +83,8 @@ This document contains a prioritized list of improvement tasks for the Heihachi 
 ## User Experience
 
 61. [ ] Improve CLI interface with better help messages and examples
-62. [ ] Add interactive mode for exploring analysis results
-63. [ ] Implement progress bars for long-running operations
+62. [x] Add interactive mode for exploring analysis results
+63. [x] Implement progress bars for long-running operations
 64. [ ] Create web interface for visualization results
 65. [ ] Add export options for analysis results (JSON, CSV, etc.)
 66. [ ] Implement batch configuration for processing multiple files with different settings

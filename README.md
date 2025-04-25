@@ -19,7 +19,8 @@ Advanced audio analysis framework for processing, analyzing, and visualizing aud
 - Memory optimization for large audio files
 - Parallel processing capabilities
 - Visualization tools for spectrograms and waveforms
-- Interactive results exploration
+- Interactive results exploration with command-line and web interfaces
+- Progress tracking for long-running operations
 - Export options in multiple formats (JSON, CSV, YAML, etc.)
 - Comprehensive CLI with shell completion
 
@@ -85,11 +86,17 @@ heihachi batch audio_dir/ --config configs/performance.yaml
 ### Interactive Mode
 
 ```bash
-# Start interactive mode with processed results
-heihachi interactive results/
+# Start interactive command-line explorer with processed results
+heihachi interactive --results-dir results/
 
-# Compare multiple results
+# Start web-based interactive explorer
+heihachi interactive --web --results-dir results/
+
+# Compare multiple results with interactive explorer
 heihachi compare results1/ results2/
+
+# Show only progress demo
+heihachi demo --progress-demo
 ```
 
 ### Export Options
@@ -117,6 +124,101 @@ heihachi process audio_dir/ --memory-limit 2048
 ```
 
 A full list of performance settings can be found in `configs/performance.yaml`.
+
+## Interactive Explorer and Progress Utilities
+
+### Interactive Explorer
+
+Heihachi provides two interactive interfaces for exploring analysis results:
+
+#### Command-Line Explorer
+
+The command-line explorer allows you to interactively explore audio analysis results:
+
+```bash
+# Start the CLI explorer
+python -m src.cli.interactive_cli --results-dir /path/to/results
+```
+
+Available commands:
+- `list` - List available result files
+- `open <index/filename>` - Open a result file
+- `summary` - Show summary of current result
+- `info <feature>` - Show detailed feature information
+- `plot <type> [feature]` - Generate visualizations
+- `compare <feature> [files]` - Compare features across files
+- `export <format> [filename]` - Export to different formats
+- `help` - Show available commands
+
+#### Web UI Explorer
+
+A browser-based interface for visualizing and exploring analysis results:
+
+```bash
+# Start the web UI
+python -m src.cli.interactive_cli --web --results-dir /path/to/results
+```
+
+Options:
+- `--host` - Host to bind to (default: localhost)
+- `--port` - Port to use (default: 5000)
+- `--no-browser` - Don't automatically open browser
+
+### Progress Utilities
+
+The framework includes several utilities for tracking progress in long-running operations:
+
+#### Progress Context
+
+```python
+from src.utils.progress import progress_context
+
+with progress_context("Processing audio", total=100) as progress:
+    for i in range(100):
+        # Do some work
+        progress.update(1)
+```
+
+#### Progress Manager
+
+For tracking multiple operations simultaneously:
+
+```python
+from src.utils.progress import ProgressManager
+
+manager = ProgressManager()
+with manager.task("Processing audio", total=100) as task1:
+    with manager.task("Extracting features", total=50) as task2:
+        # Operations with nested progress tracking
+```
+
+#### CLI Progress Bar
+
+For simple command-line progress indication:
+
+```python
+from src.utils.progress import cli_progress_bar
+
+for file in cli_progress_bar(files, desc="Processing files"):
+    # Process each file
+```
+
+### Demonstration
+
+A demonstration script is available to showcase the interactive explorer and progress utilities:
+
+```bash
+python scripts/interactive_demo.py
+```
+
+This script demonstrates:
+1. Progress tracking during sample audio processing
+2. Interactive exploration of analysis results
+3. Various visualization capabilities
+
+Options:
+- `--skip-processing` - Skip processing and use existing results
+- `--progress-demo` - Show only progress indicators demonstration
 
 ## Advanced Usage
 
