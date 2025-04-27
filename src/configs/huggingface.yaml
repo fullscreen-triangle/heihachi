@@ -1,0 +1,111 @@
+# HuggingFace models configuration for Heihachi audio analysis
+
+# Enable/disable HuggingFace integration
+enabled: true
+
+# API key for accessing HuggingFace models (leave empty to use public models only)
+api_key: ""
+
+# Use specialized models (set to false to use only base models)
+use_specialized_models: true
+
+# GPU/CUDA settings
+use_cuda: true
+device: null  # null means auto-select, or specify "cuda:0", "cpu", etc.
+
+# Base model settings
+model: "facebook/wav2vec2-base-960h"
+genre_model: "anton-l/wav2vec2-base-superb-gc"
+instrument_model: "alefiury/wav2vec2-large-xlsr-53-musical-instrument-classification"
+
+# Analysis to perform with base models
+classify_genre: true
+detect_instruments: true
+
+# Feature extraction settings
+feature_extraction:
+  enabled: true
+  apply: true
+  model: "microsoft/BEATs-base"
+  batch_size: 10.0  # seconds
+  max_length: 30.0  # seconds
+
+# Beat detection settings
+beat_detection:
+  enabled: true
+  apply: true
+  model: "amaai/music-tempo-beats"
+  visualize: false
+
+# Real-time beat tracking
+realtime_beats:
+  enabled: false  # Disabled by default as it requires more resources
+  apply: false
+  model: "beast-team/beast-dione"
+  buffer_size: 2.0  # seconds
+  activation_threshold: 0.5
+
+# Stem separation settings
+stem_separation:
+  enabled: false  # Disabled by default as it requires a lot of resources
+  apply: false
+  model: "htdemucs"
+  num_stems: 4
+  output_dir: null  # If null, will create a directory next to the input file
+
+# Drum analysis settings
+drum_analysis:
+  enabled: false  # Optional, enable if needed
+  apply: false
+  model: "DunnBC22/wav2vec2-base-Drum_Kit_Sounds"
+  visualize: false
+
+# Specialized drum sound analysis
+drum_sound_analysis:
+  enabled: false  # Optional, enable if needed
+  apply: false
+  model: "JackArt/wav2vec2-for-drum-classification"
+  quantize: true
+  tempo: 120.0
+
+# Audio-text similarity
+similarity:
+  enabled: false  # Optional, enable if needed
+  apply: false
+  model: "laion/clap-htsat-fused"
+  queries:
+    - "electronic music"
+    - "ambient"
+    - "techno"
+    - "drums"
+    - "synthesizer"
+    - "bass"
+    - "melody"
+    - "vocals"
+    - "percussion"
+    - "chord progression"
+
+# Zero-shot tagging
+tagging:
+  enabled: false  # Optional, enable if needed
+  apply: false
+  model: "UniMus/OpenJMLA"
+  top_k: 10
+  threshold: 0.5
+
+# Audio captioning
+captioning:
+  enabled: false  # Optional, enable if needed
+  apply: false
+  model: "slseanwu/beats-conformer-bart-audio-captioner"
+  segment_audio: true
+  return_all_captions: false
+
+# Performance settings
+batch_size: 2048  # Audio batch size in samples
+max_audio_length: 600  # Maximum audio length to process in seconds
+gpu_memory_fraction: 0.8  # Fraction of GPU memory to use
+
+# Cache settings
+cache_results: true
+cache_dir: ".hf_cache"  # Caching directory for models 

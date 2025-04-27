@@ -11,6 +11,9 @@ import os
 import logging
 import yaml
 from typing import Dict, Any, Optional
+import json
+from pathlib import Path
+import time
 
 # Add the project root to sys.path to ensure modules can be found
 import sys
@@ -30,6 +33,14 @@ from src.utils.logging_utils import start_memory_monitoring, setup_logging
 from src.utils.storage import AnalysisVersion, AudioCache, FeatureStorage
 from src.utils.visualization import MixVisualizer, AnalysisVisualizer
 from src.utils.profiling import global_profiler, profile
+from src.feature_extraction import feature_extractor
+from src.visualization import visualizer
+from src.utils.config import load_config, Config
+from src.utils.cache import result_cache
+from src.huggingface import (
+    HuggingFaceAudioAnalyzer, FeatureExtractor, StemSeparator, BeatDetector,
+    DrumSoundAnalyzer, ZeroShotTagger, AudioCaptioner, RealTimeBeatTracker
+)
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -79,6 +90,14 @@ class Pipeline:
         
         # Initialize audio processor
         self.audio_processor = AudioProcessor(config_path)
+        
+        # Initialize HuggingFace analyzer if enabled
+        self.huggingface_enabled = self.config.get("huggingface.enabled", False)
+        self._init_huggingface()
+        
+        # Initialize other components as needed - lazy loading
+        self._components = {}
+        logger.debug("Component dictionary initialized")
         
         # Only initialize essential components here
         self.mix_analyzer = MixAnalyzer(use_gpu=(self.device.type == 'cuda'))
@@ -144,6 +163,13 @@ class Pipeline:
             "visualization": {
                 "enable": True
             },
+            "huggingface": {
+                "enable": False,
+                "model_name": "facebook/wav2vec2-base-960h",
+                "api_key": None,
+                "genre_classification": True,
+                "instrument_detection": True
+            },
             "processing": {
                 "num_workers": min(mp.cpu_count(), 4),
                 "memory_limit_mb": 1024,
@@ -158,6 +184,122 @@ class Pipeline:
             }
         }
 
+    def _init_huggingface(self):
+        """Initialize HuggingFace integration."""
+        hf_config = self.config.get("huggingface", {})
+        api_key = hf_config.get("api_key")
+        
+        if api_key:
+            logger.info("Initializing HuggingFace integration with API key")
+        else:
+            logger.info("Initializing HuggingFace integration without API key")
+        
+        # Initialize base analyzer
+        self.hf_analyzer = HuggingFaceAudioAnalyzer(
+            model_name=hf_config.get("model", "facebook/wav2vec2-base-960h"),
+            api_key=api_key,
+            genre_model=hf_config.get("genre_model"),
+            instrument_model=hf_config.get("instrument_model"),
+            config=hf_config
+        )
+        
+        # Initialize specialized components as needed
+        self.specialized_models = {}
+        
+        # Initialize specialized components based on config
+        if hf_config.get("use_specialized_models", True):
+            self._init_specialized_models(hf_config)
+    
+    def _init_specialized_models(self, hf_config: Dict):
+        """Initialize specialized HuggingFace models for specific tasks.
+        
+        Args:
+            hf_config: HuggingFace configuration section
+        """
+        api_key = hf_config.get("api_key")
+        use_cuda = hf_config.get("use_cuda", True)
+        device = hf_config.get("device", None)
+        
+        # Common initialization parameters
+        init_params = {
+            "api_key": api_key,
+            "use_cuda": use_cuda,
+            "device": device,
+            "config": hf_config
+        }
+        
+        # Feature extraction
+        if hf_config.get("feature_extraction.enabled", True):
+            model_name = hf_config.get("feature_extraction.model", "microsoft/BEATs-base")
+            logger.info(f"Initializing feature extractor: {model_name}")
+            self.specialized_models["feature_extractor"] = FeatureExtractor(
+                model=model_name, **init_params
+            )
+        
+        # Stem separation
+        if hf_config.get("stem_separation.enabled", False):
+            model_name = hf_config.get("stem_separation.model", "htdemucs")
+            logger.info(f"Initializing stem separator: {model_name}")
+            self.specialized_models["stem_separator"] = StemSeparator(
+                model_name=model_name, **init_params
+            )
+        
+        # Beat detection
+        if hf_config.get("beat_detection.enabled", True):
+            model_name = hf_config.get("beat_detection.model", "amaai/music-tempo-beats")
+            logger.info(f"Initializing beat detector: {model_name}")
+            self.specialized_models["beat_detector"] = BeatDetector(
+                model_name=model_name, **init_params
+            )
+        
+        # Real-time beat tracking
+        if hf_config.get("realtime_beats.enabled", False):
+            model_name = hf_config.get("realtime_beats.model", "beast-team/beast-dione")
+            logger.info(f"Initializing real-time beat tracker: {model_name}")
+            self.specialized_models["realtime_beat_tracker"] = RealTimeBeatTracker(
+                model_name=model_name, **init_params
+            )
+        
+        # Drum analysis
+        if hf_config.get("drum_analysis.enabled", False):
+            model_name = hf_config.get("drum_analysis.model", "DunnBC22/wav2vec2-base-Drum_Kit_Sounds")
+            logger.info(f"Initializing drum analyzer: {model_name}")
+            self.specialized_models["drum_analyzer"] = DrumAnalyzer(
+                model_name=model_name, **init_params
+            )
+        
+        # Specialized drum sound analysis
+        if hf_config.get("drum_sound_analysis.enabled", False):
+            model_name = hf_config.get("drum_sound_analysis.model", "JackArt/wav2vec2-for-drum-classification")
+            logger.info(f"Initializing drum sound analyzer: {model_name}")
+            self.specialized_models["drum_sound_analyzer"] = DrumSoundAnalyzer(
+                model_name=model_name, **init_params
+            )
+        
+        # Audio-text similarity
+        if hf_config.get("similarity.enabled", False):
+            model_name = hf_config.get("similarity.model", "laion/clap-htsat-fused")
+            logger.info(f"Initializing similarity analyzer: {model_name}")
+            self.specialized_models["similarity_analyzer"] = SimilarityAnalyzer(
+                model_name=model_name, **init_params
+            )
+        
+        # Zero-shot tagging
+        if hf_config.get("tagging.enabled", False):
+            model_name = hf_config.get("tagging.model", "UniMus/OpenJMLA")
+            logger.info(f"Initializing zero-shot tagger: {model_name}")
+            self.specialized_models["zero_shot_tagger"] = ZeroShotTagger(
+                model_name=model_name, **init_params
+            )
+        
+        # Audio captioning
+        if hf_config.get("captioning.enabled", False):
+            model_name = hf_config.get("captioning.model", "slseanwu/beats-conformer-bart-audio-captioner")
+            logger.info(f"Initializing audio captioner: {model_name}")
+            self.specialized_models["audio_captioner"] = AudioCaptioner(
+                model_name=model_name, **init_params
+            )
+    
     def _initialize_needed_components(self, audio_length: int) -> None:
         """Initialize analysis components on demand to save memory.
         
@@ -277,52 +419,68 @@ class Pipeline:
             raise
     
     def _process_in_stages(self, audio_path: str, memory_monitor) -> Dict:
-        """Process audio file in stages to optimize memory usage.
+        """Process audio file in memory-optimized stages.
         
         Args:
             audio_path: Path to the audio file
-            memory_monitor: Memory monitoring thread
+            memory_monitor: Memory monitoring object
             
         Returns:
             Dict: Analysis results
         """
-        results = {'features': {}, 'analysis': {}, 'annotation': {}, 'visualizations': {}}
+        results = {}
         
-        # Stage 1: Audio loading
-        logger.info("Stage 1: Loading and preprocessing audio file")
-        audio = self.audio_processor.load(audio_path)
-        logger.debug(f"Audio loaded: {len(audio)} samples, shape: {audio.shape}")
+        # Stage 1: Load audio
+        logger.info("Stage 1: Loading audio")
+        audio, sample_rate = self.audio_processor.load(audio_path)
         
-        # Free up memory after loading if it's a large file
-        if len(audio) > 44100 * 60 * 5:  # More than 5 minutes
-            logger.debug("Large audio file, performing initial GC")
-            gc.collect()
+        # Add basic file info to results
+        results['metadata'] = {
+            'filename': os.path.basename(audio_path),
+            'duration': len(audio) / sample_rate,
+            'sample_rate': sample_rate,
+            'channels': 1 if audio.ndim == 1 else audio.shape[1]
+        }
         
         # Stage 2: Feature extraction and analysis
-        logger.info("Stage 2: Performing parallel feature extraction and analysis")
-        process_results = self._parallel_process(audio)
-        results.update(process_results)
+        logger.info("Stage 2: Extracting features")
+        analysis_results = self._parallel_process(audio)
+        results.update(analysis_results)
         
-        # Free memory after processing (audio data no longer needed)
-        del audio
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        logger.debug("Audio data released and garbage collection performed")
+        # Stage 3: HuggingFace analysis if enabled
+        if self.huggingface_enabled:
+            logger.info("Stage 3: Running HuggingFace audio analysis")
+            try:
+                hf_results = self._run_huggingface_analysis(audio, sample_rate)
+                results['huggingface'] = hf_results
+                logger.debug("HuggingFace analysis complete")
+            except Exception as e:
+                logger.error(f"HuggingFace analysis failed: {str(e)}", exc_info=True)
+                results['huggingface'] = {'error': str(e)}
         
-        # Stage 3: Visualization generation
+        # Stage 4: Visualization
+        logger.info("Stage 4: Generating visualizations")
         if self.config.get('visualization', {}).get('enable', True):
-            logger.info("Stage 3: Generating visualizations")
-            results['visualizations'] = self._generate_visualizations(results)
-            logger.debug(f"Generated {len(results['visualizations'])} visualizations")
+            try:
+                visualization_dir = self.config.get('storage', {}).get('visualizations_dir', "../visualizations")
+                vis_manager = self._get_or_initialize("visualization_manager", lambda: VisualizationManager(visualization_dir))
+                
+                if vis_manager:
+                    # Generate base filename from audio path
+                    base_filename = os.path.splitext(os.path.basename(audio_path))[0]
+                    results['visualizations'] = vis_manager.generate_all(audio, results, base_filename)
+                    logger.debug(f"Visualizations saved to {visualization_dir}")
+            except Exception as e:
+                logger.error(f"Visualization generation failed: {str(e)}", exc_info=True)
+                results['visualizations'] = {'error': str(e)}
         
-        # Stage 4: Report generation
-        logger.info("Stage 4: Creating analysis summary report")
+        # Stage 5: Report generation
+        logger.info("Stage 5: Creating analysis summary report")
         results['report'] = self.mix_visualizer.create_summary_report(results)
         logger.debug("Summary report created")
         
-        # Stage 5: Storage
-        logger.info("Stage 5: Storing results")
+        # Stage 6: Storage
+        logger.info("Stage 6: Storing results")
         
         # Cache results
         self.cache.set(audio_path, results)
@@ -704,57 +862,259 @@ class Pipeline:
                     
         return alignment_data
     
-    def _generate_visualizations(self, results: Dict) -> Dict[str, str]:
-        """Generate visualizations based on analysis results.
+    @profile
+    def process_with_huggingface(self, file_path: str) -> Dict[str, Any]:
+        """Process audio with HuggingFace models.
         
         Args:
-            results: Analysis results
+            file_path: Path to audio file
             
         Returns:
-            Dictionary mapping visualization names to file paths
+            Dictionary with HuggingFace analysis results
         """
-        visualizations = {}
-        
         try:
-            # Only generate visualizations if enabled in config
-            if not self.config.get('visualization', {}).get('enable', True):
-                logger.info("Visualizations disabled in configuration")
-                return visualizations
-                
-            # Generate mix visualizations
-            if 'mix' in results.get('analysis', {}):
-                logger.debug("Generating mix visualizations")
-                mix_plots = self.mix_visualizer.visualize(results['analysis']['mix'])
-                visualizations.update(mix_plots)
-                
-            # Generate feature visualizations if available
-            if results.get('features'):
-                logger.debug("Generating feature visualizations")
-                feature_plots = self.analysis_visualizer.visualize_features(results['features'])
-                visualizations.update(feature_plots)
-                
-            # Generate annotation visualizations if available
-            if results.get('annotation'):
-                logger.debug("Generating annotation visualizations")
-                annotation_plots = self.analysis_visualizer.visualize_annotations(
-                    results['annotation'], 
-                    results.get('features', {}),
-                    results.get('analysis', {})
-                )
-                visualizations.update(annotation_plots)
-                
-            # Clean up after visualization generation
-            gc.collect()
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-                
-            logger.info(f"Generated {len(visualizations)} visualizations")
-            return visualizations
+            result = {}
+            
+            # Process with base analyzer if available
+            if hasattr(self, 'hf_analyzer') and self.hf_analyzer is not None:
+                # Extract features, classify genre, detect instruments
+                base_results = self._analyze_with_base_model(file_path)
+                if base_results:
+                    result.update(base_results)
+            
+            # Process with specialized components if available
+            specialized_results = self._analyze_with_specialized_models(file_path)
+            if specialized_results:
+                result.update(specialized_results)
+            
+            return result
             
         except Exception as e:
-            logger.error(f"Error generating visualizations: {str(e)}", exc_info=True)
-            visualizations['error'] = str(e)
-            return visualizations
+            logger.error(f"Error in HuggingFace processing: {str(e)}")
+            import traceback
+            logger.debug(traceback.format_exc())
+            return {"error": str(e)}
+    
+    def _analyze_with_base_model(self, file_path: str) -> Dict[str, Any]:
+        """Analyze audio with the base HuggingFace model.
+        
+        Args:
+            file_path: Path to audio file
+            
+        Returns:
+            Dictionary with base model analysis results
+        """
+        import librosa
+        import numpy as np
+        
+        result = {}
+        
+        try:
+            # Load audio
+            audio, sr = librosa.load(file_path, sr=None)
+            
+            # Basic analysis
+            basic_result = self.hf_analyzer.analyze(audio, sr)
+            if 'error' not in basic_result:
+                result["basic"] = basic_result
+            
+            # Genre classification
+            if self.config.get("huggingface.classify_genre", True):
+                genre_result = self.hf_analyzer.classify_genre(audio, sr)
+                result["genre"] = genre_result
+            
+            # Instrument detection
+            if self.config.get("huggingface.detect_instruments", True):
+                instrument_result = self.hf_analyzer.detect_instruments(audio, sr)
+                result["instruments"] = instrument_result
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error in base model analysis: {str(e)}")
+            return {"base_error": str(e)}
+    
+    def _analyze_with_specialized_models(self, file_path: str) -> Dict[str, Any]:
+        """Analyze audio with specialized HuggingFace models.
+        
+        Args:
+            file_path: Path to audio file
+            
+        Returns:
+            Dictionary with specialized model analysis results
+        """
+        result = {}
+        
+        # Feature extraction
+        if "feature_extractor" in self.specialized_models and self.config.get("huggingface.feature_extraction.apply", True):
+            try:
+                extractor = self.specialized_models["feature_extractor"]
+                features = extractor.extract(file_path)
+                result["extracted_features"] = features
+            except Exception as e:
+                logger.error(f"Feature extraction error: {str(e)}")
+                result["extracted_features"] = {"error": str(e)}
+        
+        # Beat detection
+        if "beat_detector" in self.specialized_models and self.config.get("huggingface.beat_detection.apply", True):
+            try:
+                detector = self.specialized_models["beat_detector"]
+                beats = detector.detect(file_path)
+                result["beats"] = beats
+            except Exception as e:
+                logger.error(f"Beat detection error: {str(e)}")
+                result["beats"] = {"error": str(e)}
+        
+        # Stem separation - only if explicitly enabled due to high resource usage
+        if "stem_separator" in self.specialized_models and self.config.get("huggingface.stem_separation.apply", False):
+            try:
+                separator = self.specialized_models["stem_separator"]
+                output_dir = self.config.get("huggingface.stem_separation.output_dir")
+                if not output_dir:
+                    # Create default output directory based on input file
+                    file_name = os.path.basename(file_path)
+                    base_name = os.path.splitext(file_name)[0]
+                    output_dir = os.path.join(os.path.dirname(file_path), f"{base_name}_stems")
+                
+                stems = separator.separate(file_path, output_dir=output_dir)
+                result["stems"] = {"stems": list(stems.keys()), "output_dir": output_dir}
+            except Exception as e:
+                logger.error(f"Stem separation error: {str(e)}")
+                result["stems"] = {"error": str(e)}
+        
+        # Drum analysis
+        if "drum_analyzer" in self.specialized_models and self.config.get("huggingface.drum_analysis.apply", False):
+            try:
+                analyzer = self.specialized_models["drum_analyzer"]
+                drum_analysis = analyzer.analyze(file_path)
+                result["drum_analysis"] = drum_analysis
+            except Exception as e:
+                logger.error(f"Drum analysis error: {str(e)}")
+                result["drum_analysis"] = {"error": str(e)}
+        
+        # Specialized drum sound analysis
+        if "drum_sound_analyzer" in self.specialized_models and self.config.get("huggingface.drum_sound_analysis.apply", False):
+            try:
+                analyzer = self.specialized_models["drum_sound_analyzer"]
+                drum_hits = analyzer.detect_drum_hits(file_path)
+                pattern = analyzer.create_drum_pattern(drum_hits)
+                
+                result["drum_patterns"] = {
+                    "hits": len(drum_hits),
+                    "pattern": pattern,
+                }
+            except Exception as e:
+                logger.error(f"Drum pattern analysis error: {str(e)}")
+                result["drum_patterns"] = {"error": str(e)}
+        
+        # Audio-text similarity
+        if "similarity_analyzer" in self.specialized_models and self.config.get("huggingface.similarity.apply", False):
+            try:
+                analyzer = self.specialized_models["similarity_analyzer"]
+                default_queries = ["electronic music", "ambient", "techno", "drums", "synthesizer", "bass", "melody"]
+                
+                # Get custom queries from config if available
+                queries = self.config.get("huggingface.similarity.queries", default_queries)
+                
+                similarity = analyzer.match_text_to_audio(audio_path=file_path, text_queries=queries)
+                result["similarity"] = similarity
+            except Exception as e:
+                logger.error(f"Similarity analysis error: {str(e)}")
+                result["similarity"] = {"error": str(e)}
+        
+        # Zero-shot tagging
+        if "zero_shot_tagger" in self.specialized_models and self.config.get("huggingface.tagging.apply", False):
+            try:
+                tagger = self.specialized_models["zero_shot_tagger"]
+                tags = tagger.tag(audio_path=file_path)
+                result["tags"] = tags
+            except Exception as e:
+                logger.error(f"Zero-shot tagging error: {str(e)}")
+                result["tags"] = {"error": str(e)}
+        
+        # Audio captioning
+        if "audio_captioner" in self.specialized_models and self.config.get("huggingface.captioning.apply", False):
+            try:
+                captioner = self.specialized_models["audio_captioner"]
+                caption = captioner.caption(audio_path=file_path)
+                result["caption"] = caption
+            except Exception as e:
+                logger.error(f"Audio captioning error: {str(e)}")
+                result["caption"] = {"error": str(e)}
+        
+        # Real-time beat tracking (if applied to file)
+        if "realtime_beat_tracker" in self.specialized_models and self.config.get("huggingface.realtime_beats.apply", False):
+            try:
+                tracker = self.specialized_models["realtime_beat_tracker"]
+                beats = tracker.process_file(audio_path=file_path)
+                result["realtime_beats"] = beats
+            except Exception as e:
+                logger.error(f"Real-time beat tracking error: {str(e)}")
+                result["realtime_beats"] = {"error": str(e)}
+        
+        return result
+
+    def batch_process(self, input_dir: str, output_dir: Optional[str] = None, 
+                     extensions: List[str] = None) -> Dict[str, Dict]:
+        """Process all audio files in a directory.
+        
+        Args:
+            input_dir: Input directory containing audio files
+            output_dir: Output directory for results (default: None)
+            extensions: List of file extensions to process (default: None)
+            
+        Returns:
+            Dictionary mapping file paths to processing results
+        """
+        # Default extensions if None provided
+        if extensions is None:
+            extensions = ['wav', 'mp3', 'flac', 'm4a', 'ogg']
+            
+        # Normalize extensions
+        extensions = [ext.lower().strip('.') for ext in extensions]
+        
+        # Ensure input directory exists
+        if not os.path.isdir(input_dir):
+            logger.error(f"Input directory not found: {input_dir}")
+            return {"error": f"Input directory not found: {input_dir}"}
+        
+        # Create output directory if provided
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+        
+        # Find all matching audio files
+        audio_files = []
+        for root, _, files in os.walk(input_dir):
+            for file in files:
+                if any(file.lower().endswith(f'.{ext}') for ext in extensions):
+                    audio_files.append(os.path.join(root, file))
+        
+        logger.info(f"Found {len(audio_files)} audio files to process")
+        
+        # Process each file
+        results = {}
+        for i, file_path in enumerate(audio_files):
+            logger.info(f"Processing file {i+1}/{len(audio_files)}: {file_path}")
+            
+            # Process file
+            result = self.process_file(file_path)
+            results[file_path] = result
+            
+            # Save result to output directory if provided
+            if output_dir and result.get("status") == "success":
+                rel_path = os.path.relpath(file_path, input_dir)
+                output_path = os.path.join(output_dir, f"{rel_path}.json")
+                
+                # Create parent directories if needed
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                
+                # Save result
+                with open(output_path, 'w') as f:
+                    json.dump(result, f, indent=2)
+                
+                logger.info(f"Result saved to: {output_path}")
+        
+        return results
 
 
 def main() -> None:

@@ -135,6 +135,45 @@ def create_process_parser(subparsers) -> None:
         help="Skip files that already have results"
     )
     
+    # HuggingFace integration options
+    process_parser.add_argument(
+        "--hf-models",
+        action="store_true",
+        help="Enable HuggingFace models for audio analysis"
+    )
+    
+    process_parser.add_argument(
+        "--hf-api-key",
+        help="HuggingFace API key for accessing models"
+    )
+    
+    process_parser.add_argument(
+        "--hf-model-name",
+        help="HuggingFace model name (default: facebook/wav2vec2-base-960h)"
+    )
+    
+    process_parser.add_argument(
+        "--hf-genre-model",
+        help="Specific model for genre classification"
+    )
+    
+    process_parser.add_argument(
+        "--hf-instrument-model",
+        help="Specific model for instrument detection"
+    )
+    
+    process_parser.add_argument(
+        "--no-hf-genre",
+        action="store_true",
+        help="Disable genre classification"
+    )
+    
+    process_parser.add_argument(
+        "--no-hf-instruments",
+        action="store_true",
+        help="Disable instrument detection"
+    )
+    
     setup_common_args(process_parser)
 
 
@@ -474,6 +513,37 @@ def process_command(args: argparse.Namespace) -> int:
     pipeline_config = {}
     if args.pipeline:
         pipeline_config = load_config(args.pipeline)
+    
+    # Apply HuggingFace settings if provided
+    if args.hf_models or args.hf_api_key or args.hf_model_name:
+        if 'huggingface' not in config:
+            config['huggingface'] = {}
+        
+        # Enable HuggingFace
+        config['huggingface']['enable'] = True
+        
+        # Set API key if provided
+        if args.hf_api_key:
+            config['huggingface']['api_key'] = args.hf_api_key
+            
+        # Set model name if provided
+        if args.hf_model_name:
+            config['huggingface']['model_name'] = args.hf_model_name
+            
+        # Set genre classification settings
+        if args.hf_genre_model:
+            config['huggingface']['genre_model'] = args.hf_genre_model
+            
+        # Set instrument detection settings
+        if args.hf_instrument_model:
+            config['huggingface']['instrument_model'] = args.hf_instrument_model
+            
+        # Disable features if requested
+        if args.no_hf_genre:
+            config['huggingface']['genre_classification'] = False
+            
+        if args.no_hf_instruments:
+            config['huggingface']['instrument_detection'] = False
     
     # Set up pipeline
     pipeline = Pipeline(config=config)

@@ -2,7 +2,7 @@
 <p align="center"><em> what makes a tiger so strong is that it lacks humanity</em></p>
 
 <p align="center">
-  <img src="heihachi.png" alt="Heihachi Logo" width="300"/>
+  <img src="./heihachi.png" alt="Heihachi Logo" width="300"/>
 </p>
 
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)

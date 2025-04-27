@@ -25,6 +25,7 @@ from src.utils.logging_utils import setup_logging, start_memory_monitoring, Memo
 from src.utils.profiling import global_profiler, Profiler
 from src.utils.cache import result_cache, start_cleanup_thread
 from src.commands import compare, interactive
+from src.cli import huggingface_commands
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -113,6 +114,9 @@ def parse_args() -> argparse.Namespace:
     
     # Setup interactive command
     interactive.setup_parser(subparsers)
+    
+    # Setup Hugging Face commands
+    huggingface_commands.setup_parser(subparsers)
     
     # Debug options
     debug_group = parser.add_argument_group('Debug options')
