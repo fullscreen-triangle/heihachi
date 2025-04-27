@@ -23,6 +23,7 @@ Advanced audio analysis framework for processing, analyzing, and visualizing aud
 - Progress tracking for long-running operations
 - Export options in multiple formats (JSON, CSV, YAML, etc.)
 - Comprehensive CLI with shell completion
+- HuggingFace integration for advanced audio analysis and neural processing
 
 ## Installation
 
@@ -106,6 +107,118 @@ heihachi demo --progress-demo
 heihachi export results/ --format json
 heihachi export results/ --format csv
 heihachi export results/ --format markdown
+```
+
+## HuggingFace Integration
+
+Heihachi now includes powerful integration with HuggingFace's Transformers library, enabling advanced neural processing of audio using state-of-the-art models.
+
+### Available Models
+
+The following specialized audio analysis models are available:
+
+| Model Type | Description | Default Model |
+|------------|-------------|---------------|
+| Drum Sound Analysis | Advanced drum sound classification using Wav2Vec2 | `JackArt/wav2vec2-for-drum-classification` |
+| Drum Analysis | General drum kit sound analysis | `DunnBC22/wav2vec2-base-Drum_Kit_Sounds` |
+| Audio-Text Similarity | Compare audio to text descriptions using CLAP | `laion/clap-htsat-fused` |
+| Zero-Shot Tagging | Open-vocabulary audio tagging | `UniMus/OpenJMLA` |
+| Audio Captioning | Generate textual descriptions of audio | `slseanwu/beats-conformer-bart-audio-captioner` |
+| Real-Time Beat Tracking | Low-latency beat detection for live performance | `beast-team/beast-dione` |
+| Feature Extraction | Extract high-level audio features | `microsoft/BEATs-base` |
+| Stem Separation | Separate audio into vocals/drums/bass/other | `htdemucs` |
+| Beat Detection | Detect beats and estimate tempo | `amaai/music-tempo-beats` |
+
+### Configuration
+
+Configure HuggingFace models in `configs/huggingface.yaml`:
+
+```yaml
+# Enable/disable HuggingFace integration
+enabled: true
+
+# API key for accessing HuggingFace models (leave empty to use public models only)
+api_key: ""
+
+# Specialized model settings
+feature_extraction:
+  enabled: true
+  model: "microsoft/BEATs-base"
+
+beat_detection:
+  enabled: true
+  model: "amaai/music-tempo-beats"
+
+# Additional models (disabled by default to save resources)
+drum_sound_analysis:
+  enabled: false
+  model: "JackArt/wav2vec2-for-drum-classification"
+
+similarity:
+  enabled: false
+  model: "laion/clap-htsat-fused"
+
+# See configs/huggingface.yaml for all available options
+```
+
+### Command-Line Usage
+
+Analyze audio files using HuggingFace models:
+
+```bash
+# Process a file with the default pipeline (includes enabled HuggingFace models)
+python -m src.main file.wav --config configs/huggingface.yaml
+
+# Run specific HuggingFace analysis commands
+python -m src.main huggingface extract file.wav --model "microsoft/BEATs-base"
+python -m src.main huggingface drum-patterns file.wav --mode pattern --export-format midi
+python -m src.main huggingface tag file.wav --tags "electronic,ambient,techno,bass"
+python -m src.main huggingface caption file.wav --sentiment
+python -m src.main huggingface similarity file.wav --mode text --queries "techno" "jungle" "ambient"
+python -m src.main huggingface realtime-beats --file --input file.wav --export-beats --export-format json
+```
+
+### Real-Time Processing
+
+Some models support real-time processing:
+
+```bash
+# Run real-time beat tracking demo from microphone input
+python -m src.main huggingface realtime-beats --duration 30.0
+```
+
+### Available Commands
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `extract` | Extract features using neural models | `huggingface extract audio.wav` |
+| `analyze-drums` | Analyze drum sounds | `huggingface analyze-drums audio.wav --visualize` |
+| `drum-patterns` | Detect and analyze drum patterns | `huggingface drum-patterns audio.wav --mode pattern` |
+| `tag` | Perform zero-shot audio tagging | `huggingface tag audio.wav --categories "genre:techno,house,ambient"` |
+| `caption` | Generate audio descriptions | `huggingface caption audio.wav --mix-notes` |
+| `similarity` | Audio-text similarity analysis | `huggingface similarity audio.wav --mode timestamps --query "bass drop"` |
+| `realtime-beats` | Real-time beat tracking | `huggingface realtime-beats --file --input audio.wav` |
+
+### Python API Usage
+
+```python
+from src.huggingface import DrumSoundAnalyzer, AudioCaptioner, RealTimeBeatTracker
+
+# Analyze drum patterns
+analyzer = DrumSoundAnalyzer()
+hits = analyzer.detect_drum_hits("audio.wav")
+pattern = analyzer.create_drum_pattern(hits, quantize=True, tempo=170.0)
+analyzer.export_pattern(pattern, output_format="midi", file_path="pattern.mid")
+
+# Generate audio caption with sentiment analysis
+captioner = AudioCaptioner()
+results = captioner.caption_with_sentiment("audio.wav")
+print(f"Caption: {results['caption']}")
+print(f"Sentiment: {results['sentiment']['dominant']}")
+
+# Track beats in real-time
+tracker = RealTimeBeatTracker()
+tracker.run_real_time_demo(duration=30.0, visualize=True)
 ```
 
 ## Performance Tuning
