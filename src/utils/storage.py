@@ -1,205 +1,399 @@
-import pickle
-import json
-import logging
-import zlib
-import numpy as np
-import torch
-from typing import Any, Dict, Optional, Union, List
-from pathlib import Path
-from datetime import datetime
+#!/usr/bin/env python3
+"""
+Storage utilities for the Heihachi framework.
+
+This module provides classes and functions for storing and retrieving data
+in various formats, with a focus on audio analysis results.
+"""
+
 import os
+import json
+import yaml
+import pickle
+import numpy as np
+from enum import Enum
+from pathlib import Path
+from typing import Dict, Any, Union, Optional, List, Tuple, BinaryIO
 
-logger = logging.getLogger("mix_analyzer")
+from src.utils.logging_utils import get_logger
 
-class AnalysisVersion:
-    MAJOR = 1
-    MINOR = 0
-    PATCH = 0
+logger = get_logger(__name__)
 
-    @classmethod
-    def to_string(cls) -> str:
-        return f"{cls.MAJOR}.{cls.MINOR}.{cls.PATCH}"
 
-class AudioCache:
-    def __init__(self, cache_dir: str = "../cache/", compression_level: int = 6):
-        """Initialize the audio cache.
+class StorageFormat(Enum):
+    """Supported storage formats for data serialization."""
+    JSON = "json"
+    YAML = "yaml"
+    PICKLE = "pickle"
+    NUMPY = "npy"
+    CSV = "csv"
+    MARKDOWN = "md"
+    HTML = "html"
+
+
+class Storage:
+    """Flexible storage utility for saving and loading data in different formats.
+    
+    Provides an interface for saving and loading data with format detection,
+    automatic directory creation, and error handling.
+    """
+    
+    @staticmethod
+    def save(data: Any, file_path: Union[str, Path], 
+            format: Optional[Union[StorageFormat, str]] = None,
+            pretty: bool = True,
+            compress: bool = False) -> Path:
+        """Save data to file in the specified format.
         
         Args:
-            cache_dir: Path to the cache directory
-            compression_level: Compression level for storing cached data
+            data: Data to save
+            file_path: Path to save the data to
+            format: Format to use (if None, inferred from file extension)
+            pretty: Whether to use pretty formatting for JSON and YAML
+            compress: Whether to compress the data
+            
+        Returns:
+            Path to the saved file
+        
+        Raises:
+            ValueError: If format cannot be determined or is unsupported
         """
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(exist_ok=True)
-        self._memory_cache: Dict[str, Any] = {}
-        self.compression_level = compression_level
-        self._stats = {
-            'hits': 0,
-            'misses': 0,
-            'memory_hits': 0,
-            'disk_hits': 0
-        }
+        file_path = Path(file_path)
         
-        logger.info(f"AudioCache initialized with cache directory: {self.cache_dir}")
-
-    def get(self, key: str) -> Optional[Any]:
-        """Get item from cache with performance tracking."""
-        # Check memory cache first
-        if key in self._memory_cache:
-            self._stats['hits'] += 1
-            self._stats['memory_hits'] += 1
-            return self._memory_cache[key]
-
-        # Check disk cache
-        cache_file = self.cache_dir / f"{key}.pkl.gz"
-        if cache_file.exists():
-            try:
-                with open(cache_file, 'rb') as f:
-                    compressed_data = f.read()
-                    decompressed_data = zlib.decompress(compressed_data)
-                    value = pickle.loads(decompressed_data)
-                self._memory_cache[key] = value
-                self._stats['hits'] += 1
-                self._stats['disk_hits'] += 1
-                return value
-            except Exception as e:
-                logger.warning(f"Failed to load cache for key {key}: {e}")
-                self._stats['misses'] += 1
-                return None
-        self._stats['misses'] += 1
-        return None
-
-    def set(self, key: str, value: Any) -> None:
-        """Store item with compression."""
-        self._memory_cache[key] = value
-        cache_file = self.cache_dir / f"{key}.pkl.gz"
-        try:
-            serialized_data = pickle.dumps(value)
-            compressed_data = zlib.compress(serialized_data, self.compression_level)
-            with open(cache_file, 'wb') as f:
-                f.write(compressed_data)
-        except Exception as e:
-            logger.warning(f"Failed to save cache for key {key}: {e}")
-
-    def clear(self) -> None:
-        """Clear cache and reset statistics."""
-        self._memory_cache.clear()
-        self._stats = {k: 0 for k in self._stats}
-        for cache_file in self.cache_dir.glob("*.pkl.gz"):
-            cache_file.unlink()
-
-    def get_stats(self) -> Dict[str, int]:
-        """Get cache performance statistics."""
-        return {
-            **self._stats,
-            'hit_rate': self._stats['hits'] / (self._stats['hits'] + self._stats['misses']) 
-            if (self._stats['hits'] + self._stats['misses']) > 0 else 0
-        }
-
-class FeatureStorage:
-    def __init__(self, storage_dir: str = "../results/"):
-        """Initialize the feature storage.
+        # Create directory if it doesn't exist
+        file_path.parent.mkdir(parents=True, exist_ok=True)
         
-        Args:
-            storage_dir: Path to the storage directory for results
-        """
-        self.storage_dir = Path(storage_dir)
-        self.storage_dir.mkdir(exist_ok=True)
-        self.metadata_file = self.storage_dir / "metadata.json"
-        self._load_metadata()
+        # Determine format if not specified
+        if format is None:
+            suffix = file_path.suffix.lower().lstrip('.')
+            try:
+                format = StorageFormat(suffix)
+            except ValueError:
+                raise ValueError(f"Could not determine format from file extension: {suffix}")
+        elif isinstance(format, str):
+            try:
+                format = StorageFormat(format.lower())
+            except ValueError:
+                raise ValueError(f"Unsupported format: {format}")
         
-        logger.info(f"FeatureStorage initialized with storage directory: {self.storage_dir}")
-
-    def save_results(self, analysis_id: str, results: Dict[str, Any], 
-                    metadata: Optional[Dict] = None) -> None:
-        """Save analysis results with versioning and metadata."""
-        result_file = self.storage_dir / f"{analysis_id}.json"
-        try:
-            # Add version and timestamp
-            versioned_results = {
-                'version': AnalysisVersion.to_string(),
-                'timestamp': datetime.now().isoformat(),
-                'metadata': metadata or {},
-                'results': self._make_serializable(results)
-            }
-            
-            with open(result_file, 'w') as f:
-                json.dump(versioned_results, f, indent=2)
-            
-            # Update metadata
-            self._update_metadata(analysis_id, versioned_results)
-            
-        except Exception as e:
-            logger.error(f"Failed to save results for {analysis_id}: {e}")
-
-    def load_results(self, analysis_id: str) -> Optional[Dict[str, Any]]:
-        """Load analysis results with version checking."""
-        result_file = self.storage_dir / f"{analysis_id}.json"
-        if result_file.exists():
-            try:
-                with open(result_file, 'r') as f:
-                    data = json.load(f)
-                
-                # Version compatibility check
-                if 'version' in data:
-                    stored_version = data['version'].split('.')
-                    current_version = AnalysisVersion.to_string().split('.')
-                    
-                    if stored_version[0] != current_version[0]:
-                        logger.warning(
-                            f"Major version mismatch for {analysis_id}. "
-                            f"Stored: {data['version']}, Current: {AnalysisVersion.to_string()}"
-                        )
-                
-                return data
-            except Exception as e:
-                logger.error(f"Failed to load results for {analysis_id}: {e}")
-                return None
-        return None
-
-    def _make_serializable(self, obj: Any) -> Any:
-        """Convert object to JSON serializable format with enhanced type support."""
-        if isinstance(obj, (np.ndarray, np.generic)):
-            return obj.tolist()
-        elif isinstance(obj, torch.Tensor):
-            return obj.cpu().numpy().tolist()
-        elif isinstance(obj, (datetime, Path)):
-            return str(obj)
-        elif isinstance(obj, dict):
-            return {k: self._make_serializable(v) for k, v in obj.items()}
-        elif isinstance(obj, (list, tuple)):
-            return [self._make_serializable(item) for item in obj]
-        elif hasattr(obj, '__dict__'):
-            return self._make_serializable(obj.__dict__)
-        return obj
-
-    def _load_metadata(self) -> None:
-        """Load storage metadata."""
-        if self.metadata_file.exists():
-            try:
-                with open(self.metadata_file, 'r') as f:
-                    self._metadata = json.load(f)
-            except Exception:
-                self._metadata = {'analyses': {}}
+        # Apply compression if requested
+        if compress:
+            import gzip
+            open_func = gzip.open
+            if not file_path.suffix.endswith('.gz'):
+                file_path = file_path.with_suffix(file_path.suffix + '.gz')
         else:
-            self._metadata = {'analyses': {}}
-
-    def _update_metadata(self, analysis_id: str, results: Dict) -> None:
-        """Update metadata with new analysis information."""
-        self._metadata['analyses'][analysis_id] = {
-            'timestamp': results['timestamp'],
-            'version': results['version'],
-            'metadata': results['metadata']
-        }
+            open_func = open
         
+        # Save data in the specified format
         try:
-            with open(self.metadata_file, 'w') as f:
-                json.dump(self._metadata, f, indent=2)
+            if format == StorageFormat.JSON:
+                with open_func(file_path, 'wt') as f:
+                    indent = 2 if pretty else None
+                    json.dump(data, f, indent=indent, default=lambda o: str(o) if isinstance(o, np.ndarray) else o)
+            
+            elif format == StorageFormat.YAML:
+                with open_func(file_path, 'wt') as f:
+                    yaml.dump(data, f, default_flow_style=not pretty, sort_keys=False)
+            
+            elif format == StorageFormat.PICKLE:
+                with open_func(file_path, 'wb') as f:
+                    pickle.dump(data, f)
+            
+            elif format == StorageFormat.NUMPY:
+                if isinstance(data, np.ndarray):
+                    if compress:
+                        np.savez_compressed(file_path, data=data)
+                    else:
+                        np.save(file_path, data)
+                else:
+                    with open_func(file_path, 'wb') as f:
+                        np.savez(f, **data if isinstance(data, dict) else {'data': data})
+            
+            elif format == StorageFormat.CSV:
+                if isinstance(data, np.ndarray):
+                    np.savetxt(file_path, data, delimiter=',')
+                elif isinstance(data, (list, tuple)) and all(isinstance(x, (list, tuple)) for x in data):
+                    with open_func(file_path, 'wt') as f:
+                        for row in data:
+                            f.write(','.join(str(x) for x in row) + '\n')
+                else:
+                    import csv
+                    with open_func(file_path, 'wt', newline='') as f:
+                        if isinstance(data, dict):
+                            writer = csv.DictWriter(f, fieldnames=data.keys())
+                            writer.writeheader()
+                            if isinstance(list(data.values())[0], list):
+                                # Transpose data if values are lists
+                                rows = []
+                                for i in range(len(list(data.values())[0])):
+                                    row = {k: v[i] if i < len(v) else None for k, v in data.items()}
+                                    rows.append(row)
+                                writer.writerows(rows)
+                            else:
+                                writer.writerow(data)
+                        else:
+                            writer = csv.writer(f)
+                            writer.writerows(data)
+            
+            elif format == StorageFormat.MARKDOWN:
+                with open_func(file_path, 'wt') as f:
+                    if isinstance(data, dict):
+                        f.write("# Analysis Results\n\n")
+                        for section, content in data.items():
+                            f.write(f"## {section}\n\n")
+                            if isinstance(content, dict):
+                                for key, value in content.items():
+                                    f.write(f"- **{key}**: {value}\n")
+                            elif isinstance(content, list):
+                                for item in content:
+                                    if isinstance(item, dict):
+                                        for k, v in item.items():
+                                            f.write(f"- **{k}**: {v}\n")
+                                    else:
+                                        f.write(f"- {item}\n")
+                            else:
+                                f.write(f"{content}\n")
+                            f.write("\n")
+                    else:
+                        f.write(str(data))
+            
+            elif format == StorageFormat.HTML:
+                with open_func(file_path, 'wt') as f:
+                    f.write("<!DOCTYPE html>\n<html>\n<head>\n")
+                    f.write("<title>Analysis Results</title>\n")
+                    f.write("<style>\n")
+                    f.write("body { font-family: Arial, sans-serif; margin: 20px; }\n")
+                    f.write("h1 { color: #333; }\n")
+                    f.write("h2 { color: #555; margin-top: 20px; }\n")
+                    f.write("table { border-collapse: collapse; margin: 15px 0; }\n")
+                    f.write("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }\n")
+                    f.write("th { background-color: #f2f2f2; }\n")
+                    f.write("</style>\n</head>\n<body>\n")
+                    
+                    f.write("<h1>Analysis Results</h1>\n")
+                    
+                    if isinstance(data, dict):
+                        for section, content in data.items():
+                            f.write(f"<h2>{section}</h2>\n")
+                            
+                            if isinstance(content, dict):
+                                f.write("<table>\n<tr><th>Property</th><th>Value</th></tr>\n")
+                                for key, value in content.items():
+                                    f.write(f"<tr><td>{key}</td><td>{value}</td></tr>\n")
+                                f.write("</table>\n")
+                            
+                            elif isinstance(content, list):
+                                if content and isinstance(content[0], dict):
+                                    # Table with headers from dict keys
+                                    headers = set()
+                                    for item in content:
+                                        headers.update(item.keys())
+                                    
+                                    f.write("<table>\n<tr>")
+                                    for header in headers:
+                                        f.write(f"<th>{header}</th>")
+                                    f.write("</tr>\n")
+                                    
+                                    for item in content:
+                                        f.write("<tr>")
+                                        for header in headers:
+                                            f.write(f"<td>{item.get(header, '')}</td>")
+                                        f.write("</tr>\n")
+                                    
+                                    f.write("</table>\n")
+                                else:
+                                    # Simple list
+                                    f.write("<ul>\n")
+                                    for item in content:
+                                        f.write(f"<li>{item}</li>\n")
+                                    f.write("</ul>\n")
+                            else:
+                                f.write(f"<p>{content}</p>\n")
+                    
+                    f.write("</body>\n</html>")
+            
+            else:
+                raise ValueError(f"Unsupported format: {format}")
+            
+            logger.debug(f"Data saved to {file_path}")
+            return file_path
+            
         except Exception as e:
-            logger.error(f"Failed to update metadata: {e}")
-
-    def get_analysis_history(self) -> Dict[str, List[Dict]]:
-        """Get historical analysis information."""
-        return self._metadata['analyses']
+            logger.error(f"Error saving data to {file_path}: {str(e)}")
+            raise
+    
+    @staticmethod
+    def load(file_path: Union[str, Path], 
+            format: Optional[Union[StorageFormat, str]] = None) -> Any:
+        """Load data from file in the specified format.
+        
+        Args:
+            file_path: Path to load the data from
+            format: Format to use (if None, inferred from file extension)
+            
+        Returns:
+            Loaded data
+        
+        Raises:
+            ValueError: If format cannot be determined or is unsupported
+            FileNotFoundError: If the file does not exist
+        """
+        file_path = Path(file_path)
+        
+        # Check if file exists
+        if not file_path.exists():
+            raise FileNotFoundError(f"File does not exist: {file_path}")
+        
+        # Determine if file is compressed
+        is_compressed = file_path.suffix.lower() == '.gz'
+        if is_compressed:
+            import gzip
+            open_func = gzip.open
+            # Use previous suffix for format detection
+            file_suffix = file_path.stem.split('.')[-1]
+        else:
+            open_func = open
+            file_suffix = file_path.suffix.lower().lstrip('.')
+        
+        # Determine format if not specified
+        if format is None:
+            try:
+                format = StorageFormat(file_suffix)
+            except ValueError:
+                raise ValueError(f"Could not determine format from file extension: {file_suffix}")
+        elif isinstance(format, str):
+            try:
+                format = StorageFormat(format.lower())
+            except ValueError:
+                raise ValueError(f"Unsupported format: {format}")
+        
+        # Load data in the specified format
+        try:
+            if format == StorageFormat.JSON:
+                with open_func(file_path, 'rt') as f:
+                    return json.load(f)
+            
+            elif format == StorageFormat.YAML:
+                with open_func(file_path, 'rt') as f:
+                    return yaml.safe_load(f)
+            
+            elif format == StorageFormat.PICKLE:
+                with open_func(file_path, 'rb') as f:
+                    return pickle.load(f)
+            
+            elif format == StorageFormat.NUMPY:
+                if file_path.suffix.lower() == '.npz':
+                    with np.load(file_path) as data:
+                        # If it has only 'data', return that directly
+                        if len(data.files) == 1 and data.files[0] == 'data':
+                            return data['data']
+                        # Otherwise return a dict of all arrays
+                        return {k: data[k] for k in data.files}
+                else:
+                    return np.load(file_path, allow_pickle=True)
+            
+            elif format == StorageFormat.CSV:
+                try:
+                    return np.loadtxt(file_path, delimiter=',')
+                except:
+                    import csv
+                    with open_func(file_path, 'rt', newline='') as f:
+                        reader = csv.reader(f)
+                        return list(reader)
+            
+            else:
+                raise ValueError(f"Loading from {format} format is not supported")
+            
+        except Exception as e:
+            logger.error(f"Error loading data from {file_path}: {str(e)}")
+            raise
+    
+    @staticmethod
+    def exists(file_path: Union[str, Path]) -> bool:
+        """Check if a file exists.
+        
+        Args:
+            file_path: Path to check
+            
+        Returns:
+            True if the file exists, False otherwise
+        """
+        return Path(file_path).exists()
+    
+    @staticmethod
+    def get_path(base_dir: Union[str, Path], 
+                file_name: str,
+                format: Union[StorageFormat, str] = StorageFormat.JSON,
+                create_dir: bool = True) -> Path:
+        """Get a path for storing data with proper extension.
+        
+        Args:
+            base_dir: Base directory
+            file_name: File name without extension
+            format: Storage format
+            create_dir: Whether to create the directory if it doesn't exist
+            
+        Returns:
+            Path object with proper extension
+        """
+        base_dir = Path(base_dir)
+        
+        # Create directory if needed
+        if create_dir:
+            base_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Ensure we have the format as enum
+        if isinstance(format, str):
+            try:
+                format = StorageFormat(format.lower())
+            except ValueError:
+                raise ValueError(f"Unsupported format: {format}")
+        
+        # Ensure filename has correct extension
+        if not file_name.endswith(f".{format.value}"):
+            file_name = f"{file_name}.{format.value}"
+        
+        return base_dir / file_name
+    
+    @staticmethod
+    def list_files(directory: Union[str, Path], 
+                  format: Optional[Union[StorageFormat, str]] = None,
+                  recursive: bool = False) -> List[Path]:
+        """List files in a directory with optional format filtering.
+        
+        Args:
+            directory: Directory to list files from
+            format: Filter by format (if None, list all files)
+            recursive: Whether to recursively list files in subdirectories
+            
+        Returns:
+            List of file paths
+        """
+        directory = Path(directory)
+        
+        # Get format extension if specified
+        if format:
+            if isinstance(format, str):
+                try:
+                    format = StorageFormat(format.lower())
+                except ValueError:
+                    raise ValueError(f"Unsupported format: {format}")
+            extension = f".{format.value}"
+        else:
+            extension = None
+        
+        # Find files
+        if recursive:
+            if extension:
+                return list(directory.glob(f"**/*{extension}"))
+            else:
+                return [f for f in directory.glob("**/*") if f.is_file()]
+        else:
+            if extension:
+                return list(directory.glob(f"*{extension}"))
+            else:
+                return [f for f in directory.iterdir() if f.is_file()]
 
 
 

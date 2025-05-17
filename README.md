@@ -111,23 +111,24 @@ heihachi export results/ --format markdown
 
 ## HuggingFace Integration
 
-Heihachi now includes powerful integration with HuggingFace's Transformers library, enabling advanced neural processing of audio using state-of-the-art models.
+Heihachi integrates specialized AI models from Hugging Face, enabling advanced neural processing of audio using state-of-the-art models. This integration follows a structured implementation approach with models carefully selected for electronic music analysis tasks.
 
 ### Available Models
 
 The following specialized audio analysis models are available:
 
-| Model Type | Description | Default Model |
-|------------|-------------|---------------|
-| Drum Sound Analysis | Advanced drum sound classification using Wav2Vec2 | `JackArt/wav2vec2-for-drum-classification` |
-| Drum Analysis | General drum kit sound analysis | `DunnBC22/wav2vec2-base-Drum_Kit_Sounds` |
-| Audio-Text Similarity | Compare audio to text descriptions using CLAP | `laion/clap-htsat-fused` |
-| Zero-Shot Tagging | Open-vocabulary audio tagging | `UniMus/OpenJMLA` |
-| Audio Captioning | Generate textual descriptions of audio | `slseanwu/beats-conformer-bart-audio-captioner` |
-| Real-Time Beat Tracking | Low-latency beat detection for live performance | `beast-team/beast-dione` |
-| Feature Extraction | Extract high-level audio features | `microsoft/BEATs-base` |
-| Stem Separation | Separate audio into vocals/drums/bass/other | `htdemucs` |
-| Beat Detection | Detect beats and estimate tempo | `amaai/music-tempo-beats` |
+| Category | Model Type | Default Model | Description | Priority |
+|----------|------------|---------------|-------------|----------|
+| **Core Feature Extraction** | Generic spectral + temporal embeddings | [microsoft/BEATs](https://huggingface.co/microsoft/BEATs) | Bidirectional ViT-style encoder trained with acoustic tokenisers; provides 768-d latent at ~20 ms hop | High |
+| | Robust speech & non-speech features | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) | Trained on >5M hours; encoder provides 1280-d features tracking energy, voicing & language | High |
+| **Audio Source Separation** | Stem isolation | [Demucs v4](https://huggingface.co/spaces/abidlabs/music-separation) | Returns 4-stem or 6-stem tensors for component-level analysis | High |
+| **Rhythm Analysis** | Beat / down-beat tracking | [Beat-Transformer](https://huggingface.co/nicolaus625/cmi) | Dilated self-attention encoder with F-measure ~0.86 | High |
+| | Low-latency beat-tracking | [BEAST](https://github.com/beats-team/beast) | 50 ms latency, causal attention; ideal for real-time DJ analysis | Medium |
+| | Drum-onset / kit piece ID | [DunnBC22/wav2vec2-base-Drum_Kit_Sounds](https://huggingface.co/DunnBC22/wav2vec2-base-Drum_Kit_Sounds) | Fine-tuned on kick/snare/tom/overhead labels | Medium |
+| **Multimodal & Similarity** | Multimodal similarity / tagging | [laion/clap-htsat-fused](https://huggingface.co/laion/clap-htsat-fused) | Query with free-text and compute cosine similarity on 512-d embeddings | Medium |
+| | Zero-shot tag & prompt embedding | [UniMus/OpenJMLA](https://huggingface.co/UniMus/OpenJMLA) | Score arbitrary tag strings for effect-chain heuristics | Medium |
+| **Future Extensions** | Audio captioning | [slseanwu/beats-conformer-bart-audio-captioner](https://huggingface.co/slseanwu/beats-conformer-bart-audio-captioner) | Produces textual descriptions per segment | Low |
+| | Similarity retrieval UI | CLAP embeddings + FAISS | Index embeddings and expose nearest-neighbor search | Low |
 
 ### Configuration
 
@@ -147,12 +148,12 @@ feature_extraction:
 
 beat_detection:
   enabled: true
-  model: "amaai/music-tempo-beats"
+  model: "nicolaus625/cmi"
 
 # Additional models (disabled by default to save resources)
 drum_sound_analysis:
   enabled: false
-  model: "JackArt/wav2vec2-for-drum-classification"
+  model: "DunnBC22/wav2vec2-base-Drum_Kit_Sounds"
 
 similarity:
   enabled: false
@@ -161,82 +162,117 @@ similarity:
 # See configs/huggingface.yaml for all available options
 ```
 
+### Installation
+
+To use the HuggingFace integration, you need to install the required dependencies:
+
+```bash
+pip install -r requirements-huggingface.txt
+```
+
 ### Command-Line Usage
 
-Analyze audio files using HuggingFace models:
+#### Feature Extraction
+
+Extract features from an audio file using the BEATs model:
 
 ```bash
-# Process a file with the default pipeline (includes enabled HuggingFace models)
-python -m src.main file.wav --config configs/huggingface.yaml
-
-# Run specific HuggingFace analysis commands
-python -m src.main huggingface extract file.wav --model "microsoft/BEATs-base"
-python -m src.main huggingface drum-patterns file.wav --mode pattern --export-format midi
-python -m src.main huggingface tag file.wav --tags "electronic,ambient,techno,bass"
-python -m src.main huggingface caption file.wav --sentiment
-python -m src.main huggingface similarity file.wav --mode text --queries "techno" "jungle" "ambient"
-python -m src.main huggingface realtime-beats --file --input file.wav --export-beats --export-format json
+python -m src.main hf extract path/to/audio.mp3 --output features.json
 ```
 
-### Real-Time Processing
+Options:
+- `--model`: Specify model name (default: "microsoft/BEATs-base")
+- `--output`: Path to save extracted features (JSON format)
+- `--max-length`: Maximum audio length to process in seconds (default: 30)
+- `--cpu`: Force CPU inference even if GPU is available
 
-Some models support real-time processing:
+#### Stem Separation
+
+Separate an audio file into stems:
 
 ```bash
-# Run real-time beat tracking demo from microphone input
-python -m src.main huggingface realtime-beats --duration 30.0
+python -m src.main hf separate path/to/audio.mp3 --output-dir ./stems --save-stems
 ```
 
-### Available Commands
+Options:
+- `--model`: Specify model name (default: "facebook/demucs")
+- `--output-dir`: Directory to save separated stems
+- `--num-stems`: Number of stems to separate (4 or 6, default: 4)
+- `--save-stems`: Enable to save stems to disk
+
+#### Beat Detection
+
+Detect beats and downbeats in an audio file:
+
+```bash
+python -m src.main hf beats path/to/audio.mp3 --output beats.json
+```
+
+Options:
+- `--model`: Specify model name (default: "nicolaus625/cmi")
+- `--output`: Path to save beat data or visualization
+- `--visualize`: Generate visualization of detected beats
+- `--no-downbeats`: Skip downbeat detection
+
+#### Other Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `extract` | Extract features using neural models | `huggingface extract audio.wav` |
-| `analyze-drums` | Analyze drum sounds | `huggingface analyze-drums audio.wav --visualize` |
-| `drum-patterns` | Detect and analyze drum patterns | `huggingface drum-patterns audio.wav --mode pattern` |
-| `tag` | Perform zero-shot audio tagging | `huggingface tag audio.wav --categories "genre:techno,house,ambient"` |
-| `caption` | Generate audio descriptions | `huggingface caption audio.wav --mix-notes` |
-| `similarity` | Audio-text similarity analysis | `huggingface similarity audio.wav --mode timestamps --query "bass drop"` |
-| `realtime-beats` | Real-time beat tracking | `huggingface realtime-beats --file --input audio.wav` |
+| `extract` | Extract features using neural models | `python -m src.main hf extract audio.wav` |
+| `analyze-drums` | Analyze drum sounds | `python -m src.main hf analyze-drums audio.wav --visualize` |
+| `drum-patterns` | Detect and analyze drum patterns | `python -m src.main hf drum-patterns audio.wav --mode pattern` |
+| `tag` | Perform zero-shot audio tagging | `python -m src.main hf tag audio.wav --categories "genre:techno,house,ambient"` |
+| `caption` | Generate audio descriptions | `python -m src.main hf caption audio.wav --mix-notes` |
+| `similarity` | Audio-text similarity analysis | `python -m src.main hf similarity audio.wav --mode timestamps --query "bass drop"` |
+| `realtime-beats` | Real-time beat tracking | `python -m src.main hf realtime-beats --file --input audio.wav` |
 
 ### Python API Usage
 
 ```python
-from src.huggingface import DrumSoundAnalyzer, AudioCaptioner, RealTimeBeatTracker
+from heihachi.huggingface import FeatureExtractor, StemSeparator, BeatDetector
 
-# Analyze drum patterns
-analyzer = DrumSoundAnalyzer()
-hits = analyzer.detect_drum_hits("audio.wav")
-pattern = analyzer.create_drum_pattern(hits, quantize=True, tempo=170.0)
-analyzer.export_pattern(pattern, output_format="midi", file_path="pattern.mid")
+# Extract features
+extractor = FeatureExtractor(model="microsoft/BEATs-base")
+features = extractor.extract(audio_path="track.mp3")
 
-# Generate audio caption with sentiment analysis
-captioner = AudioCaptioner()
-results = captioner.caption_with_sentiment("audio.wav")
-print(f"Caption: {results['caption']}")
-print(f"Sentiment: {results['sentiment']['dominant']}")
+# Separate stems
+separator = StemSeparator()
+stems = separator.separate(audio_path="track.mp3")
+drums = stems["drums"]
+bass = stems["bass"]
 
-# Track beats in real-time
-tracker = RealTimeBeatTracker()
-tracker.run_real_time_demo(duration=30.0, visualize=True)
+# Detect beats
+detector = BeatDetector()
+beats = detector.detect(audio_path="track.mp3", visualize=True, output_path="beats.png")
+print(f"Tempo: {beats['tempo']} BPM")
 ```
 
-## Performance Tuning
+### Implementation Plan
 
-Heihachi can be optimized for different hardware configurations:
+The integration of specialized models follows a phased approach:
 
-```bash
-# Use GPU acceleration
-heihachi process audio.wav --gpu
+1. **Phase 1: Core Models Integration**
+   - Integrate BEATs models for feature extraction
+   - Add Whisper encoder for robust feature analysis
+   - Implement Demucs for stem separation
+   - Add Beat-Transformer for rhythm analysis
 
-# Specify number of processing workers
-heihachi process audio_dir/ --workers 4
+2. **Phase 2: Specialized Analysis**
+   - Implement CLAP for multimodal similarity
+   - Integrate wav2vec2 for drum sound analysis
+   - Add BEAST for real-time beat tracking
 
-# Adjust memory usage
-heihachi process audio_dir/ --memory-limit 2048
-```
+3. **Phase 3: Advanced Features**
+   - Implement OpenJMLA for zero-shot tagging
+   - Add audio captioning capabilities
+   - Build similarity retrieval interface
 
-A full list of performance settings can be found in `configs/performance.yaml`.
+### Performance Considerations
+
+- GPU acceleration is enabled by default when available
+- For large audio files, batched processing is automatically used
+- Memory usage can be high for some models - consider using a machine with at least 8GB RAM
+- HuggingFace API keys can be provided for models requiring authentication
 
 ## Interactive Explorer and Progress Utilities
 
@@ -249,33 +285,40 @@ Heihachi provides two interactive interfaces for exploring analysis results:
 The command-line explorer allows you to interactively explore audio analysis results:
 
 ```bash
-# Start the CLI explorer
 python -m src.cli.interactive_cli --results-dir /path/to/results
 ```
 
 Available commands:
-- `list` - List available result files
-- `open <index/filename>` - Open a result file
-- `summary` - Show summary of current result
-- `info <feature>` - Show detailed feature information
-- `plot <type> [feature]` - Generate visualizations
-- `compare <feature> [files]` - Compare features across files
-- `export <format> [filename]` - Export to different formats
-- `help` - Show available commands
+- `list [pattern]`: List available analysis result files
+- `open INDEX/FILENAME`: Open an analysis result file
+- `summary`: Show summary of the current analysis result
+- `info FEATURE_NAME`: Show detailed information about a specific feature
+- `plot TYPE [FEATURE_NAME] [--save FILENAME]`: Plot a feature or visualization
+- `compare FEATURE_NAME [file1 file2 ...]`: Compare a feature across multiple results
+- `distribution FEATURE_NAME [file1 file2 ...]`: Plot distribution of a feature
+- `export FORMAT [FILENAME]`: Export the current result to another format
+- `refresh`: Refresh the list of available result files
+- `help`: Show available commands
+- `exit`, `quit`: Exit the explorer
+
+Plot types include `waveform`, `spectrogram`, and `feature FEATURE_NAME`.
+
+Export formats include `csv`, `json`, and `markdown`.
 
 #### Web UI Explorer
 
 A browser-based interface for visualizing and exploring analysis results:
 
 ```bash
-# Start the web UI
-python -m src.cli.interactive_cli --web --results-dir /path/to/results
+python -m src.cli.interactive_cli --web --result-file /path/to/result.json
 ```
 
 Options:
-- `--host` - Host to bind to (default: localhost)
-- `--port` - Port to use (default: 5000)
-- `--no-browser` - Don't automatically open browser
+- `--web`: Start web UI instead of CLI explorer
+- `--host`: Host to bind the web server to (default: `localhost`)
+- `--port`: Port to bind the web server to (default: `5000`)
+- `--result-file`: Specific result file to load in web UI
+- `--no-browser`: Don't automatically open browser
 
 ### Progress Utilities
 
@@ -316,6 +359,56 @@ for file in cli_progress_bar(files, desc="Processing files"):
     # Process each file
 ```
 
+### Batch Processing
+
+Heihachi includes a batch processing system for analyzing multiple audio files with different configurations.
+
+#### Batch Processing CLI
+
+```bash
+python -m src.cli.batch_cli --input-dir /path/to/audio --config /path/to/config.json
+```
+
+Options:
+- `--input-dir`: Directory containing audio files to process
+- `--batch-file`: JSON file containing batch processing specification
+- `--pattern`: File pattern to match (default: `*.wav`)
+- `--max-files`: Maximum number of files to process
+- `--config`: Configuration file(s) to use
+- `--output-dir`: Directory to save results (default: `results`)
+- `--export`: Export formats (default: `json`)
+- `--parallel`: Process files in parallel (default: `True`)
+- `--no-parallel`: Disable parallel processing
+- `--workers`: Number of worker processes
+- `--progress`: Progress display type (`bar`, `rich`, `simple`, `none`)
+- `--log-level`: Set logging level
+- `--quiet`: Minimize output (overrides `--progress`)
+
+#### Batch Configuration
+
+Batch processing can be configured through a JSON file:
+
+```json
+{
+  "output_dir": "results",
+  "configs": [
+    {
+      "name": "config1",
+      "path": "configs/config1.json",
+      "file_patterns": ["*.wav", "*.mp3"]
+    },
+    {
+      "name": "config2",
+      "path": "configs/config2.json",
+      "files": ["file1.wav", "file2.wav"]
+    }
+  ],
+  "input_dirs": ["audio1", "audio2"],
+  "parallel": true,
+  "max_workers": 4
+}
+```
+
 ### Demonstration
 
 A demonstration script is available to showcase the interactive explorer and progress utilities:
@@ -330,8 +423,8 @@ This script demonstrates:
 3. Various visualization capabilities
 
 Options:
-- `--skip-processing` - Skip processing and use existing results
-- `--progress-demo` - Show only progress indicators demonstration
+- `--skip-processing`: Skip processing and use existing results
+- `--progress-demo`: Show only progress indicators demonstration
 
 ## Advanced Usage
 

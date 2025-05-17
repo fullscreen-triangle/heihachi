@@ -4,7 +4,30 @@ librosa~=0.10.2.post1
 matplotlib~=3.7.5
 scikit-learn~=1.5.0
 networkx~=3.1
+torch>=1.9.0
+transformers>=4.20.0
+librosa>=0.9.0
+numpy>=1.20.0
+matplotlib>=3.5.0
+scipy>=1.7.0
+soundfile>=0.10.3
 
+# For BEATs models
+torchaudio>=0.9.0
+
+# For Whisper model
+openai-whisper>=1.0.0
+
+# For Demucs stem separation
+demucs>=4.0.0
+
+# For CLAP models
+open_clip_torch>=2.0.0
+ftfy>=6.0.0
+
+# Optional dependencies
+faiss-gpu>=1.7.2; sys_platform != "darwin" and python_version < "3.11"
+faiss-cpu>=1.7.2; sys_platform == "darwin" or python_version >= "3.11"
 
 fastdtw~=0.3.4
 setuptools~=68.2.0

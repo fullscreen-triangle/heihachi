@@ -16,7 +16,7 @@ import os
 
 
 class MixVisualizer:
-    def __init__(self, output_dir: str = "../results/"):
+    def __init__(self, output_dir: str = "./public/results/"):
         """Initialize the mix visualizer.
         
         Args:
@@ -65,7 +65,7 @@ class MixVisualizer:
         plt.close()
 
     def plot_mix_heatmap(self, metrics: Dict, times: List[float],
-                         output_path: str = "../results/mix_heatmap.png"):
+                         output_path: str = "./public/results/mix_heatmap.png"):
         """Plot enhanced heatmap with annotations."""
         metric_names = list(metrics.keys())
         data = np.array([metrics[metric] for metric in metric_names])
@@ -92,7 +92,7 @@ class MixVisualizer:
         plt.close()
 
     def plot_mix_radar(self, metrics: Dict, timestamps: List[float],
-                       output_path: str = "../results/mix_radar.html"):
+                       output_path: str = "./public/results/mix_radar.html"):
         """Create interactive radar chart showing mix progression."""
         # Normalize metrics
         scaler = MinMaxScaler()
@@ -126,7 +126,7 @@ class MixVisualizer:
         fig.write_html(self.output_dir / output_path)
 
     def plot_clusters(self, clusters: Dict, features: np.ndarray,
-                      output_path: str = "../results/clusters.png"):
+                      output_path: str = "./public/results/clusters.png"):
         """Visualize audio clusters with their characteristics."""
         # Reduce dimensionality for visualization if needed
         if features.shape[1] > 2:
@@ -168,7 +168,7 @@ class MixVisualizer:
         plt.savefig(self.output_dir / output_path)
         plt.close()
 
-    def create_summary_report(self, results: Dict, output_path: str = "../results/summary.html"):
+    def create_summary_report(self, results: Dict, output_path: str = "./public/results/summary.html"):
         """Create an HTML summary report with all visualizations and metrics."""
         html_content = f"""
         <html>
@@ -224,7 +224,7 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 class AnalysisVisualizer:
-    def __init__(self, output_dir: str = "../visualizations/"):
+    def __init__(self, output_dir: str = "./public/visualizations/"):
         """Initialize the analysis visualizer.
         
         Args:

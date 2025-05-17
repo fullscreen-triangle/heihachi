@@ -1,0 +1,86 @@
+# configs/default.yaml
+audio:
+  sample_rate: 22050
+  hop_length: 512
+  chunk_size: 1048576
+  segment_threshold: 0.05
+  min_segment_length: 2.0  # seconds
+  max_segments: 100
+
+processing:
+  n_workers: 4
+  batch_size: 16
+  use_gpu: false
+  cache_results: true
+
+segmentation:
+  onset_threshold: 0.05
+  minimum_silence: 0.5
+  peak_pick_pre_max: 30
+  peak_pick_post_max: 30
+  peak_pick_pre_avg: 100
+  peak_pick_post_avg: 100
+
+similarity:
+  threshold: 0.8
+  clustering_eps: 1.5
+  min_samples: 2
+
+storage:
+  format: "h5"  # or "pickle"
+  compression_level: 9
+  cache_dir: "cache"
+  results_dir: "results"
+  database_dir: "database"
+# Default configuration for Heihachi Audio Analysis
+
+# General settings
+general:
+  sample_rate: 44100
+  channels: 2
+  chunk_size: 4096
+  cache_enabled: true
+
+# Feature extraction settings
+feature_extraction:
+  window_size: 2048
+  hop_size: 512
+  window_type: "hann"
+  fft_size: 2048
+  spectral:
+    enable: true
+    mel_bands: 128
+    mfcc_coeffs: 13
+  temporal:
+    enable: true
+  rhythmic:
+    enable: true
+    beat_tracking: true
+
+# Analysis settings
+analysis:
+  bass_analysis:
+    enable: true
+    min_freq: 20
+    max_freq: 250
+  drum_analysis:
+    enable: true
+  effect_detection:
+    enable: true
+  pattern_recognition:
+    enable: true
+
+# Visualization settings
+visualization:
+  enable: true
+  plot_spectrograms: true
+  plot_waveforms: true
+  plot_features: true
+  colormap: "viridis"
+
+# Export settings
+export:
+  json: true
+  csv: false
+  images: true
+

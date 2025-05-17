@@ -22,7 +22,10 @@ from src.alignment import SequenceAligner, PriorSubspaceAnalysis, SimilarityAnal
 from src.annotation.peak_detection import PeakDetector
 from src.annotation.segment_clustering import SegmentClusterer
 from src.annotation.transition_detector import TransitionDetector
-from src.core import MixAnalyzer, AudioProcessor, AudioSceneAnalyzer
+# Import directly from modules to avoid circular imports
+from src.core.mix_analyzer import MixAnalyzer
+from src.core.audio_processing import AudioProcessor
+from src.core.audio_scene import AudioSceneAnalyzer
 from src.feature_extraction.baseline_analysis import BasslineAnalyzer
 from src.feature_extraction.bpm_analysis import BPMAnalyzer
 from src.feature_extraction.drum_analysis import DrumAnalyzer

@@ -8,6 +8,7 @@ in both CLI and interactive contexts.
 
 import sys
 import time
+import uuid
 from typing import Optional, Union, Any, Iterator, Iterable, Dict, List, Callable
 from contextlib import contextmanager
 
@@ -258,3 +259,160 @@ class SimpleProgress:
         if self.current < self.total:
             self.current = self.total
             self.update(0)  # Force display update 
+
+
+# Global ProgressTracker for the simplified progress tracking API
+class ProgressTracker:
+    """Simplified progress tracking for operations across function calls.
+    
+    This class provides a simpler interface for tracking progress compared to
+    ProgressManager, with a focus on ease of use across different functions.
+    """
+    
+    def __init__(self):
+        """Initialize the progress tracker."""
+        self.operations = {}
+        self.progress = None
+        self.enable = True
+    
+    def start(self, description: str, total: int = 100) -> str:
+        """Start tracking a new operation.
+        
+        Args:
+            description: Description of the operation
+            total: Total steps in the operation
+            
+        Returns:
+            Operation ID that can be used for updating progress
+        """
+        if not self.enable:
+            return ""
+            
+        # Create a unique ID for this operation
+        operation_id = str(uuid.uuid4())
+        
+        # Initialize progress display if needed
+        if not self.progress:
+            self.progress = Progress(
+                SpinnerColumn(),
+                TextColumn("[bold blue]{task.description}"),
+                BarColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(),
+            )
+            self.progress.start()
+        
+        # Create a new task
+        task_id = self.progress.add_task(description, total=total)
+        self.operations[operation_id] = {
+            "task_id": task_id,
+            "description": description,
+            "total": total
+        }
+        
+        return operation_id
+    
+    def update(self, operation_id: str, advance: int = 1, status: Optional[str] = None) -> None:
+        """Update progress for an operation.
+        
+        Args:
+            operation_id: Operation identifier
+            advance: How many steps to advance
+            status: Optional status message to display
+        """
+        if not self.enable or not self.progress or not operation_id or operation_id not in self.operations:
+            return
+            
+        task_id = self.operations[operation_id]["task_id"]
+        if status:
+            base_desc = self.operations[operation_id]["description"]
+            self.progress.update(task_id, advance=advance, description=f"[bold blue]{base_desc}: {status}")
+        else:
+            self.progress.update(task_id, advance=advance)
+    
+    def complete(self, operation_id: str, message: Optional[str] = None) -> None:
+        """Mark an operation as complete.
+        
+        Args:
+            operation_id: Operation identifier
+            message: Optional completion message
+        """
+        if not self.enable or not self.progress or not operation_id or operation_id not in self.operations:
+            return
+            
+        task_id = self.operations[operation_id]["task_id"]
+        if message:
+            self.progress.update(task_id, completed=100, description=f"✓ {message}")
+        else:
+            self.progress.update(task_id, completed=100)
+            
+        # Remove from tracked operations
+        del self.operations[operation_id]
+    
+    def error(self, operation_id: str, message: str) -> None:
+        """Mark an operation as failed.
+        
+        Args:
+            operation_id: Operation identifier
+            message: Error message
+        """
+        if not self.enable or not self.progress or not operation_id or operation_id not in self.operations:
+            return
+            
+        task_id = self.operations[operation_id]["task_id"]
+        self.progress.update(task_id, description=f"✗ Error: {message}")
+        
+        # Remove from tracked operations
+        del self.operations[operation_id]
+    
+    def disable(self) -> None:
+        """Disable progress reporting."""
+        self.enable = False
+    
+    def enable_tracking(self) -> None:
+        """Enable progress reporting."""
+        self.enable = True
+    
+    def stop_all(self) -> None:
+        """Stop all progress reporting."""
+        if self.progress:
+            self.progress.stop()
+            self.progress = None
+            self.operations = {}
+
+
+# Create a global instance for use with the functional API
+_tracker = ProgressTracker()
+
+def track_progress(description: str, total: int = 100) -> str:
+    """Start tracking progress for a new operation.
+    
+    This is a simplified interface for tracking progress across functions.
+    
+    Args:
+        description: Description of the operation
+        total: Total steps in the operation
+        
+    Returns:
+        Operation ID that can be used with update_progress and complete_progress
+    """
+    return _tracker.start(description, total)
+
+def update_progress(operation_id: str, advance: int = 1, status: Optional[str] = None) -> None:
+    """Update progress for an operation.
+    
+    Args:
+        operation_id: Operation identifier from track_progress
+        advance: How many steps to advance
+        status: Optional status message to display
+    """
+    _tracker.update(operation_id, advance, status)
+
+def complete_progress(operation_id: str, message: Optional[str] = None) -> None:
+    """Mark an operation as complete.
+    
+    Args:
+        operation_id: Operation identifier from track_progress
+        message: Optional completion message
+    """
+    _tracker.complete(operation_id, message) 

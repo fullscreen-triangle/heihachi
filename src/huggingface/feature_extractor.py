@@ -14,13 +14,16 @@ import logging
 from transformers import AutoModel, AutoProcessor, AutoFeatureExtractor
 import os
 
+from ..utils.env_loader import load_dotenv, get_api_key
+
 logger = logging.getLogger(__name__)
 
 class FeatureExtractor:
     """Audio feature extraction using specialized HuggingFace models."""
     
     def __init__(self, model: str = "microsoft/BEATs-base", api_key: Optional[str] = None,
-                 use_cuda: bool = True, device: Optional[str] = None, config: Optional[Dict] = None):
+                 use_cuda: bool = True, device: Optional[str] = None, config: Optional[Dict] = None,
+                 load_from_env: bool = True):
         """Initialize the feature extractor with a specified model.
         
         Args:
@@ -29,19 +32,34 @@ class FeatureExtractor:
             use_cuda: Whether to use CUDA if available
             device: Specific device to use (e.g., 'cuda:0', 'cpu')
             config: Additional configuration settings
+            load_from_env: Whether to load API key from .env file if not explicitly provided
         """
         self.model_name = model
         self.config = config or {}
-        self.api_key = api_key
+        
+        # Try to load .env file if requested
+        if load_from_env:
+            load_dotenv()
+        
+        # Get API key with priority:
+        # 1. Explicitly provided api_key parameter
+        # 2. Environment variables from .env file (HF_API_TOKEN, HUGGINGFACE_API_KEY)
+        if api_key:
+            self.api_key = api_key
+        else:
+            self.api_key = get_api_key(
+                key_name="HF_API_TOKEN", 
+                fallback_names=["HUGGINGFACE_API_KEY", "HF_TOKEN"]
+            )
         
         # Set up device
         self.use_cuda = use_cuda and torch.cuda.is_available()
         self.device = device or ('cuda' if self.use_cuda else 'cpu')
         
-        # Set the API key environment variable if provided
-        if api_key:
-            os.environ["HF_API_TOKEN"] = api_key
-            logger.info("HuggingFace API token set from configuration")
+        # Set the API key environment variable if available
+        if self.api_key:
+            os.environ["HF_API_TOKEN"] = self.api_key
+            logger.info("HuggingFace API token set")
         
         # Load the model and processor
         logger.info(f"Loading feature extraction model: {model}")

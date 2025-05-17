@@ -18,18 +18,26 @@ from ..huggingface import (
     DrumSoundAnalyzer, SimilarityAnalyzer, ZeroShotTagger,
     AudioCaptioner, RealTimeBeatTracker
 )
+from ..utils.env_loader import load_dotenv, get_api_key
 
 logger = logging.getLogger(__name__)
 
 def extract_features_command(args):
     """CLI command to extract features from audio using specialized models."""
     try:
+        # Load .env file if available
+        load_dotenv()
+        
+        # Get API key with priority: command line arg > environment variable
+        api_key = args.api_key or get_api_key()
+        
         # Create feature extractor
         extractor = FeatureExtractor(
             model=args.model,
-            api_key=args.api_key,
+            api_key=api_key,
             use_cuda=not args.cpu,
-            device=args.device
+            device=args.device,
+            load_from_env=False  # Already loaded above
         )
         
         # Extract features
@@ -83,10 +91,16 @@ def extract_features_command(args):
 def separate_stems_command(args):
     """CLI command to separate audio into stems."""
     try:
+        # Load .env file if available
+        load_dotenv()
+        
+        # Get API key with priority: command line arg > environment variable
+        api_key = args.api_key or get_api_key()
+        
         # Create stem separator
         separator = StemSeparator(
             model_name=args.model,
-            api_key=args.api_key,
+            api_key=api_key,
             use_cuda=not args.cpu,
             device=args.device,
             num_stems=args.num_stems
@@ -127,10 +141,16 @@ def separate_stems_command(args):
 def detect_beats_command(args):
     """CLI command to detect beats in audio."""
     try:
+        # Load .env file if available
+        load_dotenv()
+        
+        # Get API key with priority: command line arg > environment variable
+        api_key = args.api_key or get_api_key()
+        
         # Create beat detector
         detector = BeatDetector(
             model_name=args.model,
-            api_key=args.api_key,
+            api_key=api_key,
             use_cuda=not args.cpu,
             device=args.device
         )

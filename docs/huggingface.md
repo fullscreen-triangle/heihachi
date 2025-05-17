@@ -102,13 +102,32 @@ print(f"Tempo: {beats['tempo']} BPM")
 
 ## HuggingFace API Keys
 
-For models that require authentication:
+For models that require authentication, you have several options:
 
-```bash
-python -m src.main hf extract path/to/audio.mp3 --api-key YOUR_HF_API_KEY
-```
+1. **Command line argument** (not recommended for security):
+   ```bash
+   python -m src.main hf extract path/to/audio.mp3 --api-key YOUR_HF_API_KEY
+   ```
 
-You can also set the environment variable `HF_API_TOKEN` to avoid passing it on the command line.
+2. **Environment variable**:
+   ```bash
+   export HF_API_TOKEN=YOUR_HF_API_KEY
+   python -m src.main hf extract path/to/audio.mp3
+   ```
+
+3. **Using a .env file** (recommended):
+   
+   Create a `.env` file in the project root with:
+   ```
+   HF_API_TOKEN=YOUR_HF_API_KEY
+   ```
+   
+   Then run commands without specifying the key:
+   ```bash
+   python -m src.main hf extract path/to/audio.mp3
+   ```
+
+For more details on environment configuration, see [Environment Configuration](./env-configuration.md).
 
 ## Extending with New Models
 

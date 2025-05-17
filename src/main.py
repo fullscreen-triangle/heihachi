@@ -38,14 +38,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '--input', '-i',
         type=str,
-        help='Input audio file or directory'
+        default='./public/amen_break.wav',
+        help='Input audio file or directory (default: ./public/amen_break.wav)'
     )
     
     parser.add_argument(
         '--output-dir', '-o',
         type=str,
-        default='./output',
-        help='Output directory for results (default: ./output)'
+        default='./public/output',
+        help='Output directory for results (default: ./public/output)'
     )
     
     parser.add_argument(
@@ -53,6 +54,13 @@ def parse_args() -> argparse.Namespace:
         type=str,
         default='./configs/default.yaml',
         help='Configuration file path (default: ./configs/default.yaml)'
+    )
+    
+    # Demo mode
+    parser.add_argument(
+        '--demo',
+        choices=['amen', 'full-mix'],
+        help='Run analysis on a demo file (amen: amen_break.wav, full-mix: QO_HoofbeatsMusic.wav)'
     )
     
     # Subcommands
@@ -68,8 +76,7 @@ def parse_args() -> argparse.Namespace:
     process_parser.add_argument(
         '--input', '-i',
         type=str,
-        required=True,
-        help='Input audio file or directory'
+        help='Input audio file or directory (default: ./public/amen_break.wav)'
     )
     
     process_parser.add_argument(
@@ -105,6 +112,13 @@ def parse_args() -> argparse.Namespace:
         nargs='+',
         default=['wav', 'mp3', 'flac', 'm4a', 'ogg'],
         help='File extensions to process (default: wav mp3 flac m4a ogg)'
+    )
+    
+    # Demo mode for process command
+    process_parser.add_argument(
+        '--demo',
+        choices=['amen', 'full-mix'],
+        help='Run analysis on a demo file (amen: amen_break.wav, full-mix: QO_HoofbeatsMusic.wav)'
     )
     
     process_parser.set_defaults(func=process_command)
@@ -234,7 +248,23 @@ def process_command(args: argparse.Namespace) -> None:
 
 def main():
     """Main entry point for the application."""
+    # Try to load environment variables from .env file
+    try:
+        from src.utils.env_loader import load_dotenv
+        load_dotenv()
+    except ImportError:
+        # Continue without .env support
+        pass
+    
     args = parse_args()
+    
+    # Handle demo mode
+    if args.demo:
+        if args.demo == 'amen':
+            args.input = './public/amen_break.wav'
+        elif args.demo == 'full-mix':
+            args.input = './public/QO_HoofbeatsMusic.wav'
+        logging.info(f"Running in demo mode with input: {args.input}")
     
     # Configure logging
     log_level = logging.DEBUG if args.debug else logging.INFO
@@ -245,6 +275,14 @@ def main():
     
     # Handle subcommands
     if args.command and hasattr(args, 'func'):
+        # Handle demo mode for subcommands
+        if hasattr(args, 'demo') and args.demo and not args.input:
+            if args.demo == 'amen':
+                args.input = './public/amen_break.wav'
+            elif args.demo == 'full-mix':
+                args.input = './public/QO_HoofbeatsMusic.wav'
+            logging.info(f"Running command in demo mode with input: {args.input}")
+        
         args.func(args)
     else:
         # For backward compatibility, default to process mode
