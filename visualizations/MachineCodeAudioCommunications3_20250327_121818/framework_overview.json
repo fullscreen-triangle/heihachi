@@ -1,0 +1,32 @@
+{
+  "framework": "Heihachi Audio Analysis Framework",
+  "version": "1.0.0",
+  "analysis_id": "MachineCodeAudioCommunications3_20250327_121818",
+  "timestamp": "2025-03-27T12:18:18.673324",
+  "audio_file": "public/MachineCodeAudioCommunications3.wav",
+  "duration": 2003.1587755102041,
+  "sample_rate": 44100,
+  "capabilities": {
+    "feature_extraction": [
+      "spectral",
+      "bpm",
+      "bassline",
+      "drum",
+      "groove",
+      "percussion",
+      "rhythm"
+    ],
+    "visualization": [],
+    "annotation": [
+      "peaks",
+      "segments",
+      "transitions"
+    ],
+    "alignment": [
+      "sequence",
+      "prior_subspace",
+      "similarity",
+      "composite"
+    ]
+  }
+}

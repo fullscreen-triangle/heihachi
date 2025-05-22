@@ -14,8 +14,9 @@ from typing import Dict, Any, Optional
 import json
 from pathlib import Path
 import time
+import psutil  # Add missing import for psutil
 
-# Add the project root to sys.path to ensure modules can be found
+# Add project root to sys.path to ensure modules can be found
 import sys
 
 from src.alignment import SequenceAligner, PriorSubspaceAnalysis, SimilarityAnalyzer, CompositeSimilarity
@@ -38,7 +39,7 @@ from src.utils.visualization import MixVisualizer, AnalysisVisualizer
 from src.utils.profiling import global_profiler, profile
 from src.feature_extraction import feature_extractor
 from src.visualization import visualizer
-from src.utils.config import load_config, Config
+from src.utils.config import ConfigManager
 from src.utils.cache import result_cache
 from src.huggingface import (
     HuggingFaceAudioAnalyzer, FeatureExtractor, StemSeparator, BeatDetector,
@@ -71,7 +72,8 @@ class Pipeline:
         logger.info(f"Using device: {self.device}")
         
         # Set up number of workers for parallel processing - configurable now
-        self.config = self._load_config(config_path)
+        config_manager = ConfigManager(config_path)
+        self.config = config_manager.config
         self.num_workers = self.config.get('processing', {}).get('num_workers', min(mp.cpu_count(), 4))
         logger.info(f"Using {self.num_workers} workers for parallel processing")
         
@@ -119,74 +121,6 @@ class Pipeline:
         self.analysis_visualizer = AnalysisVisualizer(visualizations_dir)
         logger.debug(f"Visualizers initialized with output dir: {visualizations_dir}")
     
-    def _load_config(self, config_path: str) -> Dict[str, Any]:
-        """
-        Load configuration from YAML file.
-        
-        Args:
-            config_path: Path to configuration file
-            
-        Returns:
-            Configuration dictionary
-        """
-        try:
-            if os.path.exists(config_path):
-                logger.debug(f"Loading configuration from: {config_path}")
-                with open(config_path, 'r') as f:
-                    config = yaml.safe_load(f)
-                logger.info(f"Configuration loaded from {config_path}")
-                return config
-            else:
-                logger.warning(f"Configuration file {config_path} not found, using default configuration")
-                return self._default_config()
-        except Exception as e:
-            logger.error(f"Error loading configuration: {str(e)}")
-            logger.warning("Using default configuration instead")
-            return self._default_config()
-    
-    def _default_config(self) -> Dict[str, Any]:
-        """
-        Create default configuration.
-        
-        Returns:
-            Default configuration dictionary
-        """
-        logger.debug("Creating default configuration dictionary")
-        return {
-            "general": {
-                "sample_rate": 44100,
-                "channels": 2
-            },
-            "feature_extraction": {
-                "enable": True
-            },
-            "analysis": {
-                "enable": True
-            },
-            "visualization": {
-                "enable": True
-            },
-            "huggingface": {
-                "enable": False,
-                "model_name": "facebook/wav2vec2-base-960h",
-                "api_key": None,
-                "genre_classification": True,
-                "instrument_detection": True
-            },
-            "processing": {
-                "num_workers": min(mp.cpu_count(), 4),
-                "memory_limit_mb": 1024,
-                "chunk_size": 4096,
-                "batch_size": 16
-            },
-            "storage": {
-                "cache_dir": "../cache",
-                "results_dir": "../results",
-                "visualizations_dir": "../visualizations",
-                "compression_level": 6
-            }
-        }
-
     def _init_huggingface(self):
         """Initialize HuggingFace integration."""
         hf_config = self.config.get("huggingface", {})

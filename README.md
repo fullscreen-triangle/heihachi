@@ -1,5 +1,5 @@
 <h1 align="center">Heihachi</h1>
-<p align="center"><em> what makes a tiger so strong is that it lacks humanity</em></p>
+<p align="center"><em>What makes a tiger so strong is that it lacks humanity</em></p>
 
 <p align="center">
   <img src="./heihachi.png" alt="Heihachi Logo" width="300"/>
@@ -10,7 +10,33 @@
 
 # Heihachi Audio Analysis Framework
 
-Advanced audio analysis framework for processing, analyzing, and visualizing audio files with optimized performance.
+Advanced audio analysis framework for processing, analyzing, and visualizing audio files with optimized performance, designed specifically for electronic music with a focus on neurofunk and drum & bass genres.
+
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Theoretical Foundation](#theoretical-foundation)
+- [Core Components](#core-components)
+- [HuggingFace Integration](#huggingface-integration)
+- [Experimental Results](#experimental-results)
+- [Performance Optimizations](#performance-optimizations)
+- [Applications](#applications)
+- [Future Directions](#future-directions)
+- [License](#license)
+- [Citation](#citation)
+
+## Overview
+
+Heihachi implements novel approaches to audio analysis by combining neurological models of rhythm processing with advanced signal processing techniques. The system is built upon established neuroscientific research demonstrating that humans possess an inherent ability to synchronize motor responses with external rhythmic stimuli. This framework provides high-performance analysis for:
+
+- Detailed drum pattern recognition and visualization
+- Bass sound design decomposition
+- Component separation and analysis
+- Comprehensive visualization tools
+- Neural-based feature extraction
+- Memory-optimized processing for large files
 
 ## Features
 
@@ -109,383 +135,52 @@ heihachi export results/ --format csv
 heihachi export results/ --format markdown
 ```
 
-## HuggingFace Integration
+### Command-Line Interface (CLI)
 
-Heihachi integrates specialized AI models from Hugging Face, enabling advanced neural processing of audio using state-of-the-art models. This integration follows a structured implementation approach with models carefully selected for electronic music analysis tasks.
-
-### Available Models
-
-The following specialized audio analysis models are available:
-
-| Category | Model Type | Default Model | Description | Priority |
-|----------|------------|---------------|-------------|----------|
-| **Core Feature Extraction** | Generic spectral + temporal embeddings | [microsoft/BEATs](https://huggingface.co/microsoft/BEATs) | Bidirectional ViT-style encoder trained with acoustic tokenisers; provides 768-d latent at ~20 ms hop | High |
-| | Robust speech & non-speech features | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) | Trained on >5M hours; encoder provides 1280-d features tracking energy, voicing & language | High |
-| **Audio Source Separation** | Stem isolation | [Demucs v4](https://huggingface.co/spaces/abidlabs/music-separation) | Returns 4-stem or 6-stem tensors for component-level analysis | High |
-| **Rhythm Analysis** | Beat / down-beat tracking | [Beat-Transformer](https://huggingface.co/nicolaus625/cmi) | Dilated self-attention encoder with F-measure ~0.86 | High |
-| | Low-latency beat-tracking | [BEAST](https://github.com/beats-team/beast) | 50 ms latency, causal attention; ideal for real-time DJ analysis | Medium |
-| | Drum-onset / kit piece ID | [DunnBC22/wav2vec2-base-Drum_Kit_Sounds](https://huggingface.co/DunnBC22/wav2vec2-base-Drum_Kit_Sounds) | Fine-tuned on kick/snare/tom/overhead labels | Medium |
-| **Multimodal & Similarity** | Multimodal similarity / tagging | [laion/clap-htsat-fused](https://huggingface.co/laion/clap-htsat-fused) | Query with free-text and compute cosine similarity on 512-d embeddings | Medium |
-| | Zero-shot tag & prompt embedding | [UniMus/OpenJMLA](https://huggingface.co/UniMus/OpenJMLA) | Score arbitrary tag strings for effect-chain heuristics | Medium |
-| **Future Extensions** | Audio captioning | [slseanwu/beats-conformer-bart-audio-captioner](https://huggingface.co/slseanwu/beats-conformer-bart-audio-captioner) | Produces textual descriptions per segment | Low |
-| | Similarity retrieval UI | CLAP embeddings + FAISS | Index embeddings and expose nearest-neighbor search | Low |
-
-### Configuration
-
-Configure HuggingFace models in `configs/huggingface.yaml`:
-
-```yaml
-# Enable/disable HuggingFace integration
-enabled: true
-
-# API key for accessing HuggingFace models (leave empty to use public models only)
-api_key: ""
-
-# Specialized model settings
-feature_extraction:
-  enabled: true
-  model: "microsoft/BEATs-base"
-
-beat_detection:
-  enabled: true
-  model: "nicolaus625/cmi"
-
-# Additional models (disabled by default to save resources)
-drum_sound_analysis:
-  enabled: false
-  model: "DunnBC22/wav2vec2-base-Drum_Kit_Sounds"
-
-similarity:
-  enabled: false
-  model: "laion/clap-htsat-fused"
-
-# See configs/huggingface.yaml for all available options
-```
-
-### Installation
-
-To use the HuggingFace integration, you need to install the required dependencies:
+The basic command structure is:
 
 ```bash
-pip install -r requirements-huggingface.txt
+python -m src.main [input_file] [options]
 ```
 
-### Command-Line Usage
+Where `[input_file]` can be either a single audio file or a directory containing multiple audio files.
 
-#### Feature Extraction
+#### Command-Line Options
 
-Extract features from an audio file using the BEATs model:
+| Option | Description | Default |
+|--------|-------------|---------|
+| `input_file` | Path to audio file or directory (required) | - |
+| `-c, --config` | Path to configuration file | ../configs/default.yaml |
+| `-o, --output` | Path to output directory | ../results |
+| `--cache-dir` | Path to cache directory | ../cache |
+| `-v, --verbose` | Enable verbose logging | False |
+
+#### Examples
 
 ```bash
-python -m src.main hf extract path/to/audio.mp3 --output features.json
+# Process a single audio file
+python -m src.main /path/to/track.wav
+
+# Process an entire directory of audio files
+python -m src.main /path/to/audio/folder
+
+# Use a custom configuration file
+python -m src.main /path/to/track.wav -c /path/to/custom_config.yaml
+
+# Specify custom output directory
+python -m src.main /path/to/track.wav -o /path/to/custom_output
+
+# Enable verbose logging
+python -m src.main /path/to/track.wav -v
 ```
 
-Options:
-- `--model`: Specify model name (default: "microsoft/BEATs-base")
-- `--output`: Path to save extracted features (JSON format)
-- `--max-length`: Maximum audio length to process in seconds (default: 30)
-- `--cpu`: Force CPU inference even if GPU is available
+### Processing Results
 
-#### Stem Separation
+After processing, the results are saved to the output directory (default: `../results`). For each audio file, the following is generated:
 
-Separate an audio file into stems:
-
-```bash
-python -m src.main hf separate path/to/audio.mp3 --output-dir ./stems --save-stems
-```
-
-Options:
-- `--model`: Specify model name (default: "facebook/demucs")
-- `--output-dir`: Directory to save separated stems
-- `--num-stems`: Number of stems to separate (4 or 6, default: 4)
-- `--save-stems`: Enable to save stems to disk
-
-#### Beat Detection
-
-Detect beats and downbeats in an audio file:
-
-```bash
-python -m src.main hf beats path/to/audio.mp3 --output beats.json
-```
-
-Options:
-- `--model`: Specify model name (default: "nicolaus625/cmi")
-- `--output`: Path to save beat data or visualization
-- `--visualize`: Generate visualization of detected beats
-- `--no-downbeats`: Skip downbeat detection
-
-#### Other Commands
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `extract` | Extract features using neural models | `python -m src.main hf extract audio.wav` |
-| `analyze-drums` | Analyze drum sounds | `python -m src.main hf analyze-drums audio.wav --visualize` |
-| `drum-patterns` | Detect and analyze drum patterns | `python -m src.main hf drum-patterns audio.wav --mode pattern` |
-| `tag` | Perform zero-shot audio tagging | `python -m src.main hf tag audio.wav --categories "genre:techno,house,ambient"` |
-| `caption` | Generate audio descriptions | `python -m src.main hf caption audio.wav --mix-notes` |
-| `similarity` | Audio-text similarity analysis | `python -m src.main hf similarity audio.wav --mode timestamps --query "bass drop"` |
-| `realtime-beats` | Real-time beat tracking | `python -m src.main hf realtime-beats --file --input audio.wav` |
-
-### Python API Usage
-
-```python
-from heihachi.huggingface import FeatureExtractor, StemSeparator, BeatDetector
-
-# Extract features
-extractor = FeatureExtractor(model="microsoft/BEATs-base")
-features = extractor.extract(audio_path="track.mp3")
-
-# Separate stems
-separator = StemSeparator()
-stems = separator.separate(audio_path="track.mp3")
-drums = stems["drums"]
-bass = stems["bass"]
-
-# Detect beats
-detector = BeatDetector()
-beats = detector.detect(audio_path="track.mp3", visualize=True, output_path="beats.png")
-print(f"Tempo: {beats['tempo']} BPM")
-```
-
-### Implementation Plan
-
-The integration of specialized models follows a phased approach:
-
-1. **Phase 1: Core Models Integration**
-   - Integrate BEATs models for feature extraction
-   - Add Whisper encoder for robust feature analysis
-   - Implement Demucs for stem separation
-   - Add Beat-Transformer for rhythm analysis
-
-2. **Phase 2: Specialized Analysis**
-   - Implement CLAP for multimodal similarity
-   - Integrate wav2vec2 for drum sound analysis
-   - Add BEAST for real-time beat tracking
-
-3. **Phase 3: Advanced Features**
-   - Implement OpenJMLA for zero-shot tagging
-   - Add audio captioning capabilities
-   - Build similarity retrieval interface
-
-### Performance Considerations
-
-- GPU acceleration is enabled by default when available
-- For large audio files, batched processing is automatically used
-- Memory usage can be high for some models - consider using a machine with at least 8GB RAM
-- HuggingFace API keys can be provided for models requiring authentication
-
-## Interactive Explorer and Progress Utilities
-
-### Interactive Explorer
-
-Heihachi provides two interactive interfaces for exploring analysis results:
-
-#### Command-Line Explorer
-
-The command-line explorer allows you to interactively explore audio analysis results:
-
-```bash
-python -m src.cli.interactive_cli --results-dir /path/to/results
-```
-
-Available commands:
-- `list [pattern]`: List available analysis result files
-- `open INDEX/FILENAME`: Open an analysis result file
-- `summary`: Show summary of the current analysis result
-- `info FEATURE_NAME`: Show detailed information about a specific feature
-- `plot TYPE [FEATURE_NAME] [--save FILENAME]`: Plot a feature or visualization
-- `compare FEATURE_NAME [file1 file2 ...]`: Compare a feature across multiple results
-- `distribution FEATURE_NAME [file1 file2 ...]`: Plot distribution of a feature
-- `export FORMAT [FILENAME]`: Export the current result to another format
-- `refresh`: Refresh the list of available result files
-- `help`: Show available commands
-- `exit`, `quit`: Exit the explorer
-
-Plot types include `waveform`, `spectrogram`, and `feature FEATURE_NAME`.
-
-Export formats include `csv`, `json`, and `markdown`.
-
-#### Web UI Explorer
-
-A browser-based interface for visualizing and exploring analysis results:
-
-```bash
-python -m src.cli.interactive_cli --web --result-file /path/to/result.json
-```
-
-Options:
-- `--web`: Start web UI instead of CLI explorer
-- `--host`: Host to bind the web server to (default: `localhost`)
-- `--port`: Port to bind the web server to (default: `5000`)
-- `--result-file`: Specific result file to load in web UI
-- `--no-browser`: Don't automatically open browser
-
-### Progress Utilities
-
-The framework includes several utilities for tracking progress in long-running operations:
-
-#### Progress Context
-
-```python
-from src.utils.progress import progress_context
-
-with progress_context("Processing audio", total=100) as progress:
-    for i in range(100):
-        # Do some work
-        progress.update(1)
-```
-
-#### Progress Manager
-
-For tracking multiple operations simultaneously:
-
-```python
-from src.utils.progress import ProgressManager
-
-manager = ProgressManager()
-with manager.task("Processing audio", total=100) as task1:
-    with manager.task("Extracting features", total=50) as task2:
-        # Operations with nested progress tracking
-```
-
-#### CLI Progress Bar
-
-For simple command-line progress indication:
-
-```python
-from src.utils.progress import cli_progress_bar
-
-for file in cli_progress_bar(files, desc="Processing files"):
-    # Process each file
-```
-
-### Batch Processing
-
-Heihachi includes a batch processing system for analyzing multiple audio files with different configurations.
-
-#### Batch Processing CLI
-
-```bash
-python -m src.cli.batch_cli --input-dir /path/to/audio --config /path/to/config.json
-```
-
-Options:
-- `--input-dir`: Directory containing audio files to process
-- `--batch-file`: JSON file containing batch processing specification
-- `--pattern`: File pattern to match (default: `*.wav`)
-- `--max-files`: Maximum number of files to process
-- `--config`: Configuration file(s) to use
-- `--output-dir`: Directory to save results (default: `results`)
-- `--export`: Export formats (default: `json`)
-- `--parallel`: Process files in parallel (default: `True`)
-- `--no-parallel`: Disable parallel processing
-- `--workers`: Number of worker processes
-- `--progress`: Progress display type (`bar`, `rich`, `simple`, `none`)
-- `--log-level`: Set logging level
-- `--quiet`: Minimize output (overrides `--progress`)
-
-#### Batch Configuration
-
-Batch processing can be configured through a JSON file:
-
-```json
-{
-  "output_dir": "results",
-  "configs": [
-    {
-      "name": "config1",
-      "path": "configs/config1.json",
-      "file_patterns": ["*.wav", "*.mp3"]
-    },
-    {
-      "name": "config2",
-      "path": "configs/config2.json",
-      "files": ["file1.wav", "file2.wav"]
-    }
-  ],
-  "input_dirs": ["audio1", "audio2"],
-  "parallel": true,
-  "max_workers": 4
-}
-```
-
-### Demonstration
-
-A demonstration script is available to showcase the interactive explorer and progress utilities:
-
-```bash
-python scripts/interactive_demo.py
-```
-
-This script demonstrates:
-1. Progress tracking during sample audio processing
-2. Interactive exploration of analysis results
-3. Various visualization capabilities
-
-Options:
-- `--skip-processing`: Skip processing and use existing results
-- `--progress-demo`: Show only progress indicators demonstration
-
-## Advanced Usage
-
-### Custom Pipelines
-
-```yaml
-# Example pipeline configuration (pipeline.yaml)
-stages:
-  - name: load
-    processor: AudioLoader
-    params:
-      sample_rate: 44100
-  
-  - name: analyze
-    processor: SpectrumAnalyzer
-    params:
-      n_fft: 2048
-      hop_length: 512
-  
-  - name: extract
-    processor: FeatureExtractor
-    params:
-      features: [mfcc, chroma, tonnetz]
-```
-
-Run with custom pipeline:
-```bash
-heihachi process audio.wav --pipeline pipeline.yaml
-```
-
-## Development
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run specific test modules
-pytest tests/test_audio_processing.py
-```
-
-### Code Formatting
-
-```bash
-# Format code
-black src/ tests/
-
-# Check typing
-mypy src/
-```
-
-## License
-
-MIT
-
-# Heihachi: Neural Processing of Electronic Music
-
-## Overview
-
-Heihachi is a high-performance audio analysis framework designed for electronic music, with a particular focus on neurofunk and drum & bass genres. The system implements novel approaches to audio analysis by combining neurological models of rhythm processing with advanced signal processing techniques.
+1. **Analysis data**: JSON files containing detailed analysis results
+2. **Visualizations**: Graphs and plots showing various aspects of the audio analysis
+3. **Summary report**: Overview of the key findings and detected patterns
 
 ## Theoretical Foundation
 
@@ -518,106 +213,58 @@ Where:
 - $S_{xy}(f)$ is the cross-spectral density
 - $S_{xx}(f)$ and $S_{yy}(f)$ are auto-spectral densities
 
-### Extended Mathematical Framework
+### Mathematical Framework
 
 In addition to the coherence measures, we utilize several key mathematical formulas:
 
 1. **Spectral Decomposition**:
-For analyzing sub-bass and Reese bass components:
+   For analyzing sub-bass and Reese bass components:
 
-$$
-X(k) = \sum_{n=0}^{N-1} x(n)e^{-j2\pi kn/N}
-$$
+   $$
+   X(k) = \sum_{n=0}^{N-1} x(n)e^{-j2\pi kn/N}
+   $$
 
 2. **Groove Pattern Analysis**:
-For microtiming deviations:
+   For microtiming deviations:
 
-$$
-MT(n) = \frac{1}{K}\sum_{k=1}^{K} |t_k(n) - t_{ref}(n)|
-$$
+   $$
+   MT(n) = \frac{1}{K}\sum_{k=1}^{K} |t_k(n) - t_{ref}(n)|
+   $$
 
 3. **Amen Break Detection**:
-Pattern matching score:
+   Pattern matching score:
 
-$$
-S_{amen}(t) = \sum_{f} w(f)|X(f,t) - A(f)|^2
-$$
+   $$
+   S_{amen}(t) = \sum_{f} w(f)|X(f,t) - A(f)|^2
+   $$
 
 4. **Reese Bass Analysis**:
-For analyzing modulation and phase relationships:
+   For analyzing modulation and phase relationships:
 
-$$
-R(t,f) = \left|\sum_{k=1}^{K} A_k(t)e^{j\phi_k(t)}\right|^2
-$$
-
-Where:
-- $A_k(t)$ is the amplitude of the k-th component
-- $\phi_k(t)$ is the phase of the k-th component
+   $$
+   R(t,f) = \left|\sum_{k=1}^{K} A_k(t)e^{j\phi_k(t)}\right|^2
+   $$
 
 5. **Transition Detection**:
-For identifying mix points and transitions:
+   For identifying mix points and transitions:
 
-$$
-T(t) = \alpha\cdot E(t) + \beta\cdot S(t) + \gamma\cdot H(t)
-$$
-
-Where:
-- $E(t)$ is energy change
-- $S(t)$ is spectral change
-- $H(t)$ is harmonic change
-- $\alpha, \beta, \gamma$ are weighting factors
+   $$
+   T(t) = \alpha\cdot E(t) + \beta\cdot S(t) + \gamma\cdot H(t)
+   $$
 
 6. **Similarity Computation**:
-For comparing audio segments:
+   For comparing audio segments:
 
-$$
-Sim(x,y) = \frac{\sum_i w_i \cdot sim_i(x,y)}{\sum_i w_i}
-$$
-
-Where:
-- $sim_i(x,y)$ is the similarity for feature i
-- $w_i$ is the weight for feature i
+   $$
+   Sim(x,y) = \frac{\sum_i w_i \cdot sim_i(x,y)}{\sum_i w_i}
+   $$
 
 7. **Segment Clustering**:
-Using DBSCAN with adaptive distance:
+   Using DBSCAN with adaptive distance:
 
-$$
-D(p,q) = \sqrt{\sum_{i=1}^{N} \lambda_i(f_i(p) - f_i(q))^2}
-$$
-
-Where:
-- $f_i(p)$ is feature i of point p
-- $\lambda_i$ is the importance weight for feature i
-
-### Additional Mathematical Framework
-
-8. **Bass Design Analysis**:
-For analyzing Reese bass modulation depth:
-
-$$
-M(t) = \frac{max(A(t)) - min(A(t))}{max(A(t)) + min(A(t))}
-$$
-
-9. **Effect Chain Detection**:
-For compression ratio estimation:
-
-$$
-CR(x) = \frac{\Delta_{in}}{\Delta_{out}} = \frac{x_{in,2} - x_{in,1}}{x_{out,2} - x_{out,1}}
-$$
-
-10. **Pattern Recognition**:
-For rhythmic similarity using dynamic time warping:
-
-$$
-DTW(X,Y) = min\left(\sum_{k=1}^K w_k \cdot d(x_{i_k}, y_{j_k})\right)
-$$
-
-11. **Transition Analysis**:
-For blend detection using cross-correlation:
-
-$$
-R_{xy}(\tau) = \sum_{n=-\infty}^{\infty} x(n)y(n+\tau)
-$$
+   $$
+   D(p,q) = \sqrt{\sum_{i=1}^{N} \lambda_i(f_i(p) - f_i(q))^2}
+   $$
 
 ## Core Components
 
@@ -703,347 +350,282 @@ $$
 - Adaptive parameters based on content
 - Fault-tolerant alignment algorithms
 
-### Extended Pipeline Architecture
+## HuggingFace Integration
 
-```mermaid
-graph LR
-    A[Audio Stream] --> B[Preprocessing]
-    B --> C[Feature Extraction]
-    C --> D[Component Analysis]
-    D --> E[Pattern Recognition]
-    E --> F[Result Generation]
-    
-    subgraph "Feature Extraction"
-    C1[Spectral] --> C2[Temporal]
-    C2 --> C3[Rhythmic]
-    end
+Heihachi integrates specialized AI models from Hugging Face, enabling advanced neural processing of audio using state-of-the-art models. This integration follows a structured implementation approach with models carefully selected for electronic music analysis tasks.
+
+### Available Models
+
+The following specialized audio analysis models are available:
+
+| Category | Model Type | Default Model | Description | Priority |
+|----------|------------|---------------|-------------|----------|
+| **Core Feature Extraction** | Generic spectral + temporal embeddings | [microsoft/BEATs](https://huggingface.co/microsoft/BEATs) | Bidirectional ViT-style encoder trained with acoustic tokenisers; provides 768-d latent at ~20 ms hop | High |
+| | Robust speech & non-speech features | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) | Trained on >5M hours; encoder provides 1280-d features tracking energy, voicing & language | High |
+| **Audio Source Separation** | Stem isolation | [Demucs v4](https://huggingface.co/spaces/abidlabs/music-separation) | Returns 4-stem or 6-stem tensors for component-level analysis | High |
+| **Rhythm Analysis** | Beat / down-beat tracking | [Beat-Transformer](https://huggingface.co/nicolaus625/cmi) | Dilated self-attention encoder with F-measure ~0.86 | High |
+| | Low-latency beat-tracking | [BEAST](https://github.com/beats-team/beast) | 50 ms latency, causal attention; ideal for real-time DJ analysis | Medium |
+| | Drum-onset / kit piece ID | [DunnBC22/wav2vec2-base-Drum_Kit_Sounds](https://huggingface.co/DunnBC22/wav2vec2-base-Drum_Kit_Sounds) | Fine-tuned on kick/snare/tom/overhead labels | Medium |
+| **Multimodal & Similarity** | Multimodal similarity / tagging | [laion/clap-htsat-fused](https://huggingface.co/laion/clap-htsat-fused) | Query with free-text and compute cosine similarity on 512-d embeddings | Medium |
+| | Zero-shot tag & prompt embedding | [UniMus/OpenJMLA](https://huggingface.co/UniMus/OpenJMLA) | Score arbitrary tag strings for effect-chain heuristics | Medium |
+| **Future Extensions** | Audio captioning | [slseanwu/beats-conformer-bart-audio-captioner](https://huggingface.co/slseanwu/beats-conformer-bart-audio-captioner) | Produces textual descriptions per segment | Low |
+| | Similarity retrieval UI | CLAP embeddings + FAISS | Index embeddings and expose nearest-neighbor search | Low |
+
+### Configuration
+
+Configure HuggingFace models in `configs/huggingface.yaml`:
+
+```yaml
+# Enable/disable HuggingFace integration
+enabled: true
+
+# API key for accessing HuggingFace models (leave empty to use public models only)
+api_key: ""
+
+# Specialized model settings
+feature_extraction:
+  enabled: true
+  model: "microsoft/BEATs-base"
+
+beat_detection:
+  enabled: true
+  model: "nicolaus625/cmi"
+
+# Additional models (disabled by default to save resources)
+drum_sound_analysis:
+  enabled: false
+  model: "DunnBC22/wav2vec2-base-Drum_Kit_Sounds"
+
+similarity:
+  enabled: false
+  model: "laion/clap-htsat-fused"
+
+# See configs/huggingface.yaml for all available options
 ```
 
-## Command Line Interface (CLI)
-
-Heihachi provides a powerful command-line interface to analyze audio files. The CLI allows you to process individual audio files or entire directories of audio files.
-
-### Installation
-
-First, ensure the package is installed:
+### HuggingFace Commands
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/heihachi.git
-cd heihachi
+# Extract features
+python -m src.main hf extract path/to/audio.mp3 --output features.json
 
-# Install dependencies
-pip install -r requirements.txt
+# Separate stems
+python -m src.main hf separate path/to/audio.mp3 --output-dir ./stems --save-stems
 
-# Install the package in development mode
-pip install -e .
+# Detect beats
+python -m src.main hf beats path/to/audio.mp3 --output beats.json
+
+# Analyze drums
+python -m src.main hf analyze-drums audio.wav --visualize
+
+# Other available commands
+python -m src.main hf drum-patterns audio.wav --mode pattern
+python -m src.main hf tag audio.wav --categories "genre:techno,house,ambient"
+python -m src.main hf caption audio.wav --mix-notes
+python -m src.main hf similarity audio.wav --mode timestamps --query "bass drop"
+python -m src.main hf realtime-beats --file --input audio.wav
 ```
 
-### Basic Usage
+### Python API Usage
 
-The basic command structure is:
-
-```bash
-python -m src.main [input_file] [options]
-```
-
-Where `[input_file]` can be either a single audio file or a directory containing multiple audio files.
-
-### Command-Line Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `input_file` | Path to audio file or directory (required) | - |
-| `-c, --config` | Path to configuration file | ../configs/default.yaml |
-| `-o, --output` | Path to output directory | ../results |
-| `--cache-dir` | Path to cache directory | ../cache |
-| `-v, --verbose` | Enable verbose logging | False |
-
-### Examples
-
-#### Process a single audio file:
-
-```bash
-python -m src.main /path/to/track.wav
-```
-
-#### Process an entire directory of audio files:
-
-```bash
-python -m src.main /path/to/audio/folder
-```
-
-#### Use a custom configuration file:
-
-```bash
-python -m src.main /path/to/track.wav -c /path/to/custom_config.yaml
-```
-
-#### Specify custom output directory:
-
-```bash
-python -m src.main /path/to/track.wav -o /path/to/custom_output
-```
-
-#### Enable verbose logging:
-
-```bash
-python -m src.main /path/to/track.wav -v
-```
-
-### Processing Results
-
-After processing, the results are saved to the output directory (default: `../results`). For each audio file, the following is generated:
-
-1. **Analysis data**: JSON files containing detailed analysis results
-2. **Visualizations**: Graphs and plots showing various aspects of the audio analysis
-3. **Summary report**: Overview of the key findings and detected patterns
-
-### Amen Break Analysis
-
-For specific Amen break analysis, ensure the reference Amen break sample is available in the `../public/amen_break.wav` path. The analysis will detect Amen break variations, their timing, and provide confidence scores.
-
-Example for specifically analyzing Amen breaks:
-
-```bash
-python -m src.main /path/to/jungle_track.wav
-```
-
-The output will indicate if Amen break patterns were detected, along with timestamps and variation information.
-
-### Neurofunk Component Analysis
-
-```mermaid
-graph TD
-    A[Input Signal] --> B[Sub-bass Extraction]
-    A --> C[Reese Detection]
-    A --> D[Drum Pattern Analysis]
-    B --> E[Bass Pattern]
-    C --> E
-    D --> F[Rhythm Grid]
-    E --> G[Component Fusion]
-    F --> G
-```
-
-### Feature Extraction Pipeline
-
-```mermaid
-graph TD
-    A[Audio Input] --> B[Preprocessing]
-    B --> C[Feature Extraction]
-    
-    subgraph "Feature Extraction"
-        C1[Spectral Analysis] --> D1[Sub-bass]
-        C1 --> D2[Mid-range]
-        C1 --> D3[High-freq]
-        
-        C2[Temporal Analysis] --> E1[Envelope]
-        C2 --> E2[Transients]
-        
-        C3[Rhythmic Analysis] --> F1[Beats]
-        C3 --> F2[Patterns]
-    end
-    
-    D1 --> G[Feature Fusion]
-    D2 --> G
-    D3 --> G
-    E1 --> G
-    E2 --> G
-    F1 --> G
-    F2 --> G
-```
-
-### Annotation System Flow
-
-```mermaid
-graph LR
-    A[Audio Stream] --> B[Peak Detection]
-    B --> C[Segment Creation]
-    C --> D[Pattern Analysis]
-    D --> E[Clustering]
-    
-    subgraph "Pattern Analysis"
-        D1[Drum Patterns]
-        D2[Bass Patterns]
-        D3[Effect Patterns]
-    end
-```
-
-### Audio Scene Analysis
-
-```mermaid
-graph TD
-    A[Input Signal] --> B[Background Separation]
-    A --> C[Foreground Analysis]
-    
-    subgraph "Background"
-        B1[Ambient Detection]
-        B2[Noise Floor]
-        B3[Reverb Tail]
-    end
-    
-    subgraph "Foreground"
-        C1[Transient Detection]
-        C2[Note Events]
-        C3[Effect Events]
-    end
-```
-
-### Result Fusion Process
-
-```mermaid
-graph LR
-    A[Component Results] --> B[Confidence Scoring]
-    B --> C[Weight Assignment]
-    C --> D[Fusion]
-    D --> E[Final Results]
-    
-    subgraph "Confidence Scoring"
-        B1[Pattern Confidence]
-        B2[Feature Confidence]
-        B3[Temporal Confidence]
-    end
-```
-
-### Neurofunk-Specific Analysis
-
-#### Bass Sound Design Analysis
 ```python
-1. Reese Bass Components:
-   - Fundamental frequency tracking
-   - Phase relationship analysis
-   - Modulation pattern detection
-   - Harmonic content analysis
+from heihachi.huggingface import FeatureExtractor, StemSeparator, BeatDetector
 
-2. Sub Bass Characteristics:
-   - Frequency range: 20-60 Hz
-   - Envelope characteristics
-   - Distortion analysis
-   - Phase alignment
+# Extract features
+extractor = FeatureExtractor(model="microsoft/BEATs-base")
+features = extractor.extract(audio_path="track.mp3")
+
+# Separate stems
+separator = StemSeparator()
+stems = separator.separate(audio_path="track.mp3")
+drums = stems["drums"]
+bass = stems["bass"]
+
+# Detect beats
+detector = BeatDetector()
+beats = detector.detect(audio_path="track.mp3", visualize=True, output_path="beats.png")
+print(f"Tempo: {beats['tempo']} BPM")
 ```
 
-#### Effect Chain Detection
-```python
-1. Signal Chain Analysis:
-   - Compression detection
-   - Distortion identification
-   - Filter resonance analysis
-   - Modulation effects
+## Experimental Results
 
-2. Processing Order:
-   - Pre/post processing detection
-   - Parallel processing identification
-   - Send/return effect analysis
+This section presents visualization results from audio analysis examples processed through the Heihachi framework, demonstrating the capabilities of the system in extracting meaningful insights from audio data.
+
+### Drum Hit Analysis
+
+The following visualizations showcase the results from analyzing drum hits within a 33-minute electronic music mix. The analysis employs a multi-stage approach:
+
+1. **Onset Detection**: Using adaptive thresholding with spectral flux and phase deviation to identify percussion events
+2. **Drum Classification**: Neural network classification to categorize each detected hit
+3. **Confidence Scoring**: Model-based confidence estimation for each classification
+4. **Temporal Analysis**: Pattern recognition across the timeline of detected hits
+
+#### Analysis Overview
+
+<img src="./visualizations/drum_feature_analysis/drum_hit_types_pie.png" alt="Drum Hit Types Distribution" width="600"/>
+
+The analysis identified **91,179 drum hits** spanning approximately 33 minutes (1999.5 seconds) of audio. The percussion events were classified into five primary categories with the following distribution:
+
+- **Hi-hat**: 26,530 hits (29.1%)
+- **Snare**: 16,699 hits (18.3%)
+- **Tom**: 16,635 hits (18.2%)
+- **Kick**: 16,002 hits (17.6%)
+- **Cymbal**: 15,313 hits (16.8%)
+
+These classifications were derived using a specialized audio recognition model that separates and identifies percussion components based on their spectral and temporal characteristics.
+
+#### Drum Hit Density Timeline
+
+<img src="./visualizations/drum_feature_analysis/drum_density.png" alt="Drum Hit Density Over Time" width="800"/>
+
+The density plot reveals the distribution of drum hits over time, providing insight into the rhythmic structure and intensity variations throughout the mix. Notable observations include:
+
+- Clear sections of varying percussion density, indicating track transitions and arrangement changes
+- Consistent underlying beat patterns maintained throughout the mix
+- Periodic intensity peaks corresponding to build-ups and drops in the arrangement
+
+#### Pattern Visualization
+
+<img src="./visualizations/drum_feature_analysis/drum_pattern_heatmap.png" alt="Drum Pattern Heatmap" width="800"/>
+
+The heatmap visualization represents normalized hit density across time for each drum type, revealing:
+
+- Structured patterns in kick and snare placement, typical of electronic dance music
+- Variations in hi-hat and cymbal usage that correspond to energy shifts
+- Clearly defined segments with distinct drum programming approaches
+
+#### Detailed Timeline Analysis
+
+<img src="./visualizations/drum_feature_analysis/drum_hits_timeline.png" alt="Drum Hits Timeline" width="800"/>
+
+The timeline visualization provides a comprehensive view of all drum events plotted against time, allowing for detailed analysis of the rhythmic structure. Key observations from this temporal analysis include:
+
+- **Microtiming Variations**: Subtle deviations from the quantized grid, particularly evident in hi-hats and snares, contribute to the human feel of the percussion
+- **Structural Markers**: Clear delineation of musical sections visible through changes in drum event density and type distribution
+- **Layering Techniques**: Overlapping drum hits at key points (e.g., stacked kick and cymbal events) to create impact moments
+- **Rhythmic Motifs**: Recurring patterns of specific drum combinations that serve as stylistic identifiers throughout the mix
+
+The temporal analysis employed statistical methods to identify:
+
+1. **Event Clustering**: Hierarchical clustering based on temporal proximity, velocity, and drum type
+2. **Pattern Detection**: N-gram analysis of drum sequences to identify common motifs
+3. **Grid Alignment**: Adaptive grid inference to determine underlying tempo and quantization
+4. **Transition Detection**: Change-point analysis to identify structural boundaries
+
+These analytical methods reveal the sophisticated rhythmic programming underlying the seemingly straightforward electronic beat patterns, with calculated variation applied to create both consistency and interest.
+
+#### Hit Classification Confidence
+
+<img src="./visualizations/drum_feature_analysis/avg_confidence_velocity.png" alt="Average Confidence and Velocity by Drum Type" width="600"/>
+
+The confidence metrics for the drum classification model demonstrate varying levels of certainty depending on the drum type:
+
+| Drum Type | Avg. Confidence | Avg. Velocity |
+|-----------|----------------|---------------|
+| Tom       | 0.385          | 1.816         |
+| Snare     | 0.381          | 1.337         |
+| Kick      | 0.370          | 0.589         |
+| Cymbal    | 0.284          | 1.962         |
+| Hi-hat    | 0.223          | 1.646         |
+
+The confidence scores reflect the model's certainty in classification, with higher values for toms and snares suggesting these sounds have more distinctive spectral signatures. Meanwhile, velocity measurements indicate the relative energy of each hit, with cymbals and toms showing the highest average values.
+
+#### Classification Performance Analysis
+
+<img src="./visualizations/drum_feature_analysis/confidence_velocity_scatter.png" alt="Confidence vs Velocity Scatter Plot" width="800"/>
+
+The scatter plot visualization reveals the relationship between classification confidence and hit velocity across all percussion events. This analysis provides critical insights into the performance of the neural classification model:
+
+1. **Velocity-Confidence Correlation**: The plot demonstrates a positive correlation between hit velocity and classification confidence for most drum types, particularly evident in the upper-right quadrant where high-velocity hits receive more confident classifications.
+
+2. **Type-Specific Clusters**: Each percussion type forms distinct clusters in the confidence-velocity space, with:
+   - **Kicks** (blue): Concentrated in the low-velocity, medium-confidence region
+   - **Snares** (orange): Forming a broad distribution across medium velocities with varying confidence
+   - **Toms** (green): Creating a distinctive cluster in the high-velocity, high-confidence region
+   - **Hi-hats** (red): Showing the widest distribution, indicating greater variability in classification performance
+   - **Cymbals** (purple): Forming a more diffuse pattern at higher velocities with moderate confidence
+
+3. **Classification Challenges**: The lower confidence regions (bottom half of the plot) indicate areas where the model experiences greater uncertainty, particularly:
+   - Low-velocity hits across all percussion types
+   - Overlapping spectral characteristics between similar percussion sounds (e.g., certain hi-hats and cymbals)
+   - Boundary cases where multiple drum types may be present simultaneously
+
+4. **Performance Insights**: The density of points in different regions provides a robust evaluation metric for the classification model, revealing both strengths in distinctive percussion identification and challenges in boundary cases.
+
+This visualization serves as a valuable tool for evaluating classification performance and identifying specific areas for model improvement in future iterations of the framework.
+
+#### Interactive Timeline
+
+The drum hit analysis also generated an interactive HTML timeline that allows for detailed exploration of the percussion events. This visualization maps each drum hit across time with interactive tooltips displaying precise timing, confidence scores, and velocity information.
+
+The interactive timeline is available at:
+```
+visualizations/drum_feature_analysis/interactive_timeline.html
 ```
 
-#### Pattern Transformation Analysis
-```python
-1. Rhythmic Transformations:
-   - Time-stretching detection
-   - Beat shuffling analysis
-   - Groove template matching
-   - Syncopation patterns
+**To view the interactive timeline alongside the music:**
 
-2. Spectral Transformations:
-   - Frequency shifting
-   - Harmonic manipulation
-   - Formant preservation
-   - Resynthesis detection
+1. Open the interactive timeline HTML file in a browser
+2. In a separate browser tab, play the corresponding audio mix
+3. Synchronize playback position to explore the relationship between audio and detected drum events
+
+#### Technical Implementation Notes
+
+The drum hit analysis pipeline employs several advanced techniques:
+
+1. **Onset Detection Algorithm**: Utilizes a combination of spectral flux, high-frequency content (HFC), and complex domain methods to detect percussion events with high temporal precision (±5ms).
+
+2. **Neural Classification**: Implements a specialized convolutional neural network trained on isolated drum samples to classify detected onsets into specific percussion categories.
+
+3. **Confidence Estimation**: Employs softmax probability outputs from the classification model to assess classification reliability, with additional weighting based on signal-to-noise ratio and onset clarity.
+
+4. **Pattern Recognition**: Applies a sliding-window approach with dynamic time warping (DTW) to identify recurring rhythmic patterns and variations.
+
+5. **Memory-Optimized Processing**: Implements chunked processing with a sliding window approach to handle large audio files while maintaining consistent analysis quality.
+
+The complete analysis was performed using the following command:
+
+```bash
+python -m src.main hf analyze-drums /path/to/mix.mp3 --visualize
 ```
 
-## Implementation Details
+### Limitations and Future Improvements
 
-### Audio Processing Pipeline
+Current limitations of the drum analysis include:
 
-1. **Preprocessing**
-   ```python
-   - Sample rate normalization (44.1 kHz)
-   - Stereo to mono conversion when needed
-   - Segment-wise processing for large files
-   - Empty audio detection and validation
-   - Signal integrity verification
-   ```
+- Occasional misclassification between similar drum types (e.g., toms vs. snares)
+- Limited ability to detect layered drum hits occurring simultaneously
+- Reduced accuracy during segments with heavy processing effects
 
-2. **Feature Extraction**
-   ```python
-   - Multi-threaded processing
-   - GPU acceleration where available
-   - Efficient memory management
-   - Caching system for intermediate results
-   - Hann window application to prevent spectral leakage
-   ```
+Future improvements will focus on:
 
-3. **Analysis Flow**
-   ```python
-   - Cascading analysis system
-   - Component-wise processing
-   - Result fusion and validation
-   - Confidence scoring
-   - Graceful error handling and recovery
-   ```
+- Enhanced separation of overlapping drum sounds
+- Tempo-aware pattern recognition
+- Integration with musical structure analysis
+- Improved classification of electronic drum sounds and synthesized percussion
 
-### Performance Optimizations
+## Performance Optimizations
 
-1. **Memory Management**
-   - Streaming processing for large files
-   - Efficient cache utilization
-   - GPU memory optimization
-   - Automatic garbage collection optimization
-   - Chunked loading for very large files
-   - Audio validation at each processing stage
+### Memory Management
+- Streaming processing for large files
+- Efficient cache utilization
+- GPU memory optimization
+- Automatic garbage collection optimization
+- Chunked loading for very large files
+- Audio validation at each processing stage
 
-2. **Parallel Processing**
-   - Multi-threaded feature extraction
-   - Batch processing capabilities
-   - Distributed analysis support
-   - Adaptive resource allocation
-   - Scalable parallel execution
+### Parallel Processing
+- Multi-threaded feature extraction
+- Batch processing capabilities
+- Distributed analysis support
+- Adaptive resource allocation
+- Scalable parallel execution
 
-3. **Storage Efficiency**
-   - Compressed result storage
-   - Metadata indexing
-   - Version control for analysis results
-   - Simple, consistent path handling
-
-### Error Handling and Recovery
-
-1. **Robust Processing**
-   ```python
-   - Validation of audio signals before processing
-   - Fallback mechanisms for empty or corrupted audio
-   - Graceful recovery from processing errors
-   - Comprehensive logging of failure points
-   ```
-
-2. **Data Integrity**
-   ```python
-   - Sample rate validation and automatic correction
-   - Empty array detection and prevention
-   - Default parameter settings when configuration is missing
-   - Prevention of null pointer exceptions in signal processing chain
-   ```
-
-3. **Processing Resilience**
-   ```python
-   - Windowing functions to eliminate warnings and improve spectral quality
-   - Automatic memory management for very large files
-   - Adaptive parameter selection based on file size
-   - Simplified path handling with hardcoded relative paths
-   ```
-
-### Performance Metrics
-
-For evaluating analysis accuracy:
-
-$$
-Accuracy_{component} = \frac{TP + TN}{TP + TN + FP + FN}
-$$
-
-Where:
-- TP: True Positives (correctly identified patterns)
-- TN: True Negatives (correctly rejected non-patterns)
-- FP: False Positives (incorrectly identified patterns)
-- FN: False Negatives (missed patterns)
+### Storage Efficiency
+- Compressed result storage
+- Metadata indexing
+- Version control for analysis results
+- Simple, consistent path handling
 
 ## Applications
 
@@ -1065,16 +647,6 @@ Where:
 - Groove pattern matching
 - VIP/Dubplate detection
 
-## Visualization and Reporting
-
-The framework includes comprehensive visualization tools for:
-- Spectral analysis results
-- Component relationships
-- Groove patterns
-- Transition points
-- Similarity matrices
-- Analysis confidence scores
-
 ## Future Directions
 
 1. **Enhanced Neural Processing**
@@ -1094,24 +666,6 @@ The framework includes comprehensive visualization tools for:
    - Real-time visualization
    - Error diagnostics visualization
 
-## Extended References
-
-1. Chen, J. L., Penhune, V. B., & Zatorre, R. J. (2008). Listening to musical rhythms recruits motor regions of the brain. Cerebral Cortex, 18(12), 2844-2854.
-
-2. Cannon, J. J., & Patel, A. D. (2020). How beat perception co-opts motor neurophysiology. Trends in Cognitive Sciences, 24(1), 51-64.
-
-3. Fukuie, T., et al. (2022). Neural entrainment reflects temporal predictions guiding speech comprehension. Current Biology, 32(5), 1051-1067.
-
-4. Smith, J. O. (2011). Spectral Audio Signal Processing. W3K Publishing.
-
-5. Bello, J. P., et al. (2005). A Tutorial on Onset Detection in Music Signals. IEEE Transactions on Speech and Audio Processing.
-
-6. Gouyon, F., & Dixon, S. (2005). A Review of Automatic Rhythm Description Systems. Computer Music Journal.
-
-7. Harris, F. J. (1978). On the use of windows for harmonic analysis with the discrete Fourier transform. Proceedings of the IEEE, 66(1), 51-83.
-
-8. McFee, B., et al. (2015). librosa: Audio and music signal analysis in Python. Proceedings of the 14th Python in Science Conference.
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -1127,235 +681,4 @@ If you use this framework in your research, please cite:
   year = {2024},
   url = {https://github.com/[username]/heihachi}
 }
-```
-
-### Extended System Architecture
-
-```mermaid
-graph TD
-    A[Audio Input] --> B[Feature Extraction]
-    B --> C[Analysis Pipeline]
-    C --> D[Results Generation]
-
-    subgraph "Feature Extraction"
-        B1[Spectral] --> B2[Temporal]
-        B2 --> B3[Rhythmic]
-        B3 --> B4[Component]
-    end
-
-    subgraph "Analysis Pipeline"
-        C1[Pattern Recognition]
-        C2[Similarity Analysis]
-        C3[Structure Analysis]
-        C4[Effect Analysis]
-    end
-
-    subgraph "Results Generation"
-        D1[Visualization]
-        D2[Storage]
-        D3[Export]
-    end
-```
-
-### Robust Audio Processing Pipeline
-
-```mermaid
-graph TD
-    A[Audio Input] --> B[Input Validation]
-    B -->|Valid| C[Chunked Loading]
-    B -->|Invalid| E[Error Handling]
-    C --> D[Signal Processing]
-    D --> F[Result Generation]
-    E --> G[Recovery Mechanisms]
-    G -->|Recoverable| C
-    G -->|Not Recoverable| H[Error Reporting]
-    
-    subgraph "Input Validation"
-        B1[File Exists Check]
-        B2[Format Validation]
-        B3[Sample Rate Check]
-        B4[Empty Signal Check]
-    end
-
-    subgraph "Signal Processing"
-        D1[Window Function Application]
-        D2[Spectral Analysis with Hann Window]
-        D3[Memory-Optimized Processing]
-        D4[Null Value Handling]
-    end
-```
-
-### Neurofunk Component Interaction
-
-```mermaid
-graph LR
-    A[Audio Stream] --> B[Component Separation]
-    B --> C[Feature Analysis]
-    C --> D[Pattern Recognition]
-    
-    subgraph "Component Separation"
-        B1[Sub Bass]
-        B2[Reese Bass]
-        B3[Drums]
-        B4[Effects]
-    end
-
-    subgraph "Feature Analysis"
-        C1[Spectral Features]
-        C2[Temporal Features]
-        C3[Modulation Features]
-    end
-
-    subgraph "Pattern Recognition"
-        D1[Rhythmic Patterns]
-        D2[Effect Patterns]
-        D3[Bass Patterns]
-    end
-```
-
-### Processing Pipeline Details
-
-```mermaid
-graph TD
-    A[Input] --> B[Preprocessing]
-    B --> C[Analysis]
-    C --> D[Results]
-
-    subgraph "Preprocessing"
-        B1[Normalization]
-        B2[Segmentation]
-        B3[Enhancement]
-    end
-
-    subgraph "Analysis"
-        C1[Feature Extraction]
-        C2[Pattern Analysis]
-        C3[Component Analysis]
-    end
-
-    subgraph "Results"
-        D1[Metrics]
-        D2[Visualizations]
-        D3[Reports]
-    end
-```
-
-### Technical Implementation Details
-
-#### Bass Sound Design Analysis
-```python
-class BassAnalyzer:
-    """Advanced bass analysis system."""
-    
-    def analyze_reese(self, audio: np.ndarray) -> Dict:
-        """
-        Analyze Reese bass characteristics.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            Dict containing:
-            - modulation_depth: Float
-            - phase_correlation: Float
-            - harmonic_content: np.ndarray
-            - stereo_width: Float
-        """
-        pass
-
-    def analyze_sub(self, audio: np.ndarray) -> Dict:
-        """
-        Analyze sub bass characteristics.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            Dict containing:
-            - fundamental_freq: Float
-            - energy: Float
-            - phase_alignment: Float
-            - distortion: Float
-        """
-        pass
-```
-
-#### Effect Chain Analysis
-```python
-class EffectChainAnalyzer:
-    """Advanced effect chain analysis."""
-    
-    def detect_chain(self, audio: np.ndarray) -> List[Dict]:
-        """
-        Detect processing chain order.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            List[Dict] containing detected effects in order:
-            - effect_type: str
-            - parameters: Dict
-            - confidence: Float
-        """
-        pass
-
-    def analyze_parallel(self, audio: np.ndarray) -> Dict:
-        """
-        Analyze parallel processing.
-        
-        Parameters:
-            audio (np.ndarray): Input audio signal
-            
-        Returns:
-            Dict containing:
-            - bands: List[Dict]
-            - routing: Dict
-            - blend_type: str
-        """
-        pass
-```
-
-#### Robust Audio Processing
-```python
-class AudioProcessor:
-    """Memory-efficient and fault-tolerant audio processing."""
-    
-    def load(self, file_path: str, start_time: float = 0.0, end_time: float = None) -> np.ndarray:
-        """
-        Load audio file with robust error handling.
-        
-        Parameters:
-            file_path: Path to the audio file
-            start_time: Start time in seconds
-            end_time: End time in seconds (or None for full file)
-            
-        Returns:
-            numpy.ndarray: Audio data
-            
-        Raises:
-            ValueError: If file empty or corrupted
-        """
-        # Validates file existence
-        # Checks for empty audio
-        # Handles sample rate conversion
-        # Returns normalized audio data
-        pass
-    
-    def _chunked_load(self, file_path: str, start_time: float, end_time: float) -> np.ndarray:
-        """
-        Memory-efficient loading for large audio files.
-        
-        Parameters:
-            file_path: Path to the audio file
-            start_time: Start time in seconds
-            end_time: End time in seconds
-            
-        Returns:
-            numpy.ndarray: Audio data
-        """
-        # Processes file in manageable chunks
-        # Handles memory efficiently
-        # Validates output before returning
-        pass
 ```

@@ -1,0 +1,15 @@
+{
+  "framework": "Heihachi Audio Analysis Framework",
+  "version": "1.0.0",
+  "analysis_id": "unknown",
+  "timestamp": "unknown",
+  "audio_file": "unknown",
+  "duration": 0,
+  "sample_rate": 0,
+  "capabilities": {
+    "feature_extraction": [],
+    "visualization": [],
+    "annotation": [],
+    "alignment": []
+  }
+}

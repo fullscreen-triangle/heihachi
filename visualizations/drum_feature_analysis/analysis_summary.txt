@@ -1,0 +1,28 @@
+DRUM HIT ANALYSIS SUMMARY
+=========================
+
+Total drum hits analyzed: 91179
+Time range: 0.03s to 1999.53s (Duration: 1999.50s)
+
+Hit counts by drum type:
+  hihat: 26530 hits (29.1%)
+  snare: 16699 hits (18.3%)
+  tom: 16635 hits (18.2%)
+  kick: 16002 hits (17.6%)
+  cymbal: 15313 hits (16.8%)
+
+Average confidence by drum type:
+  tom: 0.385
+  snare: 0.381
+  kick: 0.370
+  cymbal: 0.284
+  hihat: 0.223
+
+Average velocity by drum type:
+  cymbal: 1.962
+  tom: 1.816
+  hihat: 1.646
+  snare: 1.337
+  kick: 0.589
+
+BPM: 120.0 (confidence: 0.000)

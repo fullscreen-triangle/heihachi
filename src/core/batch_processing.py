@@ -14,7 +14,6 @@ from pathlib import Path
 from src.utils.logging_utils import get_logger
 from src.utils.progress import track_progress, update_progress, complete_progress
 from src.core.audio_processing import AudioProcessor
-from src.core.pipeline import Pipeline
 from src.utils.config import ConfigManager
 
 logger = get_logger(__name__)
@@ -284,6 +283,9 @@ class BatchProcessor:
         Returns:
             Dictionary with processing results
         """
+        # Import Pipeline locally to avoid circular imports
+        from src.core.pipeline import Pipeline
+        
         start_time = time.time()
         file_name = os.path.basename(file_path)
         

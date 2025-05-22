@@ -396,5 +396,272 @@ class Storage:
                 return [f for f in directory.iterdir() if f.is_file()]
 
 
+# Add the missing classes needed by pipeline.py
+
+class AnalysisVersion:
+    """Version information for analysis results."""
+    
+    MAJOR = 1
+    MINOR = 0
+    PATCH = 0
+    
+    @classmethod
+    def to_string(cls) -> str:
+        """Convert version to string.
+        
+        Returns:
+            Version string in the format "MAJOR.MINOR.PATCH"
+        """
+        return f"{cls.MAJOR}.{cls.MINOR}.{cls.PATCH}"
+    
+    @classmethod
+    def from_string(cls, version_str: str) -> Tuple[int, int, int]:
+        """Parse version string.
+        
+        Args:
+            version_str: Version string in the format "MAJOR.MINOR.PATCH"
+            
+        Returns:
+            Tuple of (MAJOR, MINOR, PATCH)
+        """
+        parts = version_str.split('.')
+        if len(parts) != 3:
+            raise ValueError(f"Invalid version string: {version_str}")
+        
+        try:
+            major = int(parts[0])
+            minor = int(parts[1])
+            patch = int(parts[2])
+            return (major, minor, patch)
+        except ValueError:
+            raise ValueError(f"Invalid version string: {version_str}")
+    
+    @classmethod
+    def is_compatible(cls, version_str: str) -> bool:
+        """Check if a version is compatible with the current version.
+        
+        Args:
+            version_str: Version string to check
+            
+        Returns:
+            Whether the version is compatible
+        """
+        try:
+            major, _, _ = cls.from_string(version_str)
+            return major == cls.MAJOR
+        except ValueError:
+            return False
+
+
+class AudioCache:
+    """Cache for storing processed audio data to avoid redundant processing."""
+    
+    def __init__(self, cache_dir: str = "./cache", compression_level: int = 6):
+        """Initialize the audio cache.
+        
+        Args:
+            cache_dir: Directory to store cached audio files
+            compression_level: Compression level for stored files
+        """
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(exist_ok=True, parents=True)
+        self.compression_level = compression_level
+        
+        logger.info(f"Audio cache initialized with directory: {cache_dir}")
+    
+    def _get_cache_path(self, audio_path: str) -> Path:
+        """Get cache path for an audio file.
+        
+        Args:
+            audio_path: Path to the audio file
+            
+        Returns:
+            Path to the cached file
+        """
+        # Create hash of the file path
+        file_hash = self._compute_file_hash(audio_path)
+        return self.cache_dir / f"{file_hash}.json.gz"
+    
+    def _compute_file_hash(self, file_path: str) -> str:
+        """Compute hash of a file.
+        
+        Args:
+            file_path: Path to the file
+            
+        Returns:
+            Hash of the file
+        """
+        import hashlib
+        
+        # Include the file path in the hash
+        path_hash = hashlib.md5(file_path.encode()).hexdigest()
+        
+        # Include the file modification time
+        try:
+            mtime = os.path.getmtime(file_path)
+            mtime_str = str(mtime)
+            return hashlib.md5((path_hash + mtime_str).encode()).hexdigest()
+        except OSError:
+            # If file doesn't exist, just use the path hash
+            return path_hash
+    
+    def get(self, audio_path: str) -> Optional[Dict[str, Any]]:
+        """Get cached results for an audio file.
+        
+        Args:
+            audio_path: Path to the audio file
+            
+        Returns:
+            Cached results if available, None otherwise
+        """
+        cache_path = self._get_cache_path(audio_path)
+        
+        if not cache_path.exists():
+            logger.debug(f"No cache found for {audio_path}")
+            return None
+        
+        try:
+            import gzip
+            with gzip.open(cache_path, 'rt') as f:
+                data = json.load(f)
+            
+            logger.info(f"Loaded cached results for {audio_path}")
+            return data
+        except Exception as e:
+            logger.warning(f"Error loading cache for {audio_path}: {str(e)}")
+            return None
+    
+    def set(self, audio_path: str, data: Dict[str, Any]) -> None:
+        """Cache results for an audio file.
+        
+        Args:
+            audio_path: Path to the audio file
+            data: Analysis results to cache
+        """
+        cache_path = self._get_cache_path(audio_path)
+        
+        try:
+            import gzip
+            with gzip.open(cache_path, 'wt', compresslevel=self.compression_level) as f:
+                json.dump(data, f, indent=2)
+            
+            logger.info(f"Cached results for {audio_path}")
+        except Exception as e:
+            logger.warning(f"Error caching results for {audio_path}: {str(e)}")
+    
+    def clear(self) -> None:
+        """Clear all cached results."""
+        try:
+            import shutil
+            shutil.rmtree(self.cache_dir)
+            self.cache_dir.mkdir(exist_ok=True, parents=True)
+            logger.info("Audio cache cleared")
+        except Exception as e:
+            logger.warning(f"Error clearing cache: {str(e)}")
+
+
+class FeatureStorage:
+    """Storage for audio analysis features and results."""
+    
+    def __init__(self, storage_dir: str = "./results"):
+        """Initialize the feature storage.
+        
+        Args:
+            storage_dir: Directory to store analysis results
+        """
+        self.storage_dir = Path(storage_dir)
+        self.storage_dir.mkdir(exist_ok=True, parents=True)
+        
+        logger.info(f"Feature storage initialized with directory: {storage_dir}")
+    
+    def save_results(self, audio_path: str, results: Dict[str, Any], 
+                    metadata: Optional[Dict[str, Any]] = None) -> Path:
+        """Save analysis results for an audio file.
+        
+        Args:
+            audio_path: Path to the audio file
+            results: Analysis results
+            metadata: Additional metadata
+            
+        Returns:
+            Path to the saved file
+        """
+        # Extract file name without extension
+        file_name = Path(audio_path).stem
+        
+        # Create result object with metadata
+        result_obj = {
+            'audio_path': audio_path,
+            'timestamp': time.time(),
+            'metadata': metadata or {},
+            'results': results
+        }
+        
+        # Save to file
+        results_path = self.storage_dir / f"{file_name}_results.json"
+        with open(results_path, 'w') as f:
+            json.dump(result_obj, f, indent=2)
+        
+        logger.info(f"Saved analysis results for {audio_path} to {results_path}")
+        return results_path
+    
+    def load_results(self, audio_path: str) -> Optional[Dict[str, Any]]:
+        """Load analysis results for an audio file.
+        
+        Args:
+            audio_path: Path to the audio file
+            
+        Returns:
+            Analysis results if available, None otherwise
+        """
+        # Extract file name without extension
+        file_name = Path(audio_path).stem
+        
+        # Check if results file exists
+        results_path = self.storage_dir / f"{file_name}_results.json"
+        if not results_path.exists():
+            logger.debug(f"No results found for {audio_path}")
+            return None
+        
+        try:
+            with open(results_path, 'r') as f:
+                data = json.load(f)
+            
+            logger.info(f"Loaded analysis results for {audio_path}")
+            return data
+        except Exception as e:
+            logger.warning(f"Error loading results for {audio_path}: {str(e)}")
+            return None
+    
+    def list_results(self) -> List[Dict[str, Any]]:
+        """List all available analysis results.
+        
+        Returns:
+            List of analysis result metadata
+        """
+        results = []
+        
+        for file_path in self.storage_dir.glob('*_results.json'):
+            try:
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                
+                # Extract basic metadata
+                results.append({
+                    'file_name': file_path.name,
+                    'audio_path': data.get('audio_path', ''),
+                    'timestamp': data.get('timestamp', 0),
+                    'metadata': data.get('metadata', {})
+                })
+            except Exception as e:
+                logger.warning(f"Error reading results file {file_path}: {str(e)}")
+        
+        return results
+
+
+# Import at the end to avoid issues with circular imports
+import time  # For timestamp generation
+
+
 
 
