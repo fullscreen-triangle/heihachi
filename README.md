@@ -204,9 +204,7 @@ Key neural mechanisms include:
 
 Research has shown that low-frequency neural oscillations from motor planning areas guide auditory sampling, expressed through coherence measures:
 
-$$
-C_{xy}(f) = \frac{|S_{xy}(f)|^2}{S_{xx}(f)S_{yy}(f)}
-$$
+$$C_{xy}(f) = \frac{|S_{xy}(f)|^2}{S_{xx}(f)S_{yy}(f)}$$
 
 Where:
 - $C_{xy}(f)$ represents coherence at frequency $f$
@@ -220,51 +218,37 @@ In addition to the coherence measures, we utilize several key mathematical formu
 1. **Spectral Decomposition**:
    For analyzing sub-bass and Reese bass components:
 
-   $$
-   X(k) = \sum_{n=0}^{N-1} x(n)e^{-j2\pi kn/N}
-   $$
+$$X(k) = \sum_{n=0}^{N-1} x(n)e^{-j2\pi kn/N}$$
 
 2. **Groove Pattern Analysis**:
    For microtiming deviations:
 
-   $$
-   MT(n) = \frac{1}{K}\sum_{k=1}^{K} |t_k(n) - t_{ref}(n)|
-   $$
+$$MT(n) = \frac{1}{K}\sum_{k=1}^{K} |t_k(n) - t_{ref}(n)|$$
 
 3. **Amen Break Detection**:
    Pattern matching score:
 
-   $$
-   S_{amen}(t) = \sum_{f} w(f)|X(f,t) - A(f)|^2
-   $$
+$$S_{amen}(t) = \sum_{f} w(f)|X(f,t) - A(f)|^2$$
 
 4. **Reese Bass Analysis**:
    For analyzing modulation and phase relationships:
 
-   $$
-   R(t,f) = \left|\sum_{k=1}^{K} A_k(t)e^{j\phi_k(t)}\right|^2
-   $$
+$$R(t,f) = \left|\sum_{k=1}^{K} A_k(t)e^{j\phi_k(t)}\right|^2$$
 
 5. **Transition Detection**:
    For identifying mix points and transitions:
 
-   $$
-   T(t) = \alpha\cdot E(t) + \beta\cdot S(t) + \gamma\cdot H(t)
-   $$
+$$T(t) = \alpha\cdot E(t) + \beta\cdot S(t) + \gamma\cdot H(t)$$
 
 6. **Similarity Computation**:
    For comparing audio segments:
 
-   $$
-   Sim(x,y) = \frac{\sum_i w_i \cdot sim_i(x,y)}{\sum_i w_i}
-   $$
+$$Sim(x,y) = \frac{\sum_i w_i \cdot sim_i(x,y)}{\sum_i w_i}$$
 
 7. **Segment Clustering**:
    Using DBSCAN with adaptive distance:
 
-   $$
-   D(p,q) = \sqrt{\sum_{i=1}^{N} \lambda_i(f_i(p) - f_i(q))^2}
-   $$
+$$D(p,q) = \sqrt{\sum_{i=1}^{N} \lambda_i(f_i(p) - f_i(q))^2}$$
 
 ## Core Components
 
@@ -677,8 +661,8 @@ If you use this framework in your research, please cite:
 ```bibtex
 @software{heihachi2024,
   title = {Heihachi: Neural Processing of Electronic Music},
-  author = {[Author Names]},
+  author = {Kundai Farai Sachikonye},
   year = {2024},
-  url = {https://github.com/[username]/heihachi}
+  url = {https://github.com/fullscreen-triangle/heihachi}
 }
 ```
