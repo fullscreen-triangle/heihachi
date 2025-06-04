@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heihachi - Neural Audio Analysis Framework</title>
+    <meta name="description" content="Advanced audio analysis framework for electronic music with neural processing, neurofunk analysis, and scientific rigor">
+    <meta name="keywords" content="audio analysis, neurofunk, drum and bass, machine learning, signal processing">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Math rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Prism.js for code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="heihachi.png" alt="Heihachi Logo" width="40" height="40">
+                <span>Heihachi</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#feltbeats">FeltBeats</a></li>
+                <li><a href="#theory">Theory</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#output-format">Output Format</a></li>
+                <li><a href="#huggingface">AI Models</a></li>
+                <li><a href="#academic-processing">Academic Pipeline</a></li>
+                <li><a href="#results">Results</a></li>
+                <li><a href="#documentation">Docs</a></li>
+                <li><a href="#installation">Install</a></li>
+                <li><a href="https://github.com/fullscreen-triangle/heihachi" target="_blank" rel="noopener">GitHub</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Heihachi</span>
+                    <span class="subtitle">Neural Audio Analysis Framework</span>
+                </h1>
+                <p class="hero-description">
+                    Advanced audio analysis framework combining neurological models of rhythm processing 
+                    with cutting-edge signal processing techniques. Specialized for electronic music with 
+                    focus on neurofunk and drum & bass genres.
+                </p>
+                <div class="hero-quote">
+                    <em>"What makes a tiger so strong is that it lacks humanity"</em>
+                </div>
+                <div class="hero-buttons">
+                    <a href="#installation" class="btn btn-primary">Get Started</a>
+                    <a href="https://github.com/fullscreen-triangle/heihachi" class="btn btn-secondary" target="_blank" rel="noopener">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="visualization-container">
+                    <canvas id="waveform-demo" width="600" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FeltBeats Music Discovery Section -->
+    <section id="feltbeats" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">FeltBeats: Music Discovery by Feeling</h2>
+            <p class="section-subtitle">
+                Transforming Heihachi into a revolutionary music listening application where users discover music 
+                by describing emotions and feelings - powered by academic research and continuous learning.
+            </p>
+            
+            <div class="feltbeats-overview">
+                <div class="discovery-concept">
+                    <h3>Discover Music by Feeling</h3>
+                    <p>
+                        Instead of searching by genre or artist, describe how you want to feel: 
+                        "I want something dark and atmospheric with building tension" or 
+                        "Find me energetic tracks with complex rhythms and heavy bass."
+                    </p>
+                    
+                    <div class="example-queries">
+                        <div class="query-example">
+                            <div class="query">"I want to feel mysterious and anticipatory"</div>
+                            <div class="result">→ Atmospheric intro sections with filtered breaks and sparse percussion</div>
+                        </div>
+                        <div class="query-example">
+                            <div class="query">"Find energetic sections with aggressive basslines"</div>
+                            <div class="result">→ Peak moments with layered percussion and bass stacking</div>
+                        </div>
+                        <div class="query-example">
+                            <div class="query">"Something technical but spacious"</div>
+                            <div class="result">→ Complex drum patterns with reverb-heavy atmospheric elements</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dual-llm-system">
+                    <h3>Dual LLM Architecture</h3>
+                    <div class="llm-types">
+                        <div class="llm-type">
+                            <h4>Academic Knowledge LLM</h4>
+                            <p>
+                                Trained on ~100 scientific publications covering music perception, emotion, 
+                                and drum & bass production. Provides deep theoretical understanding of how 
+                                music affects emotions and neural processing.
+                            </p>
+                            <div class="llm-features">
+                                <span class="feature-tag">Scientific Foundation</span>
+                                <span class="feature-tag">Music Perception</span>
+                                <span class="feature-tag">Emotional Response</span>
+                            </div>
+                        </div>
+                        <div class="llm-type">
+                            <h4>Continuous Learning LLM</h4>
+                            <p>
+                                Builds domain expertise by continuously analyzing new mixes. Each analysis 
+                                becomes training data, creating an ever-growing understanding of electronic 
+                                music patterns and emotional characteristics.
+                            </p>
+                            <div class="llm-features">
+                                <span class="feature-tag">Adaptive Learning</span>
+                                <span class="feature-tag">Mix Analysis</span>
+                                <span class="feature-tag">Pattern Recognition</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Structured Output Format Section -->
+    <section id="output-format" class="section">
+        <div class="container">
+            <h2 class="section-title">Emotional Analysis Output</h2>
+            <p class="section-subtitle">
+                Transform raw audio analysis into structured, emotion-focused data that powers 
+                feeling-based music discovery and LLM training.
+            </p>
+            
+            <div class="output-structure">
+                <div class="structure-overview">
+                    <h3>Analysis Structure</h3>
+                    <div class="file-tree">
+                        <div class="tree-item">
+                            <span class="folder">mix_analysis/</span>
+                            <div class="tree-children">
+                                <div class="tree-item">
+                                    <span class="folder">mix_001/</span>
+                                    <div class="tree-children">
+                                        <div class="tree-item"><span class="file">metadata.json</span> <span class="desc"># Basic mix info</span></div>
+                                        <div class="tree-item"><span class="file">summary.txt</span> <span class="desc"># Human-readable summary</span></div>
+                                        <div class="tree-item"><span class="file">segments.json</span> <span class="desc"># Track segments with timestamps</span></div>
+                                        <div class="tree-item"><span class="file">emotional_profile.json</span> <span class="desc"># Emotional characteristics</span></div>
+                                        <div class="tree-item"><span class="file">technical_features.jsonl</span> <span class="desc"># LLM-friendly features</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="format-examples">
+                    <div class="format-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="emotional">Emotional Profile</button>
+                            <button class="tab-button" data-tab="segments">Segments</button>
+                            <button class="tab-button" data-tab="technical">Technical Features</button>
+                            <button class="tab-button" data-tab="summary">Summary</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="emotional" class="tab-pane active">
+                                <h4>emotional_profile.json</h4>
+                                <pre><code class="language-json">{
+  "overall_mood": ["dark", "energetic", "technical"],
+  "intensity_curve": [0.4, 0.5, 0.7, 0.8, 0.75, 0.9, 0.85, 0.7],
+  "emotional_segments": [
+    {
+      "start_time": 0,
+      "end_time": 390.0,
+      "primary_emotion": "atmospheric",
+      "tension_level": 0.4,
+      "descriptors": ["spacious", "anticipatory", "mysterious"]
+    }
+  ],
+  "peak_moments": [
+    {
+      "time": 870.5,
+      "intensity": 0.92,
+      "description": "Maximum energy with layered percussion and aggressive bassline",
+      "key_elements": ["double_drops", "bass_stacking", "drum_fills"]
+    }
+  ]
+}</code></pre>
+                            </div>
+                            
+                            <div id="segments" class="tab-pane">
+                                <h4>segments.json</h4>
+                                <pre><code class="language-json">[
+  {
+    "segment_id": "s001",
+    "start_time": 0,
+    "end_time": 198.5,
+    "type": "intro",
+    "energy_level": 0.45,
+    "key_elements": ["atmospheric_pads", "filtered_breaks", "sparse_percussion"],
+    "description": "Atmospheric intro with filtered breaks and sparse percussion"
+  },
+  {
+    "segment_id": "s002", 
+    "start_time": 198.5,
+    "end_time": 390.0,
+    "type": "build",
+    "energy_level": 0.68,
+    "key_elements": ["rolling_bassline", "amen_break", "rising_synths"],
+    "description": "Energy building section with rolling bassline and classic amen breaks"
+  }
+]</code></pre>
+                            </div>
+                            
+                            <div id="technical" class="tab-pane">
+                                <h4>technical_features.jsonl</h4>
+                                <pre><code class="language-json">{"time": 0, "feature_type": "bass", "description": "Sub-heavy reese bass with moderate distortion and 120Hz fundamental", "characteristics": {"distortion": 0.35, "width": 0.7, "sub_weight": 0.8}}
+{"time": 0, "feature_type": "drums", "description": "Broken beat pattern with ghost notes and 16th hi-hats", "characteristics": {"complexity": 0.65, "velocity_variation": 0.4, "swing": 0.2}}
+{"time": 0, "feature_type": "atmosphere", "description": "Reverb-heavy pads with 6-8kHz air frequencies", "characteristics": {"reverb_size": 0.85, "density": 0.3, "brightness": 0.5}}
+{"time": 198.5, "feature_type": "transition", "description": "Filter sweep transition with drum roll buildup", "characteristics": {"length_bars": 8, "smoothness": 0.7, "energy_change": 0.25}}</code></pre>
+                            </div>
+                            
+                            <div id="summary" class="tab-pane">
+                                <h4>summary.txt</h4>
+                                <pre><code>This 60-minute neurofunk mix features 24 tracks with consistent energy throughout. 
+The mix begins with atmospheric elements at 174 BPM before transitioning to 
+heavier sections at 6:30. Notable sections include an extended bass sequence 
+from 18:20-22:45 featuring time-stretched Amen breaks and layered Reese basses. 
+The final third introduces more percussive elements with complex drum patterns 
+and syncopated rhythms. Energy peaks occur at 14:30, 28:15, and 52:40.</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="section">
+        <div class="container">
+            <h2 class="section-title">Overview</h2>
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <div class="icon">🧠</div>
+                    <h3>Neural Foundation</h3>
+                    <p>Built upon established neuroscientific research on rhythm processing and motor-auditory coupling</p>
+                </div>
+                <div class="overview-item">
+                    <div class="icon">🎵</div>
+                    <h3>Genre Specialization</h3>
+                    <p>Optimized for electronic music analysis with focus on neurofunk and drum & bass</p>
+                </div>
+                <div class="overview-item">
+                    <div class="icon">⚡</div>
+                    <h3>High Performance</h3>
+                    <p>Memory-optimized processing, parallel execution, and GPU acceleration</p>
+                </div>
+                <div class="overview-item">
+                    <div class="icon">🤖</div>
+                    <h3>AI Integration</h3>
+                    <p>HuggingFace models for advanced feature extraction and neural processing</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theoretical Foundation Section -->
+    <section id="theory" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">Theoretical Foundation</h2>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Neural Basis of Rhythm Processing</h3>
+                    <p>
+                        The framework is built upon established neuroscientific research demonstrating that humans possess 
+                        an inherent ability to synchronize motor responses with external rhythmic stimuli. This phenomenon, 
+                        known as beat-based timing, involves complex interactions between auditory and motor systems in the brain.
+                    </p>
+                    
+                    <div class="neural-networks">
+                        <h4>Key Neural Mechanisms</h4>
+                        <ul>
+                            <li><strong>Beat-based Timing Networks:</strong> Basal ganglia-thalamocortical circuits, supplementary motor area (SMA), premotor cortex (PMC)</li>
+                            <li><strong>Temporal Processing Systems:</strong> Duration-based timing mechanisms, beat-based timing mechanisms, motor-auditory feedback loops</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Motor-Auditory Coupling</h3>
+                    <p>
+                        Research has shown that low-frequency neural oscillations from motor planning areas guide auditory sampling, 
+                        expressed through coherence measures:
+                    </p>
+                    
+                    <div class="equation">
+                        $$C_{xy}(f) = \frac{|S_{xy}(f)|^2}{S_{xx}(f)S_{yy}(f)}$$
+                    </div>
+                    
+                    <div class="equation-explanation">
+                        <p>Where:</p>
+                        <ul>
+                            <li>$C_{xy}(f)$ represents coherence at frequency $f$</li>
+                            <li>$S_{xy}(f)$ is the cross-spectral density</li>
+                            <li>$S_{xx}(f)$ and $S_{yy}(f)$ are auto-spectral densities</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Mathematical Framework</h3>
+                    <div class="math-grid">
+                        <div class="math-item">
+                            <h4>Spectral Decomposition</h4>
+                            <div class="equation">
+                                $$X(k) = \sum_{n=0}^{N-1} x(n)e^{-j2\pi kn/N}$$
+                            </div>
+                        </div>
+                        
+                        <div class="math-item">
+                            <h4>Groove Pattern Analysis</h4>
+                            <div class="equation">
+                                $$MT(n) = \frac{1}{K}\sum_{k=1}^{K} |t_k(n) - t_{ref}(n)|$$
+                            </div>
+                        </div>
+                        
+                        <div class="math-item">
+                            <h4>Amen Break Detection</h4>
+                            <div class="equation">
+                                $$S_{amen}(t) = \sum_{f} w(f)|X(f,t) - A(f)|^2$$
+                            </div>
+                        </div>
+                        
+                        <div class="math-item">
+                            <h4>Reese Bass Analysis</h4>
+                            <div class="equation">
+                                $$R(t,f) = \left|\sum_{k=1}^{K} A_k(t)e^{j\phi_k(t)}\right|^2$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section-title">Core Features</h2>
+            
+            <div class="features-tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="pipeline">Feature Extraction Pipeline</button>
+                    <button class="tab-button" data-tab="alignment">Alignment Modules</button>
+                    <button class="tab-button" data-tab="annotation">Annotation System</button>
+                    <button class="tab-button" data-tab="optimization">Performance Optimization</button>
+                </div>
+                
+                <div class="tab-content">
+                    <div id="pipeline" class="tab-pane active">
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <h4>Rhythmic Analysis</h4>
+                                <ul>
+                                    <li>Automated drum pattern recognition</li>
+                                    <li>Groove quantification</li>
+                                    <li>Microtiming analysis</li>
+                                    <li>Syncopation detection</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Spectral Analysis</h4>
+                                <ul>
+                                    <li>Multi-band decomposition</li>
+                                    <li>Harmonic tracking</li>
+                                    <li>Timbral feature extraction</li>
+                                    <li>Sub-bass characterization</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Component Analysis</h4>
+                                <ul>
+                                    <li>Sound source separation</li>
+                                    <li>Transformation detection</li>
+                                    <li>Energy distribution analysis</li>
+                                    <li>Component relationship mapping</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="alignment" class="tab-pane">
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <h4>Amen Break Analysis</h4>
+                                <ul>
+                                    <li>Pattern matching and variation detection</li>
+                                    <li>Transformation identification</li>
+                                    <li>Groove characteristic extraction</li>
+                                    <li>VIP/Dubplate classification</li>
+                                    <li>Robust onset envelope extraction</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Prior Subspace Analysis</h4>
+                                <ul>
+                                    <li>Neurofunk-specific component separation</li>
+                                    <li>Bass sound design analysis</li>
+                                    <li>Effect chain detection</li>
+                                    <li>Temporal structure analysis</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Composite Similarity</h4>
+                                <ul>
+                                    <li>Multi-band similarity computation</li>
+                                    <li>Transformation-aware comparison</li>
+                                    <li>Groove-based alignment</li>
+                                    <li>Confidence scoring</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="annotation" class="tab-pane">
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <h4>Peak Detection</h4>
+                                <ul>
+                                    <li>Multi-band onset detection</li>
+                                    <li>Adaptive thresholding</li>
+                                    <li>Feature-based peak classification</li>
+                                    <li>Confidence scoring</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Segment Clustering</h4>
+                                <ul>
+                                    <li>Pattern-based segmentation</li>
+                                    <li>Hierarchical clustering</li>
+                                    <li>Relationship analysis</li>
+                                    <li>Transition detection</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Transition Detection</h4>
+                                <ul>
+                                    <li>Mix point identification</li>
+                                    <li>Blend type classification</li>
+                                    <li>Energy flow analysis</li>
+                                    <li>Structure boundary detection</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="optimization" class="tab-pane">
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <h4>Memory Management</h4>
+                                <ul>
+                                    <li>Streaming processing for large files</li>
+                                    <li>Efficient cache utilization</li>
+                                    <li>GPU memory optimization</li>
+                                    <li>Automatic garbage collection</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Parallel Processing</h4>
+                                <ul>
+                                    <li>Multi-threaded feature extraction</li>
+                                    <li>Batch processing capabilities</li>
+                                    <li>Distributed analysis support</li>
+                                    <li>Adaptive resource allocation</li>
+                                </ul>
+                            </div>
+                            <div class="feature-item">
+                                <h4>Storage Efficiency</h4>
+                                <ul>
+                                    <li>Compressed result storage</li>
+                                    <li>Metadata indexing</li>
+                                    <li>Version control for analysis results</li>
+                                    <li>Scalable parallel execution</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HuggingFace Integration Section -->
+    <section id="huggingface" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">AI Model Integration</h2>
+            <p class="section-subtitle">
+                Heihachi integrates specialized AI models from HuggingFace, enabling advanced neural processing 
+                of audio using state-of-the-art models carefully selected for electronic music analysis tasks.
+            </p>
+            
+            <div class="ai-models">
+                <div class="model-category">
+                    <h3>Core Feature Extraction</h3>
+                    <div class="model-grid">
+                        <div class="model-card">
+                            <div class="model-header">
+                                <h4>Microsoft BEATs</h4>
+                                <span class="priority-badge high">High Priority</span>
+                            </div>
+                            <p>Bidirectional ViT-style encoder trained with acoustic tokenizers, providing 768-d latent embeddings at ~20ms hop length</p>
+                            <div class="model-features">
+                                <span class="feature-tag">Spectral Analysis</span>
+                                <span class="feature-tag">Temporal Analysis</span>
+                            </div>
+                        </div>
+                        
+                        <div class="model-card">
+                            <div class="model-header">
+                                <h4>OpenAI Whisper</h4>
+                                <span class="priority-badge high">High Priority</span>
+                            </div>
+                            <p>Trained on >5M hours; encoder provides 1280-d features tracking energy, voicing & language</p>
+                            <div class="model-features">
+                                <span class="feature-tag">Robust Features</span>
+                                <span class="feature-tag">Energy Tracking</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="model-category">
+                    <h3>Rhythm & Beat Analysis</h3>
+                    <div class="model-grid">
+                        <div class="model-card">
+                            <div class="model-header">
+                                <h4>Beat-Transformer</h4>
+                                <span class="priority-badge high">High Priority</span>
+                            </div>
+                            <p>Dilated self-attention encoder with F-measure ~0.86 for beat and downbeat detection</p>
+                            <div class="model-features">
+                                <span class="feature-tag">Beat Detection</span>
+                                <span class="feature-tag">Downbeat Detection</span>
+                            </div>
+                        </div>
+                        
+                        <div class="model-card">
+                            <div class="model-header">
+                                <h4>BEAST</h4>
+                                <span class="priority-badge medium">Medium Priority</span>
+                            </div>
+                            <p>50ms latency, causal attention; ideal for real-time DJ analysis</p>
+                            <div class="model-features">
+                                <span class="feature-tag">Real-time</span>
+                                <span class="feature-tag">Low Latency</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="model-category">
+                    <h3>Audio Separation & Component Analysis</h3>
+                    <div class="model-grid">
+                        <div class="model-card">
+                            <div class="model-header">
+                                <h4>Demucs v4</h4>
+                                <span class="priority-badge high">High Priority</span>
+                            </div>
+                            <p>Returns 4-stem or 6-stem tensors for component-level analysis (drums, bass, vocals, other)</p>
+                            <div class="model-features">
+                                <span class="feature-tag">Stem Separation</span>
+                                <span class="feature-tag">Component Analysis</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="model-category">
+                    <h3>Multimodal & Similarity</h3>
+                    <div class="model-grid">
+                        <div class="model-card">
+                            <div class="model-header">
+                                <h4>LAION CLAP</h4>
+                                <span class="priority-badge medium">Medium Priority</span>
+                            </div>
+                            <p>Query with free-text and compute cosine similarity on 512-d embeddings</p>
+                            <div class="model-features">
+                                <span class="feature-tag">Multimodal</span>
+                                <span class="feature-tag">Text-Audio</span>
+                            </div>
+                        </div>
+                        
+                        <div class="model-card">
+                            <div class="model-header">
+                                <h4>UniMus OpenJMLA</h4>
+                                <span class="priority-badge medium">Medium Priority</span>
+                            </div>
+                            <p>Score arbitrary tag strings for effect-chain heuristics</p>
+                            <div class="model-features">
+                                <span class="feature-tag">Zero-shot</span>
+                                <span class="feature-tag">Tagging</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <h3>Usage Example</h3>
+                <pre><code class="language-python">from heihachi.huggingface import FeatureExtractor, StemSeparator, BeatDetector
+
+# Extract features
+extractor = FeatureExtractor(model="microsoft/BEATs-base")
+features = extractor.extract(audio_path="track.mp3")
+
+# Separate stems
+separator = StemSeparator()
+stems = separator.separate(audio_path="track.mp3")
+drums = stems["drums"]
+bass = stems["bass"]
+
+# Detect beats
+detector = BeatDetector()
+beats = detector.detect(audio_path="track.mp3", visualize=True, output_path="beats.png")
+print(f"Tempo: {beats['tempo']} BPM")</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Academic Knowledge Processing Section -->
+    <section id="academic-processing" class="section">
+        <div class="container">
+            <h2 class="section-title">Academic Knowledge Pipeline</h2>
+            <p class="section-subtitle">
+                Extract, process, and structure knowledge from ~100 scientific publications on music perception, 
+                emotion, and drum & bass production to build a comprehensive academic knowledge base.
+            </p>
+            
+            <div class="academic-pipeline">
+                <div class="pipeline-overview">
+                    <h3>Processing Pipeline</h3>
+                    <div class="pipeline-flow">
+                        <div class="pipeline-step">
+                            <div class="step-icon">📄</div>
+                            <h4>PDF Extraction</h4>
+                            <p>Extract structured text from academic PDFs with layout preservation and section detection</p>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-step">
+                            <div class="step-icon">🧠</div>
+                            <h4>Knowledge Extraction</h4>
+                            <p>Use LLMs to extract concepts, findings, and relationships from research papers</p>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-step">
+                            <div class="step-icon">🔗</div>
+                            <h4>Knowledge Graph</h4>
+                            <p>Build interconnected knowledge base linking concepts across papers</p>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-step">
+                            <div class="step-icon">⚡</div>
+                            <h4>LLM Training</h4>
+                            <p>Generate training examples and fine-tune models for music expertise</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="knowledge-types">
+                    <h3>Extracted Knowledge Types</h3>
+                    <div class="knowledge-grid">
+                        <div class="knowledge-item">
+                            <h4>Concepts</h4>
+                            <p>Key concepts related to music perception, emotion, and production techniques</p>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Beat-based timing networks involve basal ganglia-thalamocortical circuits that enable synchronization with rhythmic stimuli"
+                            </div>
+                        </div>
+                        <div class="knowledge-item">
+                            <h4>Findings</h4>
+                            <p>Research conclusions and evidence about music and emotional responses</p>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Low-frequency neural oscillations from motor planning areas guide auditory sampling (Chen et al., 2008)"
+                            </div>
+                        </div>
+                        <div class="knowledge-item">
+                            <h4>Relationships</h4>
+                            <p>Connections between concepts across different research domains</p>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Motor-auditory coupling → enables → rhythm perception"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="implementation-details">
+                    <h3>Implementation Overview</h3>
+                    <div class="code-example">
+                        <pre><code class="language-python">class AcademicKnowledgeProcessor:
+    def process_papers(self, papers_directory):
+        """Extract and structure knowledge from academic PDFs"""
+        processed_papers = []
+        
+        for pdf_file in papers_directory:
+            # Extract structured text with section preservation
+            sections = self.extract_structured_text(pdf_file)
+            metadata = self.extract_paper_metadata(pdf_file)
+            
+            # Use LLM to extract knowledge
+            concepts = self.extract_concepts(sections)
+            findings = self.extract_findings(sections)
+            relationships = self.extract_relationships(concepts)
+            
+            processed_papers.append({
+                "metadata": metadata,
+                "concepts": concepts,
+                "findings": findings,
+                "relationships": relationships
+            })
+        
+        return self.create_knowledge_base(processed_papers)
+    
+    def generate_training_examples(self, knowledge_base):
+        """Create LLM training examples from extracted knowledge"""
+        examples = []
+        
+        # Concept explanation examples
+        for concept in knowledge_base['concepts']:
+            examples.append({
+                "input": f"What is {concept['name']} in music perception?",
+                "output": concept['explanation']
+            })
+        
+        # Application examples
+        for concept in knowledge_base['concepts']:
+            examples.append({
+                "input": f"How can I apply {concept['name']} in drum and bass production?",
+                "output": self.generate_application_example(concept)
+            })
+        
+        return examples</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="section">
+        <div class="container">
+            <h2 class="section-title">Experimental Results</h2>
+            <p class="section-subtitle">
+                Demonstration of Heihachi's capabilities through comprehensive analysis of a 33-minute electronic music mix, 
+                showcasing advanced drum pattern recognition and temporal structure analysis.
+            </p>
+            
+            <div class="results-overview">
+                <div class="result-stat">
+                    <div class="stat-number">91,179</div>
+                    <div class="stat-label">Drum Hits Detected</div>
+                </div>
+                <div class="result-stat">
+                    <div class="stat-number">33 min</div>
+                    <div class="stat-label">Analysis Duration</div>
+                </div>
+                <div class="result-stat">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Drum Categories</div>
+                </div>
+                <div class="result-stat">
+                    <div class="stat-number">0.385</div>
+                    <div class="stat-label">Avg. Confidence Score</div>
+                </div>
+            </div>
+            
+            <div class="results-content">
+                <div class="result-section">
+                    <h3>Drum Hit Analysis</h3>
+                    <p>
+                        Advanced multi-stage analysis employing onset detection, neural network classification, 
+                        confidence scoring, and temporal pattern recognition identified 91,179 percussion events 
+                        across five primary categories.
+                    </p>
+                    
+                    <div class="drum-distribution">
+                        <h4>Distribution by Type</h4>
+                        <canvas id="drumChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+                
+                <div class="result-section">
+                    <h3>Classification Performance</h3>
+                    <div class="performance-grid">
+                        <div class="performance-item">
+                            <h4>Toms</h4>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 77%"></div>
+                                <span>0.385 confidence</span>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <h4>Snares</h4>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 76.2%"></div>
+                                <span>0.381 confidence</span>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <h4>Kicks</h4>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 74%"></div>
+                                <span>0.370 confidence</span>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <h4>Cymbals</h4>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 56.8%"></div>
+                                <span>0.284 confidence</span>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <h4>Hi-hats</h4>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 44.6%"></div>
+                                <span>0.223 confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-section">
+                    <h3>Key Findings</h3>
+                    <div class="findings-grid">
+                        <div class="finding-item">
+                            <h4>Microtiming Variations</h4>
+                            <p>Subtle deviations from quantized grid detected, particularly in hi-hats and snares, contributing to human feel</p>
+                        </div>
+                        <div class="finding-item">
+                            <h4>Structural Markers</h4>
+                            <p>Clear delineation of musical sections through changes in drum event density and type distribution</p>
+                        </div>
+                        <div class="finding-item">
+                            <h4>Layering Techniques</h4>
+                            <p>Overlapping drum hits at key points create impact moments through stacked percussion events</p>
+                        </div>
+                        <div class="finding-item">
+                            <h4>Rhythmic Motifs</h4>
+                            <p>Recurring patterns serve as stylistic identifiers throughout the mix structure</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section id="documentation" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">Documentation</h2>
+            
+            <div class="docs-grid">
+                <div class="doc-category">
+                    <h3>Getting Started</h3>
+                    <div class="doc-links">
+                        <a href="docs/installation.html" class="doc-link">
+                            <span class="doc-title">Installation Guide</span>
+                            <span class="doc-desc">Complete setup instructions and requirements</span>
+                        </a>
+                        <a href="docs/quickstart.html" class="doc-link">
+                            <span class="doc-title">Quick Start</span>
+                            <span class="doc-desc">Get up and running in 5 minutes</span>
+                        </a>
+                        <a href="docs/configuration.html" class="doc-link">
+                            <span class="doc-title">Configuration</span>
+                            <span class="doc-desc">Environment setup and API keys</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="doc-category">
+                    <h3>Core Features</h3>
+                    <div class="doc-links">
+                        <a href="docs/processing.html" class="doc-link">
+                            <span class="doc-title">Audio Processing</span>
+                            <span class="doc-desc">Core analysis pipeline and algorithms</span>
+                        </a>
+                        <a href="docs/huggingface.html" class="doc-link">
+                            <span class="doc-title">AI Models</span>
+                            <span class="doc-desc">HuggingFace integration and models</span>
+                        </a>
+                        <a href="docs/interactive.html" class="doc-link">
+                            <span class="doc-title">Interactive Explorer</span>
+                            <span class="doc-desc">CLI and web interface for results</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="doc-category">
+                    <h3>Advanced Usage</h3>
+                    <div class="doc-links">
+                        <a href="docs/optimization.html" class="doc-link">
+                            <span class="doc-title">Performance Optimization</span>
+                            <span class="doc-desc">Memory, parallel processing, and caching</span>
+                        </a>
+                        <a href="docs/batch-processing.html" class="doc-link">
+                            <span class="doc-title">Batch Processing</span>
+                            <span class="doc-desc">Process multiple files efficiently</span>
+                        </a>
+                        <a href="docs/visualization.html" class="doc-link">
+                            <span class="doc-title">Visualization</span>
+                            <span class="doc-desc">Charts, plots, and interactive displays</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="doc-category">
+                    <h3>Development</h3>
+                    <div class="doc-links">
+                        <a href="docs/api.html" class="doc-link">
+                            <span class="doc-title">API Reference</span>
+                            <span class="doc-desc">Complete Python API documentation</span>
+                        </a>
+                        <a href="docs/contributing.html" class="doc-link">
+                            <span class="doc-title">Contributing</span>
+                            <span class="doc-desc">How to contribute to the project</span>
+                        </a>
+                        <a href="docs/theory.html" class="doc-link">
+                            <span class="doc-title">Theoretical Foundation</span>
+                            <span class="doc-desc">Mathematical framework and neural basis</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="installation" class="section">
+        <div class="container">
+            <h2 class="section-title">Installation</h2>
+            
+            <div class="install-methods">
+                <div class="install-method">
+                    <h3>Quick Install (Recommended)</h3>
+                    <div class="code-block">
+                        <pre><code class="language-bash"># Clone the repository
+git clone https://github.com/fullscreen-triangle/heihachi.git
+cd heihachi
+
+# Run the setup script
+python scripts/setup.py</code></pre>
+                    </div>
+                </div>
+                
+                <div class="install-method">
+                    <h3>Manual Installation</h3>
+                    <div class="code-block">
+                        <pre><code class="language-bash"># Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install the package
+pip install -e .</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="install-options">
+                <h3>Installation Options</h3>
+                <div class="options-grid">
+                    <div class="option-item">
+                        <code>--dev</code>
+                        <span>Install development dependencies</span>
+                    </div>
+                    <div class="option-item">
+                        <code>--no-gpu</code>
+                        <span>Skip GPU acceleration dependencies</span>
+                    </div>
+                    <div class="option-item">
+                        <code>--no-interactive</code>
+                        <span>Skip interactive mode dependencies</span>
+                    </div>
+                    <div class="option-item">
+                        <code>--shell-completion</code>
+                        <span>Install shell completion scripts</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-usage">
+                <h3>Quick Usage</h3>
+                <div class="code-block">
+                    <pre><code class="language-bash"># Process a single audio file
+heihachi process audio.wav --output results/
+
+# Process a directory of audio files
+heihachi process audio_dir/ --output results/
+
+# Start interactive explorer
+heihachi interactive --results-dir results/
+
+# Extract features using AI models
+heihachi hf extract audio.wav --model microsoft/BEATs-base</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Heihachi</h4>
+                    <p>Advanced neural audio analysis framework for electronic music</p>
+                    <div class="social-links">
+                        <a href="https://github.com/fullscreen-triangle/heihachi" target="_blank" rel="noopener">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="docs/installation.html">Installation</a></li>
+                        <li><a href="docs/quickstart.html">Quick Start</a></li>
+                        <li><a href="docs/api.html">API Reference</a></li>
+                        <li><a href="docs/theory.html">Theory</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li><a href="#features">Core Features</a></li>
+                        <li><a href="#huggingface">AI Models</a></li>
+                        <li><a href="docs/optimization.html">Performance</a></li>
+                        <li><a href="docs/interactive.html">Interactive Explorer</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/fullscreen-triangle/heihachi/issues">Issues</a></li>
+                        <li><a href="docs/contributing.html">Contributing</a></li>
+                        <li><a href="https://github.com/fullscreen-triangle/heihachi/discussions">Discussions</a></li>
+                        <li><a href="#citation">Citation</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-left">
+                    <p>&copy; 2024 Heihachi. Licensed under MIT License.</p>
+                </div>
+                <div class="footer-right">
+                    <p><em>"What makes a tiger so strong is that it lacks humanity"</em></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html> 
