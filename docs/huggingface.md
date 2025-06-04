@@ -127,7 +127,7 @@ For models that require authentication, you have several options:
    python -m src.main hf extract path/to/audio.mp3
    ```
 
-For more details on environment configuration, see [Environment Configuration](./env-configuration.md).
+For more details on environment configuration, see [Environment Configuration](heihachi/env-configuration.md).
 
 ## Extending with New Models
 
