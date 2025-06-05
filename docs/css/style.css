@@ -11,10 +11,10 @@
     --secondary-color: #4a5568;
     --accent-color: #3182ce;
     --accent-secondary: #805ad5;
-    --background-color: #ffffff;
+    --background-color: #232121;
     --background-dark: #1a202c;
-    --text-color: #2d3748;
-    --text-light: #718096;
+    --text-color: #dce2ec;
+    --text-light: #c7d9f3;
     --border-color: #e2e8f0;
     --success-color: #38a169;
     --warning-color: #d69e2e;
@@ -1286,5 +1286,78 @@ code[class*="language-"] {
     
     .example-queries {
         gap: var(--spacing-md);
+    }
+}
+
+/* Visualization Grid Styles */
+.visualization-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.viz-item {
+    text-align: center;
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.viz-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.viz-item p {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+    margin: 0;
+}
+
+/* Hero Visualization */
+.hero-viz-image {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Capabilities Showcase */
+.capabilities-showcase {
+    margin: 3rem 0;
+    text-align: center;
+}
+
+.capabilities-image {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    margin: 0 auto;
+}
+
+.image-caption {
+    font-style: italic;
+    color: #666;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+}
+
+/* Responsive adjustments for visualizations */
+@media (max-width: 768px) {
+    .visualization-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .viz-item {
+        padding: 0.75rem;
     }
 } 
