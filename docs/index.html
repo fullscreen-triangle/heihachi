@@ -41,6 +41,8 @@
             <ul class="nav-menu">
                 <li><a href="#overview">Overview</a></li>
                 <li><a href="#feltbeats">FeltBeats</a></li>
+                <li><a href="#api">REST API</a></li>
+                <li><a href="#semantic">Semantic Analysis</a></li>
                 <li><a href="#theory">Theory</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#output-format">Output Format</a></li>
@@ -158,6 +160,431 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REST API Section -->
+    <section id="api" class="section">
+        <div class="container">
+            <h2 class="section-title">REST API</h2>
+            <p class="section-subtitle">
+                Comprehensive REST API for integrating Heihachi's audio analysis capabilities into web applications, 
+                mobile apps, and other systems. Supports both synchronous and asynchronous processing.
+            </p>
+            
+            <div class="api-overview">
+                <div class="api-features">
+                    <div class="api-feature">
+                        <div class="feature-icon">🚀</div>
+                        <h3>Fast & Scalable</h3>
+                        <p>Asynchronous job processing with configurable concurrency limits and rate limiting</p>
+                    </div>
+                    <div class="api-feature">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Easy Integration</h3>
+                        <p>RESTful endpoints with comprehensive documentation and client examples</p>
+                    </div>
+                    <div class="api-feature">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Specialized Analysis</h3>
+                        <p>Dedicated endpoints for beats, drums, stems, emotions, and semantic search</p>
+                    </div>
+                </div>
+                
+                <div class="api-quick-start">
+                    <h3>Quick Start</h3>
+                    <div class="code-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="start-server">Start Server</button>
+                            <button class="tab-button" data-tab="curl-example">cURL Example</button>
+                            <button class="tab-button" data-tab="python-example">Python Client</button>
+                            <button class="tab-button" data-tab="js-example">JavaScript Client</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="start-server" class="tab-pane active">
+                                <pre><code class="language-bash"># Install API dependencies
+pip install flask flask-cors flask-limiter
+
+# Start the API server
+python api_server.py --host 0.0.0.0 --port 5000
+
+# Or with production settings
+python api_server.py --production --config-path configs/production.yaml</code></pre>
+                            </div>
+                            
+                            <div id="curl-example" class="tab-pane">
+                                <pre><code class="language-bash"># Analyze audio file with emotion mapping
+curl -X POST http://localhost:5000/api/v1/semantic/analyze \
+  -F "file=@track.wav" \
+  -F "include_emotions=true" \
+  -F "index_for_search=true"
+
+# Extract beats from audio
+curl -X POST http://localhost:5000/api/v1/beats \
+  -F "file=@track.mp3"
+
+# Search indexed tracks semantically
+curl -X POST http://localhost:5000/api/v1/semantic/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "dark aggressive neurofunk", "top_k": 5}'</code></pre>
+                            </div>
+                            
+                            <div id="python-example" class="tab-pane">
+                                <pre><code class="language-python">import requests
+
+# Extract emotional features
+def extract_emotions(file_path):
+    url = "http://localhost:5000/api/v1/semantic/emotions"
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        response = requests.post(url, files=files)
+        return response.json()
+
+# Example usage
+emotions = extract_emotions("track.wav")
+print(f"Dominant emotion: {emotions['summary']['dominant_emotion']}")
+print(f"Energy level: {emotions['emotions']['energy']:.1f}/10")</code></pre>
+                            </div>
+                            
+                            <div id="js-example" class="tab-pane">
+                                <pre><code class="language-javascript">// Analyze audio file
+async function analyzeAudio(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('include_emotions', 'true');
+    
+    const response = await fetch('/api/v1/semantic/analyze', {
+        method: 'POST',
+        body: formData
+    });
+    
+    return await response.json();
+}
+
+// Usage with file input
+const fileInput = document.getElementById('audio-file');
+fileInput.addEventListener('change', async (e) => {
+    const result = await analyzeAudio(e.target.files[0]);
+    console.log('Analysis result:', result);
+});</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="api-endpoints">
+                    <h3>Available Endpoints</h3>
+                    <div class="endpoints-grid">
+                        <div class="endpoint-group">
+                            <h4>Audio Analysis</h4>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/analyze</span>
+                                <span class="desc">Full audio analysis pipeline</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/features</span>
+                                <span class="desc">Extract audio features</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/beats</span>
+                                <span class="desc">Beat and tempo detection</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/drums</span>
+                                <span class="desc">Drum pattern analysis</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/stems</span>
+                                <span class="desc">Audio stem separation</span>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-group">
+                            <h4>Semantic Analysis</h4>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/semantic/analyze</span>
+                                <span class="desc">Semantic analysis with emotions</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/semantic/emotions</span>
+                                <span class="desc">Extract emotional features</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/semantic/search</span>
+                                <span class="desc">Semantic track search</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/semantic/text-analysis</span>
+                                <span class="desc">Text sentiment analysis</span>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-group">
+                            <h4>Job Management</h4>
+                            <div class="endpoint">
+                                <span class="method post">POST</span>
+                                <span class="path">/api/v1/batch-analyze</span>
+                                <span class="desc">Batch process multiple files</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method get">GET</span>
+                                <span class="path">/api/v1/jobs/{id}</span>
+                                <span class="desc">Get job status and results</span>
+                            </div>
+                            <div class="endpoint">
+                                <span class="method get">GET</span>
+                                <span class="path">/api/v1/jobs</span>
+                                <span class="desc">List all jobs (paginated)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="api-visualization">
+                    <h3>Analysis Results Visualization</h3>
+                    <p>
+                        The API returns detailed analysis data that can be visualized to understand track characteristics 
+                        and emotional profiles. These visualizations help developers integrate meaningful insights into their applications.
+                    </p>
+                    
+                    <div class="visualization-grid">
+                        <div class="viz-item">
+                            <img src="assets/drum_hit_types_pie.png" alt="Drum Hit Distribution" class="viz-image">
+                            <h4>Drum Element Distribution</h4>
+                            <p>Shows the proportion of different drum elements, contributing to groove and rhythm characteristics</p>
+                        </div>
+                        <div class="viz-item">
+                            <img src="assets/confidence_velocity_scatter.png" alt="Confidence vs Velocity Analysis" class="viz-image">
+                            <h4>Velocity-Confidence Analysis</h4>
+                            <p>Correlates drum hit confidence with velocity, indicating playing dynamics and energy levels</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Semantic Analysis Section -->
+    <section id="semantic" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">Semantic Analysis</h2>
+            <p class="section-subtitle">
+                Transform raw audio features into meaningful emotional dimensions and enable intelligent 
+                music discovery through semantic search and natural language queries.
+            </p>
+            
+            <div class="semantic-overview">
+                <div class="emotional-mapping">
+                    <h3>Emotional Feature Mapping</h3>
+                    <p>
+                        Heihachi maps technical audio features to 9 distinct emotional dimensions using 
+                        scientifically-grounded algorithms that correlate spectral, rhythmic, and temporal 
+                        characteristics with human emotional perception.
+                    </p>
+                    
+                    <div class="emotion-dimensions">
+                        <div class="emotion-grid">
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Energy</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 85%"></div>
+                                        <span class="bar-value">8.5</span>
+                                    </div>
+                                </div>
+                                <p>Loudness, tempo, and drum intensity</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Brightness</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 65%"></div>
+                                        <span class="bar-value">6.5</span>
+                                    </div>
+                                </div>
+                                <p>Spectral centroid and high-frequency content</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Tension</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 75%"></div>
+                                        <span class="bar-value">7.5</span>
+                                    </div>
+                                </div>
+                                <p>Dissonance and rhythmic complexity</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Warmth</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 45%"></div>
+                                        <span class="bar-value">4.5</span>
+                                    </div>
+                                </div>
+                                <p>Low-mid energy and harmonic richness</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Groove</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 90%"></div>
+                                        <span class="bar-value">9.0</span>
+                                    </div>
+                                </div>
+                                <p>Microtiming and syncopation quality</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Aggression</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 80%"></div>
+                                        <span class="bar-value">8.0</span>
+                                    </div>
+                                </div>
+                                <p>Transient sharpness and distortion</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Atmosphere</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 70%"></div>
+                                        <span class="bar-value">7.0</span>
+                                    </div>
+                                </div>
+                                <p>Reverb amount and stereo width</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Melancholy</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 35%"></div>
+                                        <span class="bar-value">3.5</span>
+                                    </div>
+                                </div>
+                                <p>Minor key and sparse arrangement</p>
+                            </div>
+                            <div class="emotion-item">
+                                <div class="emotion-bar">
+                                    <span class="emotion-name">Euphoria</span>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 55%"></div>
+                                        <span class="bar-value">5.5</span>
+                                    </div>
+                                </div>
+                                <p>Major key and uplifting progressions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="semantic-search">
+                    <h3>Semantic Search</h3>
+                    <p>
+                        Find tracks using natural language descriptions of emotions, moods, and musical characteristics. 
+                        The search system understands contextual relationships between audio features and emotional responses.
+                    </p>
+                    
+                    <div class="search-examples">
+                        <div class="search-demo">
+                            <div class="search-query">
+                                <span class="query-label">Query:</span>
+                                <span class="query-text">"dark aggressive neurofunk with heavy bass"</span>
+                            </div>
+                            <div class="search-results">
+                                <div class="result-item">
+                                    <span class="track-title">Blackout Protocol - Artist A</span>
+                                    <div class="similarity-score">Similarity: 0.92</div>
+                                    <div class="emotion-tags">
+                                        <span class="tag">Energy: 8.5</span>
+                                        <span class="tag">Aggression: 9.1</span>
+                                        <span class="tag">Tension: 8.8</span>
+                                    </div>
+                                </div>
+                                <div class="result-item">
+                                    <span class="track-title">Neural Storm - Artist B</span>
+                                    <div class="similarity-score">Similarity: 0.89</div>
+                                    <div class="emotion-tags">
+                                        <span class="tag">Energy: 8.2</span>
+                                        <span class="tag">Aggression: 8.7</span>
+                                        <span class="tag">Warmth: 3.1</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="search-features">
+                            <h4>Search Capabilities</h4>
+                            <ul>
+                                <li>Natural language emotion queries</li>
+                                <li>Vector-based similarity matching</li>
+                                <li>Multi-dimensional emotional filtering</li>
+                                <li>Contextual query enhancement</li>
+                                <li>Real-time indexing and retrieval</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                                 <div class="technical-foundation">
+                     <h3>Technical Foundation</h3>
+                     <p>
+                         Semantic analysis builds upon detailed drum pattern analysis and feature extraction to create 
+                         comprehensive emotional profiles. The system processes complex rhythmic patterns and translates 
+                         them into meaningful emotional dimensions.
+                     </p>
+                     
+                     <div class="analysis-visualization">
+                         <img src="assets/drum_pattern_heatmap.png" alt="Drum Pattern Analysis Heatmap" class="analysis-image">
+                         <p class="image-caption">
+                             Drum pattern analysis visualization showing the temporal distribution of different drum elements,
+                             which feeds into the emotional mapping algorithms to determine groove, energy, and tension characteristics.
+                         </p>
+                     </div>
+                     
+                     <div class="feature-mapping-chart">
+                         <img src="assets/drum_density.png" alt="Drum Density Over Time" class="analysis-image">
+                         <p class="image-caption">
+                             Drum density analysis over time - high-density regions contribute to energy and aggression scores,
+                             while sparse sections indicate atmospheric or melancholic characteristics.
+                         </p>
+                     </div>
+                 </div>
+                 
+                 <div class="cli-integration">
+                     <h3>Command Line Integration</h3>
+                     <p>Semantic analysis capabilities are fully integrated into the Heihachi CLI for streamlined workflows.</p>
+                     
+                     <div class="cli-examples">
+                         <div class="cli-command">
+                             <span class="command-label">Extract emotions:</span>
+                             <code>python -m src.main semantic emotions track.wav</code>
+                         </div>
+                         <div class="cli-command">
+                             <span class="command-label">Index for search:</span>
+                             <code>python -m src.main semantic index audio_folder/ --artist "Artist" --title "Track"</code>
+                         </div>
+                         <div class="cli-command">
+                             <span class="command-label">Search tracks:</span>
+                             <code>python -m src.main semantic search "atmospheric intro with tension building"</code>
+                         </div>
+                         <div class="cli-command">
+                             <span class="command-label">View statistics:</span>
+                             <code>python -m src.main semantic stats</code>
+                         </div>
+                     </div>
+                 </div>
             </div>
         </div>
     </section>
@@ -967,6 +1394,14 @@ print(f"Tempo: {beats['tempo']} BPM")</code></pre>
                             <span class="doc-title">AI Models</span>
                             <span class="doc-desc">HuggingFace integration and models</span>
                         </a>
+                        <a href="#api" class="doc-link">
+                            <span class="doc-title">REST API</span>
+                            <span class="doc-desc">HTTP endpoints for audio analysis integration</span>
+                        </a>
+                        <a href="#semantic" class="doc-link">
+                            <span class="doc-title">Semantic Analysis</span>
+                            <span class="doc-desc">Emotional mapping and intelligent music search</span>
+                        </a>
                         <a href="docs/interactive.html" class="doc-link">
                             <span class="doc-title">Interactive Explorer</span>
                             <span class="doc-desc">CLI and web interface for results</span>
@@ -1075,11 +1510,17 @@ pip install -e .</code></pre>
                     <pre><code class="language-bash"># Process a single audio file
 heihachi process audio.wav --output results/
 
-# Process a directory of audio files
-heihachi process audio_dir/ --output results/
+# Extract emotional features from audio
+python -m src.main semantic emotions track.wav
 
-# Start interactive explorer
-heihachi interactive --results-dir results/
+# Start the REST API server
+python api_server.py --host 0.0.0.0 --port 5000
+
+# Index tracks for semantic search
+python -m src.main semantic index audio_dir/ --artist "Artist"
+
+# Search indexed tracks semantically
+python -m src.main semantic search "dark atmospheric neurofunk"
 
 # Extract features using AI models
 heihachi hf extract audio.wav --model microsoft/BEATs-base</code></pre>
@@ -1118,6 +1559,8 @@ heihachi hf extract audio.wav --model microsoft/BEATs-base</code></pre>
                     <h4>Features</h4>
                     <ul>
                         <li><a href="#features">Core Features</a></li>
+                        <li><a href="#api">REST API</a></li>
+                        <li><a href="#semantic">Semantic Analysis</a></li>
                         <li><a href="#huggingface">AI Models</a></li>
                         <li><a href="docs/optimization.html">Performance</a></li>
                         <li><a href="docs/interactive.html">Interactive Explorer</a></li>

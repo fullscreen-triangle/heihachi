@@ -26,6 +26,185 @@ from src.utils.profiling import global_profiler, Profiler
 from src.utils.cache import result_cache, start_cleanup_thread
 from src.commands import compare, interactive
 from src.cli import huggingface_commands
+from src.semantic import SemanticSearch, EmotionalFeatureMapper
+
+def setup_semantic_commands(subparsers):
+    """Setup semantic analysis commands."""
+    semantic_parser = subparsers.add_parser(
+        'semantic',
+        help='Semantic analysis commands',
+        description='Semantic analysis and search functionality'
+    )
+    
+    semantic_subparsers = semantic_parser.add_subparsers(dest='semantic_command')
+    
+    # Index command
+    index_parser = semantic_subparsers.add_parser(
+        'index',
+        help='Index audio files for semantic search'
+    )
+    index_parser.add_argument('input', help='Audio file or directory to index')
+    index_parser.add_argument('--title', help='Track title (for single files)')
+    index_parser.add_argument('--artist', help='Artist name (for single files)')
+    index_parser.set_defaults(func=semantic_index_command)
+    
+    # Search command
+    search_parser = semantic_subparsers.add_parser(
+        'search',
+        help='Search indexed tracks semantically'
+    )
+    search_parser.add_argument('query', help='Search query')
+    search_parser.add_argument('--top-k', type=int, default=5, help='Number of results')
+    search_parser.add_argument('--no-enhance', action='store_true', help='Disable query enhancement')
+    search_parser.set_defaults(func=semantic_search_command)
+    
+    # Emotions command
+    emotions_parser = semantic_subparsers.add_parser(
+        'emotions',
+        help='Extract emotional features from audio'
+    )
+    emotions_parser.add_argument('input', help='Audio file to analyze')
+    emotions_parser.add_argument('--output', help='Output file for results')
+    emotions_parser.set_defaults(func=semantic_emotions_command)
+    
+    # Stats command
+    stats_parser = semantic_subparsers.add_parser(
+        'stats',
+        help='Show semantic search statistics'
+    )
+    stats_parser.set_defaults(func=semantic_stats_command)
+
+def semantic_index_command(args):
+    """Index audio files for semantic search."""
+    try:
+        semantic_search = SemanticSearch()
+        
+        input_path = Path(args.input)
+        
+        if input_path.is_file():
+            # Index single file
+            track_info = {
+                'title': args.title or input_path.stem,
+                'artist': args.artist or 'Unknown Artist',
+                'path': str(input_path)
+            }
+            
+            success = semantic_search.analyze_and_index_audio(str(input_path), track_info)
+            if success:
+                logging.info(f"Successfully indexed: {track_info['title']}")
+            else:
+                logging.error(f"Failed to index: {track_info['title']}")
+                
+        elif input_path.is_dir():
+            # Index directory
+            audio_files = []
+            extensions = ['wav', 'mp3', 'flac', 'm4a', 'ogg']
+            
+            for ext in extensions:
+                audio_files.extend(input_path.glob(f"*.{ext}"))
+                audio_files.extend(input_path.glob(f"*.{ext.upper()}"))
+            
+            if not audio_files:
+                logging.error(f"No audio files found in {input_path}")
+                return
+            
+            results = semantic_search.batch_analyze_and_index([str(f) for f in audio_files])
+            logging.info(f"Indexed {results['success_count']}/{results['total']} files successfully")
+            
+        else:
+            logging.error(f"Input path not found: {input_path}")
+            
+    except Exception as e:
+        logging.error(f"Error in semantic indexing: {str(e)}")
+
+def semantic_search_command(args):
+    """Search indexed tracks semantically."""
+    try:
+        semantic_search = SemanticSearch()
+        
+        results = semantic_search.search(
+            args.query, 
+            top_k=args.top_k, 
+            enhance_query=not args.no_enhance
+        )
+        
+        print(f"\nSearch results for: '{args.query}'")
+        print("=" * 50)
+        
+        if 'tracks' in results and results['tracks']:
+            for i, track in enumerate(results['tracks'], 1):
+                print(f"{i}. {track['title']} - {track['artist']}")
+                print(f"   Similarity: {track.get('similarity', 0):.3f}")
+                if 'emotions' in track:
+                    top_emotions = sorted(track['emotions'].items(), key=lambda x: x[1], reverse=True)[:3]
+                    emotions_str = ", ".join([f"{e}: {v:.1f}" for e, v in top_emotions])
+                    print(f"   Emotions: {emotions_str}")
+                print()
+        else:
+            print("No results found.")
+            
+    except Exception as e:
+        logging.error(f"Error in semantic search: {str(e)}")
+
+def semantic_emotions_command(args):
+    """Extract emotional features from audio."""
+    try:
+        from src.core.pipeline import Pipeline
+        
+        # Process audio
+        pipeline = Pipeline()
+        analysis_result = pipeline.process_file(args.input)
+        
+        # Extract emotions
+        emotion_mapper = EmotionalFeatureMapper()
+        emotions = emotion_mapper.map_features_to_emotions(analysis_result)
+        
+        print(f"\nEmotional analysis for: {args.input}")
+        print("=" * 50)
+        
+        # Sort emotions by value
+        sorted_emotions = sorted(emotions.items(), key=lambda x: x[1], reverse=True)
+        
+        for emotion, value in sorted_emotions:
+            bar_length = int(value / 10 * 20)  # Scale to 20 chars
+            bar = "█" * bar_length + "░" * (20 - bar_length)
+            print(f"{emotion:12} {value:5.1f} |{bar}|")
+        
+        # Show dominant emotion
+        dominant = max(emotions.items(), key=lambda x: x[1])
+        print(f"\nDominant emotion: {dominant[0]} ({dominant[1]:.1f}/10)")
+        
+        # Save to file if requested
+        if args.output:
+            import json
+            output_data = {
+                'file': args.input,
+                'emotions': emotions,
+                'dominant_emotion': {'name': dominant[0], 'value': dominant[1]}
+            }
+            with open(args.output, 'w') as f:
+                json.dump(output_data, f, indent=2)
+            print(f"\nResults saved to: {args.output}")
+            
+    except Exception as e:
+        logging.error(f"Error in emotional analysis: {str(e)}")
+
+def semantic_stats_command(args):
+    """Show semantic search statistics."""
+    try:
+        semantic_search = SemanticSearch()
+        stats = semantic_search.get_stats()
+        
+        print("\nSemantic Search Statistics")
+        print("=" * 30)
+        print(f"Indexed tracks: {stats.get('total_tracks', 0)}")
+        print(f"Storage directory: {stats.get('storage_dir', 'N/A')}")
+        
+        if 'embedding_model' in stats:
+            print(f"Embedding model: {stats['embedding_model']}")
+            
+    except Exception as e:
+        logging.error(f"Error getting semantic stats: {str(e)}")
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -131,6 +310,9 @@ def parse_args() -> argparse.Namespace:
     
     # Setup Hugging Face commands
     huggingface_commands.setup_parser(subparsers)
+    
+    # Setup semantic commands
+    setup_semantic_commands(subparsers)
     
     # Debug options
     debug_group = parser.add_argument_group('Debug options')

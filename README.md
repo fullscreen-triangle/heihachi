@@ -2,7 +2,7 @@
 <p align="center"><em>What makes a tiger so strong is that it lacks humanity</em></p>
 
 <p align="center">
-  <img src="./heihachi.png" alt="Heihachi Logo" width="300"/>
+  <img src="./docs/heihachi.png" alt="Heihachi Logo" width="300"/>
 </p>
 
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
@@ -19,6 +19,7 @@ Advanced audio analysis framework for processing, analyzing, and visualizing aud
 - [Usage](#usage)
 - [Theoretical Foundation](#theoretical-foundation)
 - [Core Components](#core-components)
+- [REST API](#rest-api)
 - [HuggingFace Integration](#huggingface-integration)
 - [Experimental Results](#experimental-results)
 - [Performance Optimizations](#performance-optimizations)
@@ -333,6 +334,403 @@ $$D(p,q) = \sqrt{\sum_{i=1}^{N} \lambda_i(f_i(p) - f_i(q))^2}$$
 - Normalized processing paths
 - Adaptive parameters based on content
 - Fault-tolerant alignment algorithms
+
+## REST API
+
+Heihachi provides a comprehensive REST API for integrating audio analysis capabilities into web applications, mobile apps, and other systems. The API supports both synchronous and asynchronous processing, making it suitable for both real-time and batch processing scenarios.
+
+### Quick Start
+
+```bash
+# Install API dependencies
+pip install flask flask-cors flask-limiter
+
+# Start the API server
+python api_server.py --host 0.0.0.0 --port 5000
+
+# Or with custom configuration
+python api_server.py --production --config-path configs/production.yaml
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description | Rate Limit |
+|----------|--------|-------------|------------|
+| `/health` | GET | Health check | None |
+| `/api` | GET | API information and endpoints | None |
+| `/api/v1/analyze` | POST | Full audio analysis | 10/min |
+| `/api/v1/features` | POST | Extract audio features | 20/min |
+| `/api/v1/beats` | POST | Detect beats and tempo | 20/min |
+| `/api/v1/drums` | POST | Analyze drum patterns | 10/min |
+| `/api/v1/stems` | POST | Separate audio stems | 5/min |
+| `/api/v1/semantic/analyze` | POST | Semantic analysis with emotion mapping | 10/min |
+| `/api/v1/semantic/search` | POST | Search indexed tracks semantically | 20/min |
+| `/api/v1/semantic/emotions` | POST | Extract emotional features only | 20/min |
+| `/api/v1/semantic/text-analysis` | POST | Analyze text descriptions | 30/min |
+| `/api/v1/semantic/stats` | GET | Get semantic search statistics | None |
+| `/api/v1/batch-analyze` | POST | Batch process multiple files | 2/min |
+| `/api/v1/jobs/{id}` | GET | Get job status and results | None |
+| `/api/v1/jobs` | GET | List all jobs (paginated) | None |
+
+### Usage Examples
+
+#### 1. Analyze Single Audio File
+
+**Synchronous Processing:**
+```bash
+curl -X POST http://localhost:5000/api/v1/analyze \
+  -F "file=@track.wav" \
+  -F "config=configs/default.yaml"
+```
+
+**Asynchronous Processing:**
+```bash
+curl -X POST http://localhost:5000/api/v1/analyze \
+  -F "file=@track.wav" \
+  -F "async=true"
+```
+
+#### 2. Extract Features
+
+```bash
+curl -X POST http://localhost:5000/api/v1/features \
+  -F "file=@track.mp3" \
+  -F "model=microsoft/BEATs-base"
+```
+
+#### 3. Detect Beats
+
+```bash
+curl -X POST http://localhost:5000/api/v1/beats \
+  -F "file=@track.wav"
+```
+
+#### 4. Analyze Drums
+
+```bash
+curl -X POST http://localhost:5000/api/v1/drums \
+  -F "file=@track.mp3" \
+  -F "visualize=true"
+```
+
+#### 5. Separate Stems
+
+```bash
+curl -X POST http://localhost:5000/api/v1/stems \
+  -F "file=@track.wav" \
+  -F "save_stems=true" \
+  -F "format=wav"
+```
+
+#### 6. Batch Processing
+
+```bash
+curl -X POST http://localhost:5000/api/v1/batch-analyze \
+  -F "files=@track1.wav" \
+  -F "files=@track2.mp3" \
+  -F "files=@track3.wav"
+```
+
+#### 7. Semantic Analysis with Emotional Mapping
+
+```bash
+curl -X POST http://localhost:5000/api/v1/semantic/analyze \
+  -F "file=@track.wav" \
+  -F "include_emotions=true" \
+  -F "index_for_search=true" \
+  -F "title=Track Title" \
+  -F "artist=Artist Name"
+```
+
+#### 8. Extract Emotional Features Only
+
+```bash
+curl -X POST http://localhost:5000/api/v1/semantic/emotions \
+  -F "file=@track.mp3"
+```
+
+#### 9. Semantic Search
+
+```bash
+curl -X POST http://localhost:5000/api/v1/semantic/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "dark aggressive neurofunk with heavy bass", "top_k": 5}'
+```
+
+#### 10. Text Analysis
+
+```bash
+curl -X POST http://localhost:5000/api/v1/semantic/text-analysis \
+  -H "Content-Type: application/json" \
+  -d '{"text": "This track has an amazing dark atmosphere with aggressive drums"}'
+```
+
+#### 11. Check Job Status
+
+```bash
+curl http://localhost:5000/api/v1/jobs/550e8400-e29b-41d4-a716-446655440000
+```
+
+### Python Client Example
+
+```python
+import requests
+import json
+
+# API base URL
+base_url = "http://localhost:5000/api/v1"
+
+# Upload and analyze audio file
+def analyze_audio(file_path, async_processing=False):
+    url = f"{base_url}/analyze"
+    
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        data = {'async': str(async_processing).lower()}
+        
+        response = requests.post(url, files=files, data=data)
+        return response.json()
+
+# Extract features
+def extract_features(file_path, model='microsoft/BEATs-base'):
+    url = f"{base_url}/features"
+    
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        data = {'model': model}
+        
+        response = requests.post(url, files=files, data=data)
+        return response.json()
+
+# Check job status
+def get_job_status(job_id):
+    url = f"{base_url}/jobs/{job_id}"
+    response = requests.get(url)
+    return response.json()
+
+# Semantic analysis with emotions
+def semantic_analyze(file_path, include_emotions=True, index_for_search=False, title=None, artist=None):
+    url = f"{base_url}/semantic/analyze"
+    
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        data = {
+            'include_emotions': str(include_emotions).lower(),
+            'index_for_search': str(index_for_search).lower()
+        }
+        if title:
+            data['title'] = title
+        if artist:
+            data['artist'] = artist
+        
+        response = requests.post(url, files=files, data=data)
+        return response.json()
+
+# Semantic search
+def semantic_search(query, top_k=5, enhance_query=True):
+    url = f"{base_url}/semantic/search"
+    data = {
+        'query': query,
+        'top_k': top_k,
+        'enhance_query': enhance_query
+    }
+    
+    response = requests.post(url, json=data)
+    return response.json()
+
+# Extract emotions only
+def extract_emotions(file_path):
+    url = f"{base_url}/semantic/emotions"
+    
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        response = requests.post(url, files=files)
+        return response.json()
+
+# Example usage
+if __name__ == "__main__":
+    # Synchronous analysis
+    result = analyze_audio("track.wav", async_processing=False)
+    print("Analysis result:", json.dumps(result, indent=2))
+    
+    # Semantic analysis with emotion mapping
+    semantic_result = semantic_analyze("track.wav", include_emotions=True, 
+                                     index_for_search=True, title="My Track", artist="My Artist")
+    print("Emotions:", semantic_result['semantic_analysis']['emotions'])
+    
+    # Extract just emotions
+    emotions = extract_emotions("track.wav")
+    print("Emotional analysis:", emotions['emotions'])
+    print("Dominant emotion:", emotions['summary']['dominant_emotion'])
+    
+    # Search for similar tracks
+    search_results = semantic_search("dark aggressive neurofunk with heavy bass")
+    print("Search results:", search_results['results'])
+    
+    # Asynchronous analysis
+    job = analyze_audio("long_track.wav", async_processing=True)
+    job_id = job['job_id']
+    print(f"Job created: {job_id}")
+    
+    # Poll job status
+    import time
+    while True:
+        status = get_job_status(job_id)
+        print(f"Job status: {status['status']}")
+        
+        if status['status'] in ['completed', 'failed']:
+            break
+        
+        time.sleep(5)  # Wait 5 seconds before checking again
+```
+
+### JavaScript/Node.js Client Example
+
+```javascript
+const FormData = require('form-data');
+const fetch = require('node-fetch');
+const fs = require('fs');
+
+const API_BASE = 'http://localhost:5000/api/v1';
+
+// Analyze audio file
+async function analyzeAudio(filePath, asyncProcessing = false) {
+    const form = new FormData();
+    form.append('file', fs.createReadStream(filePath));
+    form.append('async', asyncProcessing.toString());
+    
+    const response = await fetch(`${API_BASE}/analyze`, {
+        method: 'POST',
+        body: form
+    });
+    
+    return await response.json();
+}
+
+// Extract features
+async function extractFeatures(filePath, model = 'microsoft/BEATs-base') {
+    const form = new FormData();
+    form.append('file', fs.createReadStream(filePath));
+    form.append('model', model);
+    
+    const response = await fetch(`${API_BASE}/features`, {
+        method: 'POST',
+        body: form
+    });
+    
+    return await response.json();
+}
+
+// Check job status
+async function getJobStatus(jobId) {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}`);
+    return await response.json();
+}
+
+// Example usage
+(async () => {
+    try {
+        // Extract features
+        const features = await extractFeatures('track.mp3');
+        console.log('Features:', JSON.stringify(features, null, 2));
+        
+        // Start async analysis
+        const job = await analyzeAudio('track.wav', true);
+        console.log('Job started:', job.job_id);
+        
+        // Poll job status
+        let status;
+        do {
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+            status = await getJobStatus(job.job_id);
+            console.log('Job status:', status.status);
+        } while (!['completed', 'failed'].includes(status.status));
+        
+        if (status.status === 'completed') {
+            console.log('Results:', JSON.stringify(status.results, null, 2));
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```
+
+### Response Formats
+
+All API endpoints return JSON responses with the following structure:
+
+**Success Response:**
+```json
+{
+    "status": "completed",
+    "results": {
+        // Analysis results vary by endpoint
+    },
+    "processing_time": 45.2
+}
+```
+
+**Async Job Response:**
+```json
+{
+    "job_id": "550e8400-e29b-41d4-a716-446655440000",
+    "status": "processing",
+    "message": "Analysis started. Use /api/v1/jobs/{job_id} to check status."
+}
+```
+
+**Error Response:**
+```json
+{
+    "error": "File too large",
+    "message": "Maximum file size is 500MB"
+}
+```
+
+### Configuration
+
+Configure the API using environment variables or command-line arguments:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | 5000 | Server port |
+| `MAX_FILE_SIZE` | 500MB | Maximum upload file size |
+| `PROCESSING_TIMEOUT` | 1800 | Processing timeout in seconds |
+| `MAX_CONCURRENT_JOBS` | 5 | Maximum concurrent processing jobs |
+| `HUGGINGFACE_API_KEY` | "" | HuggingFace API key for gated models |
+| `UPLOAD_FOLDER` | uploads | Directory for uploaded files |
+| `RESULTS_FOLDER` | results | Directory for results |
+
+### Deployment
+
+#### Docker Deployment
+
+```dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+CMD ["python", "api_server.py", "--production", "--host", "0.0.0.0"]
+```
+
+#### Production Deployment
+
+```bash
+# Using gunicorn for production
+pip install gunicorn
+
+# Start with gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 "src.api.app:create_app()"
+
+# Or with custom configuration
+gunicorn -w 4 -b 0.0.0.0:5000 --timeout 1800 "src.api.app:create_app()"
+```
 
 ## HuggingFace Integration
 
