@@ -1,0 +1,62 @@
+# Fire Interface Requirements
+# Dependencies for revolutionary fire-based emotional querying system
+
+# Web framework and server
+flask>=2.2.0
+flask-cors>=3.0.10
+flask-socketio>=5.3.0
+gunicorn>=20.1.0
+
+# WebSocket support for real-time communication
+python-socketio>=5.7.0
+eventlet>=0.33.0
+
+# Frontend build tools (for Next.js integration)
+nodejs>=16.0.0  # Note: This needs to be installed separately
+
+# Audio processing for real-time generation
+soundfile>=0.10.3
+librosa>=0.9.2
+pyaudio>=0.2.11
+rtaudio>=0.1.0
+
+# Real-time processing
+numpy>=1.21.0
+scipy>=1.9.0
+
+# WebGL and graphics utilities
+pillow>=9.0.0
+opencv-python>=4.6.0
+
+# Fire physics simulation backend
+pymunk>=6.2.1  # 2D physics engine
+moderngl>=5.6.0  # OpenGL wrapper for Python
+
+# Emotional mapping and pattern recognition
+scikit-learn>=1.1.0
+tensorflow>=2.10.0  # For neural pattern recognition
+torch>=1.12.0  # Alternative to TensorFlow
+
+# Configuration and data handling
+pyyaml>=6.0
+pydantic>=1.10.0
+marshmallow>=3.17.0
+
+# Caching for pattern storage
+redis>=4.3.0
+diskcache>=5.4.0
+
+# Performance monitoring
+psutil>=5.9.0
+memory-profiler>=0.60.0
+
+# Development and testing
+pytest>=7.0.0
+pytest-flask>=1.2.0
+selenium>=4.4.0  # For WebGL testing
+playwright>=1.25.0  # Alternative to Selenium
+
+# Optional: Advanced graphics and computation
+# moderngl-window>=2.4.0  # For advanced OpenGL features
+# wgpu>=0.8.0  # WebGPU support (experimental)
+# taichi>=1.1.0  # High-performance computation 

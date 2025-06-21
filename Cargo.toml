@@ -1,0 +1,143 @@
+[package]
+name = "heihachi"
+version = "0.1.0"
+edition = "2021"
+authors = ["Kundai Farai Sachikonye <your.email@example.com>"]
+description = "Revolutionary audio analysis framework with fire-based emotional querying and Autobahn biological intelligence integration"
+license = "MIT"
+repository = "https://github.com/fullscreen-triangle/heihachi"
+keywords = ["audio", "music", "neurofunk", "consciousness", "fire"]
+categories = ["multimedia::audio", "science", "simulation"]
+
+[lib]
+name = "heihachi"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "heihachi-core"
+path = "src/main.rs"
+
+[dependencies]
+# Core audio processing
+hound = "3.5"
+rubato = "0.14"
+rustfft = "6.1"
+apodize = "1.0"
+
+# Numerical computing and linear algebra
+ndarray = "0.15"
+nalgebra = "0.32"
+num-complex = "0.4"
+num-traits = "0.2"
+
+# Parallel processing
+rayon = "1.7"
+crossbeam = "0.8"
+tokio = { version = "1.28", features = ["full"] }
+
+# Serialization and data formats
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+bincode = "1.3"
+
+# HTTP client for Autobahn communication
+reqwest = { version = "0.11", features = ["json", "stream"] }
+hyper = { version = "0.14", features = ["full"] }
+
+# Async processing
+futures = "0.3"
+async-trait = "0.1"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+log = "0.4"
+env_logger = "0.10"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Configuration
+config = "0.13"
+clap = { version = "4.3", features = ["derive"] }
+
+# Mathematical operations for consciousness calculations
+statrs = "0.16"
+rand = "0.8"
+rand_distr = "0.4"
+
+# Time and datetime
+chrono = { version = "0.4", features = ["serde"] }
+
+# Memory management and optimization
+memmap2 = "0.7"
+parking_lot = "0.12"
+
+# Python bindings (for PyO3 integration)
+pyo3 = { version = "0.19", features = ["extension-module"], optional = true }
+
+# WebAssembly support (for WebGL fire interface)
+wasm-bindgen = { version = "0.2", optional = true }
+js-sys = { version = "0.3", optional = true }
+web-sys = { version = "0.3", optional = true }
+
+# GPU acceleration (optional)
+wgpu = { version = "0.17", optional = true }
+bytemuck = { version = "1.13", optional = true }
+
+# Fire physics simulation
+rapier2d = { version = "0.17", optional = true }
+nalgebra-glm = { version = "0.18", optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.2"
+quickcheck = "1.0"
+approx = "0.5"
+
+[features]
+default = ["python-bindings", "fire-interface"]
+
+# Python integration
+python-bindings = ["pyo3"]
+
+# Fire interface and WebGL support
+fire-interface = ["wasm-bindgen", "js-sys", "web-sys", "rapier2d", "nalgebra-glm"]
+
+# GPU acceleration
+gpu-acceleration = ["wgpu", "bytemuck"]
+
+# Full feature set
+full = ["python-bindings", "fire-interface", "gpu-acceleration"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.bench]
+opt-level = 3
+debug = false
+
+[[bench]]
+name = "audio_processing"
+harness = false
+
+[[bench]]
+name = "consciousness_calculation"
+harness = false
+
+[[bench]]
+name = "autobahn_integration"
+harness = false
+
+[package.metadata.docs.rs]
+features = ["full"]
+rustdoc-args = ["--cfg", "docsrs"] 

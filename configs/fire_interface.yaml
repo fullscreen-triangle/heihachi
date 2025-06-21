@@ -1,0 +1,175 @@
+# Fire Interface Configuration
+# Configuration for revolutionary fire-based emotional querying system
+
+fire_interface:
+  # WebGL rendering settings
+  webgl:
+    canvas_width: 1920
+    canvas_height: 1080
+    fps_target: 60
+    anti_aliasing: true
+    depth_buffer: true
+    
+  # Fire physics simulation
+  physics:
+    particle_count: 10000
+    gravity: -9.81
+    wind_strength: 2.0
+    turbulence: 0.5
+    temperature_decay: 0.95
+    
+  # Fire visual properties
+  visual:
+    flame_height_max: 100
+    flame_width_max: 80
+    color_temperature_range: [1000, 6500]  # Kelvin
+    intensity_range: [0.1, 1.0]
+    spark_density_max: 500
+    
+  # Emotional mapping
+  emotional_mapping:
+    # Fire characteristics to emotional dimensions
+    intensity_to_energy: true
+    color_to_mood: true
+    height_to_dynamics: true
+    movement_to_rhythm: true
+    sparks_to_percussion: true
+    
+    # Emotional dimension weights
+    dimension_weights:
+      energy: 0.3
+      valence: 0.25
+      arousal: 0.2
+      dominance: 0.15
+      complexity: 0.1
+      
+  # Real-time processing
+  realtime:
+    update_frequency: 60  # Hz
+    pattern_capture_rate: 30  # Hz
+    audio_generation_latency: 50  # ms
+    emotional_feedback_delay: 100  # ms
+    
+  # Pakati integration
+  pakati:
+    understanding_validation: true
+    progressive_masking_levels: 5
+    reconstruction_threshold: 0.8
+    comprehension_verification: true
+    
+  # Audio generation mapping
+  audio_mapping:
+    # Fire base intensity -> Bass/Kick patterns
+    base_intensity:
+      bass_frequency_range: [20, 80]  # Hz
+      kick_pattern_complexity: [1, 5]
+      sub_bass_presence: [0, 1]
+      
+    # Flame color -> Harmonic content
+    flame_color:
+      chord_progression_mapping: true
+      harmonic_richness: [0.1, 1.0]
+      tonal_warmth: [0, 1]
+      
+    # Flame movement -> Rhythmic patterns
+    flame_movement:
+      drum_pattern_complexity: [1, 10]
+      syncopation_level: [0, 1]
+      groove_intensity: [0.1, 1.0]
+      
+    # Sparks -> Percussion texture
+    spark_density:
+      hi_hat_density: [0, 1]
+      percussion_layers: [1, 8]
+      texture_complexity: [0.1, 1.0]
+      
+    # Wind interaction -> Temporal flow
+    wind_interaction:
+      tempo_modulation: [0.8, 1.2]
+      transition_smoothness: [0, 1]
+      dynamic_evolution: [0.1, 1.0]
+
+# User interaction settings
+interaction:
+  # Input methods
+  input:
+    mouse_sensitivity: 1.0
+    touch_sensitivity: 1.2
+    gesture_recognition: true
+    voice_control: false
+    
+  # Fire manipulation tools
+  tools:
+    flame_creator: true
+    wind_controller: true
+    spark_generator: true
+    temperature_adjuster: true
+    intensity_modifier: true
+    
+  # Presets and patterns
+  presets:
+    emotional_presets: true
+    fire_templates: true
+    pattern_library: true
+    user_saved_patterns: true
+    
+# Performance optimization
+performance:
+  # Rendering optimization
+  rendering:
+    level_of_detail: true
+    particle_culling: true
+    shader_optimization: true
+    texture_compression: true
+    
+  # Memory management
+  memory:
+    particle_pooling: true
+    texture_streaming: true
+    garbage_collection_optimization: true
+    
+  # CPU/GPU utilization
+  utilization:
+    multi_threading: true
+    gpu_acceleration: true
+    compute_shaders: true
+    
+# Consciousness integration
+consciousness:
+  # IIT Phi calculation integration
+  iit_integration: true
+  phi_threshold: 0.1
+  consciousness_feedback: true
+  awareness_visualization: true
+  
+  # Real-time consciousness monitoring
+  realtime_monitoring:
+    phi_calculation_frequency: 30  # Hz
+    consciousness_visualization: true
+    awareness_audio_modulation: true
+    
+# Development and debugging
+development:
+  debug_mode: false
+  performance_monitoring: true
+  pattern_logging: false
+  emotional_state_logging: false
+  
+  # Testing and validation
+  testing:
+    automated_pattern_tests: true
+    emotional_mapping_validation: true
+    audio_generation_tests: true
+    
+# Export and sharing
+export:
+  pattern_export: true
+  emotional_profiles: true
+  audio_export: true
+  session_recording: true
+  
+  formats:
+    - json
+    - yaml
+    - wav
+    - mp3 
