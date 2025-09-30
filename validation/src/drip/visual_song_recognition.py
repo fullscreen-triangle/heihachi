@@ -1,0 +1,1 @@
+# Visual Song Recognition: Use computer vision to identify songs through their droplet patterns rather than spectral analysis

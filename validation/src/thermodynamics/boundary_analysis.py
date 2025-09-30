@@ -1,0 +1,1 @@
+# Bounded Song Systems: Each song has finite oscillatory phase space, enabling complete analysis through recurrence

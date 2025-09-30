@@ -1,0 +1,1 @@
+# if the song happens to have some vocals, they should be converted to text,  and transformed using st-stellas sequences  docs/st-stellas/st-stellas-sequence.tex

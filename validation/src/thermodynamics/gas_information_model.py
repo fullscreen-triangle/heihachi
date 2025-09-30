@@ -1,0 +1,1 @@
+# this should implement the gas information model for a song and should use the st stellas tranformations as they make work easier  through the empty dictionary docs/st-stellas/st-stellas-dictionary.tex

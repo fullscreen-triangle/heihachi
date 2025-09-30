@@ -1,0 +1,1 @@
+# S-Entropy Navigation: Navigate each song's unique position in 6-dimensional S-entropy coordinate space docs/st-stellas/st-stellas.tex

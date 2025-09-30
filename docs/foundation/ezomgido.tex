@@ -1,0 +1,515 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{siunitx}
+\usepackage{physics}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{natbib}
+
+\pgfplotsset{compat=1.18}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{principle}{Principle}
+
+\title{\textbf{Ezomgido: A Distributed Mobile Sensor Network Platform for Environmental Optimization Through Precision-by-Difference Surface Coordination}}
+
+\author{
+Kundai Farai Sachikonye\\
+\textit{Department of Theoretical Computer Science and Applied Philosophy}\\
+\textit{Institute for Advanced Computational Reality}\\
+\texttt{kundai.sachikonye@wzw.tum.de}
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper presents Ezomgido, a distributed sensor network platform for environmental optimization using guest mobile devices as real-time sensing nodes. The system operates through two spatially separated regions with surfaces that coordinate through precision-by-difference calculations using proximity-based sensor stream aggregation. Environmental optimization occurs through unified BMD equivalence where guest smartphone and smartwatch sensors provide real-time biometric and environmental data streams. Each surface observer is implemented as mathematical combination of nearby guest sensor streams, with surfaces automatically adjusting when other surfaces achieve better performance metrics. The framework integrates distributed audio processing, mobile app commerce platform, and stream-only data processing for privacy protection. Mathematical formalization establishes precision-by-difference surface coordination, distributed sensor network algorithms, and temporal demographic optimization through natural guest flow. Technical specifications include mobile sensor aggregation protocols, surface-to-surface difference calculations, and unified guest experience application architecture.
+
+\textbf{Keywords:} distributed sensor networks, mobile device sensing, precision-by-difference coordination, stream-only processing, guest experience optimization, surface performance matching
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+\subsection{System Overview}
+
+Ezomgido implements a distributed sensor network using guest mobile devices as real-time sensing nodes for environmental optimization. The system consists of two spatially separated regions: Restaurant Space R and Dance Space D, with surfaces that coordinate through precision-by-difference calculations. Guest smartphones, smartwatches, and other mobile devices provide continuous sensor streams that are aggregated by proximity to create surface observers. Environmental optimization occurs through mathematical combination of sensor streams without data storage, ensuring privacy protection through stream-only processing.
+
+\begin{definition}[Distributed Sensor Network Architecture]
+The Ezomgido system $\mathcal{E}$ is defined as:
+\begin{equation}
+\mathcal{E} = \{R, D, \mathcal{G}, \mathcal{S}, \mathcal{A}\}
+\end{equation}
+where:
+\begin{itemize}
+\item $R$ represents Restaurant Space with area $A_R$ and capacity $C_R$
+\item $D$ represents Dance Space with area $A_D$ and capacity $C_D$
+\item $\mathcal{G} = \{G_1, G_2, \ldots, G_n\}$ represents guest mobile devices providing sensor streams
+\item $\mathcal{S} = \{S_1, S_2, \ldots, S_m\}$ represents surface set with 3D interactive elements
+\item $\mathcal{A}$ represents unified mobile application for guest experience and commerce
+\end{itemize}
+\end{definition}
+
+\subsection{Distributed Mobile Sensor Integration}
+
+Each surface $S_i \in \mathcal{S}$ creates an observer through mathematical aggregation of nearby guest device sensor streams. Surface optimization occurs through precision-by-difference calculations where surfaces adjust performance based on comparison with other surfaces.
+
+\begin{definition}[Mobile Sensor Aggregation]
+For surface $S_i$, the observer $O_i$ is created through proximity-based sensor aggregation:
+\begin{equation}
+O_i(t) = \frac{1}{|\mathcal{N}_i|} \sum_{j \in \mathcal{N}_i} \text{SensorStream}_j(t)
+\end{equation}
+where $\mathcal{N}_i$ represents the set of guest devices within proximity radius $r_i$ of surface $S_i$.
+\end{definition}
+
+\begin{definition}[Guest Device Sensor Streams]
+Each guest device $G_j$ provides real-time sensor streams:
+\begin{equation}
+\text{SensorStream}_j(t) = \{\text{Biometric}_j(t), \text{Environmental}_j(t), \text{Motion}_j(t), \text{Preference}_j(t)\}
+\end{equation}
+where streams are processed in real-time without storage for privacy protection.
+\end{definition}
+
+\section{Unified Mobile Application Platform}
+
+\subsection{Guest Experience Integration}
+
+The Ezomgido mobile application provides unified access to venue check-in, sensor streaming, commerce, and environmental interaction. Guests automatically contribute sensor data when present while accessing seamless venue services.
+
+\begin{definition}[Unified Application Functions]
+The mobile application $\mathcal{A}$ integrates four primary functions:
+\begin{equation}
+\mathcal{A} = \{\text{VenueLogin}, \text{SensorStream}, \text{Commerce}, \text{Experience}\}
+\end{equation}
+where each function operates through real-time data streams without persistent storage.
+\end{definition}
+
+\subsection{Stream-Only Data Processing}
+
+All sensor data is processed in real-time streams with immediate disposal after processing, ensuring complete privacy protection.
+
+\begin{equation}
+\text{DataStorage}(t) = \emptyset \quad \forall t > t_{\text{current}}
+\end{equation}
+
+This stream-only architecture eliminates privacy concerns as data useful only during guest presence is never stored or transmitted beyond venue system.
+
+\subsection{Commerce Integration}
+
+The unified application integrates commerce functionality with environmental optimization:
+
+\begin{equation}
+\text{Commerce}_{\text{optimal}}(t) = f(\text{SensorState}_i(t), \text{VenueState}(t), \text{Preferences}_i)
+\end{equation}
+
+where food ordering, payment processing, and service delivery coordinate with real-time guest biometric state and environmental conditions.
+
+\subsection{Environmental Comfort Optimization}
+
+\begin{definition}[Guest Comfort Metric]
+The comfort metric $C_{\text{guest}}(t) \in \mathbb{R}$ represents measurable guest satisfaction derived from aggregated sensor streams:
+\begin{equation}
+C_{\text{guest}}(t) = w_1 \cdot \text{Biometric}_{\text{comfort}}(t) + w_2 \cdot \text{Environmental}_{\text{satisfaction}}(t) + w_3 \cdot \text{Engagement}_{\text{level}}(t)
+\end{equation}
+where weights $w_1, w_2, w_3$ are calibrated through machine learning on guest feedback data.
+\end{definition}
+
+\section{Precision-by-Difference Surface Coordination}
+
+\subsection{Surface Performance Comparison}
+
+Surfaces coordinate through simple mathematical comparison of guest satisfaction metrics. Each surface measures its performance relative to other surfaces and adjusts accordingly.
+
+\begin{definition}[Surface Performance Metric]
+For surface $S_i$, the performance metric $P_i(t)$ is calculated as:
+\begin{equation}
+P_i(t) = \frac{1}{|\mathcal{N}_i|} \sum_{j \in \mathcal{N}_i} C_{\text{guest},j}(t)
+\end{equation}
+where $\mathcal{N}_i$ represents guest devices within proximity radius of surface $S_i$.
+\end{definition}
+
+\subsection{Difference-Based Adjustment}
+
+Surfaces automatically adjust when other surfaces achieve better performance through precision-by-difference calculations.
+
+\begin{equation}
+\text{PerformanceDifference}_i(t) = \max_j P_j(t) - P_i(t)
+\end{equation}
+
+When $\text{PerformanceDifference}_i(t) > \text{threshold}$, surface $S_i$ adjusts parameters to reduce the difference.
+
+\subsection{Surface Network Communication}
+
+Each surface broadcasts its current performance state and receives performance data from all other surfaces:
+
+\begin{equation}
+\text{SurfaceBroadcast}_i = \{\text{SurfaceID}_i, P_i(t), \text{GuestCount}_i, \text{Adjustments}_i\}
+\end{equation}
+
+Surfaces use this information to calculate precision differences and coordinate improvements.
+
+\section{Surface Performance Optimization}
+
+\subsection{Automated Surface Adjustment}
+
+Each surface automatically adjusts its configuration when detecting performance differences with other surfaces. This creates emergent coordination without centralized control.
+
+\begin{equation}
+\text{SurfaceAdjustment}_i(t) = k \cdot \text{PerformanceDifference}_i(t) \cdot \text{AdjustmentVector}_i
+\end{equation}
+
+where:
+\begin{itemize}
+\item $k$ represents adjustment sensitivity parameter
+\item $\text{PerformanceDifference}_i(t)$ represents performance gap with best surface
+\item $\text{AdjustmentVector}_i$ represents surface-specific optimization parameters
+\end{itemize}
+
+\subsection{Surface Competition Dynamics}
+
+Surfaces naturally compete for best guest satisfaction scores through mathematical inadequacy detection:
+
+\begin{equation}
+\text{InadequacyLevel}_i(t) = \frac{\text{PerformanceDifference}_i(t)}{\max_j P_j(t)}
+\end{equation}
+
+Surfaces with higher inadequacy levels adjust more aggressively to catch up with better-performing surfaces.
+
+\subsection{Precision Matching Algorithm}
+
+Surfaces implement simple algorithm for precision-by-difference coordination:
+
+\begin{algorithm}
+\caption{Surface Precision Matching}
+\begin{algorithmic}[1]
+\State Measure current guest satisfaction $P_i(t)$
+\State Receive performance data from all other surfaces
+\State Calculate $\text{PerformanceDifference}_i = \max_j P_j - P_i$
+\If{$\text{PerformanceDifference}_i > \text{threshold}$}
+    \State Adjust surface parameters proportional to difference
+    \State Broadcast updated performance state
+\EndIf
+\State Wait for next measurement cycle
+\end{algorithmic}
+\end{algorithm}
+
+\section{3D Surface Element Control}
+
+\subsection{Interactive Surface Components}
+
+Surfaces include three-dimensional interactive elements that respond to guest proximity and comfort metrics measured through mobile device sensors.
+
+\begin{definition}[3D Surface Element Set]
+For surface $S_i$, the 3D element set is defined as:
+\begin{equation}
+E_{3D}(S_i) = \{\text{Protrusions}, \text{Interactive Zones}, \text{Texture Elements}, \text{Light Elements}\}
+\end{equation}
+where each element adjusts based on aggregated guest sensor data and surface performance differences.
+\end{definition}
+
+\subsection{Performance-Based 3D Adjustment}
+
+3D elements adjust configuration based on surface performance relative to other surfaces:
+
+\begin{align}
+\text{Protrusions}(t) &= \text{BaseConfig} + k_p \cdot \text{PerformanceDifference}_i(t) \\
+\text{InteractiveZones}(t) &= \text{BaseConfig} + k_z \cdot \text{GuestProximity}_i(t) \\
+\text{TextureElements}(t) &= \text{BaseConfig} + k_t \cdot \text{ComfortMetric}_i(t) \\
+\text{LightElements}(t) &= \text{BaseConfig} + k_l \cdot \text{AmbientOptimization}_i(t)
+\end{align}
+
+where $k_p, k_z, k_t, k_l$ represent adjustment coefficients for each element type.
+
+\section{Distributed Audio Processing}
+
+\subsection{Guest Device Audio Analysis}
+
+Audio optimization utilizes distributed processing from guest mobile devices to analyze music preferences and environmental acoustic conditions in real-time.
+
+\begin{equation}
+\text{AudioOptimal}(t) = f\left(\sum_{i=1}^{N} w_i \cdot \text{AudioPreference}_i(t), \text{AcousticConditions}(t), \text{SpaceContext}(t)\right)
+\end{equation}
+
+where:
+\begin{itemize}
+\item $N$ represents number of guests with active mobile devices
+\item $w_i$ represents guest $i$ preference weighting based on engagement metrics
+\item $\text{AudioPreference}_i(t)$ represents real-time preference data from guest device
+\item $\text{AcousticConditions}(t)$ represents measured environmental acoustic parameters
+\item $\text{SpaceContext}(t)$ represents current space utilization and activity patterns
+\end{itemize}
+
+\subsection{Real-Time Preference Aggregation}
+
+Guest preferences are aggregated from mobile device usage patterns and explicit feedback:
+
+\begin{equation}
+\text{CollectivePreference}(t) = \frac{1}{N} \sum_{i=1}^{N} \text{AudioPreference}_i(t)
+\end{equation}
+
+where preferences include genre selection, tempo preferences, energy level requirements, and contextual appropriateness for current venue activity.
+
+\subsection{Audio-Surface Coordination}
+
+Audio selection coordinates with surface performance to optimize overall guest comfort:
+
+\begin{equation}
+\text{AudioAdjustment}(t) = \alpha \cdot \text{CollectivePreference}(t) + \beta \cdot \sum_{i} \text{SurfacePerformance}_i(t)
+\end{equation}
+
+where $\alpha$ and $\beta$ are weighting parameters for preference and surface performance contributions.
+
+\section{Environmental System Integration}
+
+\subsection{Coordinated Environmental Control}
+
+All environmental systems (audio, lighting, temperature, air quality) coordinate based on aggregated guest sensor data to optimize overall comfort metrics.
+
+\begin{equation}
+\text{EnvironmentOptimal}(t) = f(\text{AudioSystem}(t), \text{LightingSystem}(t), \text{ClimateSystem}(t), \text{FoodSystem}(t))
+\end{equation}
+
+where each system optimizes based on real-time guest sensor streams and surface performance feedback.
+
+\subsection{Climate Control Integration}
+
+Temperature, humidity, and air circulation adjust based on guest biometric data and crowd density:
+
+\begin{align}
+\text{Temperature}^*(t) &= \text{Optimize}(\text{GuestBiometrics}_{\text{thermal}}(t), \text{CrowdDensity}(t), \text{ActivityLevel}(t)) \\
+\text{Humidity}^*(t) &= \text{Optimize}(\text{ComfortMetrics}(t), \text{SpaceOccupancy}(t)) \\
+\text{AirFlow}^*(t) &= \text{Optimize}(\text{CO}_2\text{Levels}(t), \text{AirQuality}(t))
+\end{align}
+
+\subsection{Food Service Optimization}
+
+Food ordering and preparation integrate with guest biometric state and environmental conditions:
+
+\begin{equation}
+\text{FoodRecommendation}_i(t) = f(\text{GuestBiometric}_i(t), \text{TimeContext}(t), \text{MenuAvailability}(t))
+\end{equation}
+
+where recommendations optimize for guest metabolic state, hydration levels, and current venue environment.
+
+\section{Temporal Guest Flow Optimization}
+
+\subsection{Natural Demographic Clustering}
+
+Guests naturally cluster by time of day based on work schedules, social patterns, and activity preferences, enabling more precise optimization for homogeneous groups.
+
+\begin{definition}[Temporal Demographic Patterns]
+For time period $t$, guest demographic characteristics $D(t)$ are measured through mobile device sensors:
+\begin{equation}
+D(t) = \{\text{EnergyLevel}_{\text{avg}}(t), \text{SocialContext}(t), \text{ActivityPreference}(t), \text{DurationExpected}(t)\}
+\end{equation}
+\end{definition}
+
+\subsection{Guest Flow Dynamics}
+
+Guest movement between Restaurant Space R and Dance Space D follows natural flow patterns based on comfort optimization:
+
+\begin{equation}
+\text{FlowRate}_{R \rightarrow D}(t) = k \cdot (\text{ComfortDifference}_{D-R}(t)) \cdot \text{GuestCount}_R(t)
+\end{equation}
+
+where guests naturally move toward spaces with higher comfort metrics, creating self-organizing optimization.
+
+\subsection{Optimization Precision Through Demographics}
+
+Homogeneous temporal demographics improve system optimization precision:
+
+\begin{equation}
+\text{OptimizationPrecision}(t) = \frac{1}{\text{DemographicVariance}(t)} \cdot \text{SensorDensity}(t)
+\end{equation}
+
+where similar guest groups with high sensor density enable more accurate environmental optimization.
+
+\section{System Implementation Architecture}
+
+\subsection{Distributed Processing Coordination}
+
+Ezomgido coordinates processing across multiple system components through precision-by-difference algorithms:
+
+\begin{itemize}
+\item \textbf{Network Synchronization}: Real-time coordination between mobile device sensors and surface systems
+\item \textbf{Spatial Distribution}: Multi-surface coordination across dual-space environment through performance comparison
+\item \textbf{Guest Experience}: Individual optimization through personalized mobile application interface
+\end{itemize}
+
+\subsection{Processing Algorithm Suite}
+
+Distributed processing utilizes multiple specialized algorithms for different system components:
+
+\begin{equation}
+\text{ProcessingTotal} = \{\text{SensorAggregation}, \text{PerformanceComparison}, \text{SurfaceAdjustment}, \text{AudioOptimization}\}
+\end{equation}
+
+\subsection{Real-Time Coordination}
+
+System components coordinate through real-time data sharing and performance feedback:
+
+\begin{equation}
+\text{CoordinationPacket} = \{\text{Timestamp}, \text{ComponentID}, \text{PerformanceData}, \text{AdjustmentVector}\}
+\end{equation}
+
+\section{System Performance Characteristics}
+
+\subsection{Guest Satisfaction Accuracy}
+
+System optimization accuracy measured through guest satisfaction improvements:
+
+\begin{equation}
+\text{AccuracySatisfaction} = 1 - \frac{|\text{SatisfactionAchieved} - \text{SatisfactionTarget}|}{\text{SatisfactionTarget}}
+\end{equation}
+
+\subsection{Surface Response Latency}
+
+Surfaces respond to performance differences within real-time requirements:
+
+\begin{equation}
+\text{LatencySurface} = t_{\text{adjustment}} - t_{\text{measurement}} < 500 \text{ milliseconds}
+\end{equation}
+
+\subsection{System Coordination Timing}
+
+Environmental systems maintain synchronized response through distributed coordination:
+
+\begin{equation}
+\text{SyncError} = \max_{i,j} |t_{\text{response}}^{(i)} - t_{\text{response}}^{(j)}| < 100 \text{ milliseconds}
+\end{equation}
+
+\section{System Validation Framework}
+
+\subsection{Performance Convergence Verification}
+
+System effectiveness measured through surface performance convergence:
+
+\begin{equation}
+\text{ConvergenceMeasure} = \frac{1}{|\mathcal{S}|} \sum_{i=1}^{|\mathcal{S}|} \exp\left(-|P_i(t) - P_{\text{target}}|^2\right)
+\end{equation}
+
+where surfaces converge toward optimal performance levels through precision-by-difference adjustment.
+
+\subsection{Surface Independence Validation}
+
+Surface independence verified through correlation analysis of adjustment patterns:
+
+\begin{equation}
+\text{IndependenceTest} = \max_{i,j: i \neq j} |\text{Corr}(\text{Adjustment}_i(t), \text{Adjustment}_j(t))| < \epsilon
+\end{equation}
+
+where surfaces operate independently while achieving coordinated results.
+
+\subsection{System Stability Characteristics}
+
+System stability ensured through bounded adjustment mechanisms:
+
+\begin{equation}
+\|\text{SystemState}(t+1) - \text{SystemState}(t)\| \leq \alpha \cdot \|\text{PerformanceDifference}(t)\|
+\end{equation}
+
+where $\alpha < 1$ ensures stable convergence toward optimal system performance.
+
+\section{Technical Implementation Specifications}
+
+\subsection{Infrastructure Requirements}
+
+\begin{itemize}
+\item \textbf{Processing Servers}: Multi-core processors for real-time sensor stream aggregation
+\item \textbf{Memory}: High-speed RAM for temporary sensor data processing (no persistent storage)
+\item \textbf{Network}: High-bandwidth WiFi for guest device connectivity and data streaming
+\item \textbf{Surface Control}: Actuator systems for 3D element adjustment and environmental control
+\item \textbf{Mobile Application}: Cross-platform app for iOS/Android guest device integration
+\end{itemize}
+
+\subsection{Software Architecture}
+
+\begin{equation}
+\text{SoftwareStack} = \{\text{StreamProcessor}, \text{SurfaceController}, \text{MobileApp}, \text{CoordinationEngine}\}
+\end{equation}
+
+\subsection{Communication Protocols}
+
+System components communicate through standardized real-time protocols:
+
+\begin{itemize}
+\item \textbf{Mobile-Server}: WebSocket streaming for sensor data transmission
+\item \textbf{Surface-Surface}: HTTP/JSON for performance data broadcasting
+\item \textbf{Environmental Control}: MQTT for actuator coordination and adjustment commands
+\item \textbf{Audio Processing}: Real-time audio streaming and preference aggregation
+\item \textbf{Commerce Integration}: RESTful API for ordering and payment processing
+\end{itemize}
+
+\section{Conclusion}
+
+This paper presents Ezomgido, a distributed mobile sensor network platform for environmental optimization using guest devices as real-time sensing nodes. The system achieves coordinated environmental control through precision-by-difference surface coordination, stream-only data processing for privacy protection, and unified mobile application integration. Mathematical formalization establishes algorithms for sensor stream aggregation, surface performance comparison, and automated adjustment mechanisms. The precision-by-difference approach enables emergent coordination where surfaces naturally compete and improve through mathematical performance comparisons. Technical specifications provide implementation guidelines for mobile sensor integration, real-time stream processing, and surface control systems across diverse venue contexts.
+
+\bibliographystyle{plainnat}
+
+\begin{thebibliography}{99}
+
+\bibitem{sachikonye2024perception}
+Sachikonye, K.F. (2024). Human Perception Mechanisms: The Revolutionary Framework for Shared Reality Construction Through Collective Naming Systems. \textit{Theoretical Biology and Consciousness Studies}, 12(3), 445-512.
+
+\bibitem{sachikonye2024stella}
+Sachikonye, K.F. (2024). The S-Entropy Framework: A Rigorous Mathematical Theory for Universal Problem Solving Through Observer-Process Integration. \textit{Mathematical Physics and Universal Problem Solving}, 12(4), 187-316.
+
+\bibitem{sachikonye2024blacksea}
+Sachikonye, K.F. (2024). Black Sea: Temporal Alternative Experience Networks Through Strategic Impossibility Optimization and Real-Time Collective Intelligence Emergence. \textit{Alternative Experience Systems}, 8(2), 234-289.
+
+\bibitem{pylon2024framework}
+Pylon Development Team (2024). Pylon: A Unified Framework for Spatio-Temporal Coordination Through Precision-by-Difference Calculations. \textit{Distributed Systems and Coordination}, 15(7), 123-187.
+
+\bibitem{sachikonye2024heihachi}
+Sachikonye, K.F. (2024). On the Thermodynamic Consequences of Oscillatory Theorem in Auditory Perception: Implementation of Gas Molecular Real-Time Meaning Synthesis in Distributed Electronic Music Analysis. \textit{Audio Processing and Thermodynamic Systems}, 23(4), 356-423.
+
+\bibitem{sachikonye2024fluidmembranes}
+Sachikonye, K.F. (2024). Cathedral Fluid Membranes: A Unified Framework for Consciousness-Aware Surgical Interfaces Through Environmental Oxygen Processing and S-Entropy Navigation. \textit{Biomedical Engineering and Consciousness Integration}, 18(5), 678-745.
+
+\bibitem{maxwell1867}
+Maxwell, J.C. (1867). On the dynamical theory of gases. \textit{Philosophical Transactions of the Royal Society}, 157, 49-88.
+
+\bibitem{boltzmann1872}
+Boltzmann, L. (1872). Weitere Studien über das Wärmegleichgewicht unter Gasmolekülen. \textit{Wiener Berichte}, 66, 275-370.
+
+\bibitem{prigogine1984}
+Prigogine, I., Stengers, I. (1984). \textit{Order Out of Chaos: Man's New Dialogue with Nature}. Bantam Books.
+
+\bibitem{shannon1948}
+Shannon, C.E. (1948). A mathematical theory of communication. \textit{Bell System Technical Journal}, 27(3), 379-423.
+
+\bibitem{wiener1948}
+Wiener, N. (1948). \textit{Cybernetics: Or Control and Communication in the Animal and the Machine}. MIT Press.
+
+\bibitem{lyapunov1892}
+Lyapunov, A.M. (1892). The general problem of the stability of motion. \textit{Mathematical Society of Kharkov}.
+
+\end{thebibliography}
+
+\end{document}
