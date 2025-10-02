@@ -196,58 +196,68 @@ class UniqueDripSignatureGenerator:
         
         print(f"✓ Visualizations saved to {output_path}/")
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Generate unique drip signatures for audio files')
-    parser.add_argument('audio_file', help='Path to audio file')
-    parser.add_argument('--output-dir', '-o', default='./signature_output',
-                       help='Output directory for results')
-    
-    args = parser.parse_args()
-    
-    if not os.path.exists(args.audio_file):
-        print(f"Error: Audio file '{args.audio_file}' not found")
+    # Get project root (adjust the number of .parent calls based on your folder depth)
+    project_root = Path(__file__).parent.parent.parent.parent  # From src/x folder/script to project root
+
+    # Define paths relative to project root
+    audio_file_path = project_root / "validation" / "public" / "wav" / "djs_fresh_heavyweight.wav"
+    output_directory = project_root / "validation" / "public" / "heavyweight"
+
+    # Convert to strings for compatibility
+    audio_file_path = str(audio_file_path)
+    output_directory = str(output_directory)
+
+    if not os.path.exists(audio_file_path):
+        print(f"Error: Audio file '{audio_file_path}' not found")
+        print(f"Absolute path checked: {Path(audio_file_path).absolute()}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Script location: {Path(__file__).parent}")
+        print("Please verify the file path is correct")
         sys.exit(1)
-    
+
     try:
         # Initialize generator
         generator = UniqueDripSignatureGenerator()
-        
+
         # Analyze signature
-        analysis, fingerprint = generator.analyze_signature(args.audio_file)
-        
+        analysis, fingerprint = generator.analyze_signature(audio_file_path)
+
         # Create output directory
-        output_dir = Path(args.output_dir)
-        output_dir.mkdir(exist_ok=True)
-        
+        output_dir = Path(output_directory)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         # Save results
         json_file = output_dir / "unique_signature.json"
         with open(json_file, 'w') as f:
             json.dump(analysis, f, indent=2)
         print(f"✓ Results saved to {json_file}")
-        
+
         # Save fingerprint
         np.save(output_dir / "signature_fingerprint.npy", fingerprint)
-        
+
         # Create visualizations
         generator.create_visualizations(analysis, fingerprint, output_dir)
-        
+
         # Print summary
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("UNIQUE SIGNATURE ANALYSIS COMPLETE")
-        print("="*50)
-        print(f"Audio file: {args.audio_file}")
+        print("=" * 50)
+        print(f"Audio file: {audio_file_path}")
         print(f"Signature Hash: {analysis['signature_hash']}")
         print(f"S-Entropy Coordinates:")
         print(f"  S_frequency: {analysis['s_entropy_coordinates']['S_frequency']:.3f}")
         print(f"  S_time: {analysis['s_entropy_coordinates']['S_time']:.3f}")
         print(f"  S_amplitude: {analysis['s_entropy_coordinates']['S_amplitude']:.3f}")
         print(f"Results saved to: {output_dir}/")
-        
+
     except Exception as e:
         print(f"Error during analysis: {str(e)}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

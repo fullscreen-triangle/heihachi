@@ -252,44 +252,54 @@ def serialize_signatures(signatures):
                 serialized[scale][key] = value
     return serialized
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Convert audio to visual droplet patterns')
-    parser.add_argument('audio_file', help='Path to audio file')
-    parser.add_argument('--output-dir', '-o', default='./drip_output', 
-                       help='Output directory for results')
-    
-    args = parser.parse_args()
-    
-    if not os.path.exists(args.audio_file):
-        print(f"Error: Audio file '{args.audio_file}' not found")
+    # Get project root (adjust the number of .parent calls based on your folder depth)
+    project_root = Path(__file__).parent.parent.parent.parent  # From src/x folder/script to project root
+
+    # Define paths relative to project root
+    audio_file_path = project_root / "validation" / "public" / "wav" / "djs_fresh_heavyweight.wav"
+    output_directory = project_root / "validation" / "public" / "heavyweight"
+
+    # Convert to strings for compatibility
+    audio_file_path = str(audio_file_path)
+    output_directory = str(output_directory)
+
+    # Validate the audio file path
+    if not os.path.exists(audio_file_path):
+        print(f"Error: Audio file '{audio_file_path}' not found")
+        print(f"Absolute path checked: {Path(audio_file_path).absolute()}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Script location: {Path(__file__).parent}")
+        print("Please verify the file path is correct")
         sys.exit(1)
-    
+
     # Initialize components
     extractor = EightScaleOscillatoryExtractor()
     calculator = AudioSEntropyCalculator()
     mapper = DropletParameterMapper()
-    
+
     try:
-        print(f"Processing audio file: {args.audio_file}")
-        
+        print(f"Processing audio file: {audio_file_path}")
+
         # Load audio
-        audio_data, sr = librosa.load(args.audio_file, sr=None)
-        
+        audio_data, sr = librosa.load(audio_file_path, sr=None)
+
         print("Phase 1: Extracting eight-scale oscillatory signatures...")
         # Phase 1: Extract oscillatory signatures
         oscillatory_signatures = extractor.extract_multi_scale_signatures(audio_data, sr)
-        
+
         print("Phase 2: Calculating S-entropy coordinates...")
         # Phase 2: Calculate S-entropy coordinates
         s_entropy_coords = calculator.calculate_s_entropy_coordinates(oscillatory_signatures)
-        
+
         print("Phase 3: Mapping to droplet parameters...")
         # Phase 3: Map to droplet parameters
         droplet_parameters = mapper.map_to_droplet_params(s_entropy_coords)
-        
+
         # Create analysis results
         analysis_results = {
-            'audio_file': str(args.audio_file),
+            'audio_file': str(audio_file_path),
             'processing_timestamp': datetime.now().isoformat(),
             'audio_properties': {
                 'sample_rate': int(sr),
@@ -302,24 +312,24 @@ def main():
             'processing_complexity': 'O(1)',
             'algorithm_phases': [
                 'Oscillatory Signature Extraction',
-                'S-Entropy Coordinate Calculation', 
+                'S-Entropy Coordinate Calculation',
                 'Droplet Parameter Determination'
             ]
         }
-        
+
         # Create output directory
-        output_dir = Path(args.output_dir)
-        output_dir.mkdir(exist_ok=True)
-        
+        output_dir = Path(output_directory)
+        output_dir.mkdir(parents=True, exist_ok=True)  # Added parents=True
+
         # Save JSON results
         json_file = output_dir / "drip_analysis.json"
         with open(json_file, 'w') as f:
             json.dump(analysis_results, f, indent=2)
         print(f"✓ Analysis results saved to {json_file}")
-        
+
         # Create basic visualization
         plt.figure(figsize=(15, 10))
-        
+
         # Plot S-entropy coordinates
         plt.subplot(2, 3, 1)
         coords = ['S_frequency', 'S_time', 'S_amplitude']
@@ -327,7 +337,7 @@ def main():
         plt.bar(coords, values)
         plt.title('S-Entropy Coordinates')
         plt.xticks(rotation=45)
-        
+
         # Plot droplet parameters
         plt.subplot(2, 3, 2)
         params = ['velocity', 'size', 'impact_angle', 'surface_tension']
@@ -335,7 +345,7 @@ def main():
         plt.bar(params, param_values, color='orange')
         plt.title('Droplet Parameters')
         plt.xticks(rotation=45)
-        
+
         # Plot oscillatory signature summary
         plt.subplot(2, 3, 3)
         scale_names = list(oscillatory_signatures.keys())
@@ -343,26 +353,26 @@ def main():
         plt.bar(scale_names, scale_weights, color='green')
         plt.title('Oscillatory Scale Weights')
         plt.xticks(rotation=45)
-        
+
         # Plot frequency distributions for first few scales
         for i, (scale, sig) in enumerate(list(oscillatory_signatures.items())[:3]):
-            plt.subplot(2, 3, 4+i)
+            plt.subplot(2, 3, 4 + i)
             freq_dist = sig['frequency_distribution']
             if hasattr(freq_dist, '__len__') and len(freq_dist) > 1:
                 plt.plot(freq_dist)
             else:
                 plt.bar(['Value'], [freq_dist])
             plt.title(f'{scale} - Frequency')
-        
+
         plt.tight_layout()
         plt.savefig(output_dir / "drip_analysis.png", dpi=300, bbox_inches='tight')
         print(f"✓ Visualization saved to {output_dir}/drip_analysis.png")
-        
+
         # Print summary
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("AUDIO-TO-DRIP CONVERSION COMPLETE")
-        print("="*50)
-        print(f"Audio file: {args.audio_file}")
+        print("=" * 50)
+        print(f"Audio file: {audio_file_path}")
         print(f"Duration: {analysis_results['audio_properties']['duration']:.2f}s")
         print(f"S-Entropy Coordinates:")
         print(f"  S_frequency: {s_entropy_coords['S_frequency']:.3f}")
@@ -374,12 +384,14 @@ def main():
         print(f"  Impact Angle: {droplet_parameters['impact_angle']:.3f}")
         print(f"  Surface Tension: {droplet_parameters['surface_tension']:.3f}")
         print(f"\nResults saved to: {output_dir}/")
-        
+
     except Exception as e:
         print(f"Error during conversion: {str(e)}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
 
+
 if __name__ == "__main__":
     main()
+
