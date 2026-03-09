@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?> <svg width="780" height="320" viewBox="0 0 780 320" xmlns="http://www.w3.org/2000/svg"> <style> .axis{stroke:#333} .orbit{fill:none;stroke:#2a6fdb;stroke-width:2} .rec{fill:none;stroke:#e74c3c;stroke-width:2;stroke-dasharray:5 4} .lbl{font: 12px sans-serif} .title{font: 16px sans-serif; font-weight:700} .arrow{stroke:#444;stroke-width:1.2;marker-end:url(#arr)} </style> <defs> <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"> <path d="M0,0 L10,5 L0,10 z" fill="#444"/> </marker> </defs> <text class="title" x="210" y="24">Oscillatory System: State Space and Measure-Preserving Flow</text> <!-- axes --> <g transform="translate(60,40)"> <line class="axis" x1="0" y1="240" x2="620" y2="240"/> <line class="axis" x1="0" y1="240" x2="0" y2="0"/> <text class="lbl" x="300" y="265">State dimension x₁</text> <text class="lbl" x="-10" y="-10" transform="rotate(-90 -10,-10)">x₂</text>
+    <!-- invariant torus-like projection -->
+<ellipse class="orbit" cx="260" cy="120" rx="150" ry="70"/>
+<ellipse class="orbit" cx="360" cy="140" rx="180" ry="85" opacity="0.5"/>
+<!-- trajectory -->
+<path d="M140,120 C 170,60 240,40 300,90 C 360,140 400,190 460,170 C 520,150 520,100 480,80"
+      fill="none" stroke="#0a7" stroke-width="2"/>
+<circle cx="140" cy="120" r="4" fill="#0a7"/>
+<text class="lbl" x="120" y="110">x₀</text>
+
+<!-- recurrence -->
+<circle cx="420" cy="110" r="5" fill="none" stroke="#e74c3c" stroke-width="2"/>
+<text class="lbl" x="430" y="105">Return to A</text>
+<rect x="400" y="90" width="60" height="40" class="rec"/>
+<text class="lbl" x="405" y="85">Set A</text>
+
+<!-- flow arrow -->
+<line class="arrow" x1="300" y1="90" x2="330" y2="110"/>
+<text class="lbl" x="335" y="112">F^t flow (measure-preserving)</text>
+</g> </svg>

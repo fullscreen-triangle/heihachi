@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?> <svg width="900" height="360" viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg"> <style> .axis{stroke:#333;stroke-width:1} .grid{stroke:#ccc;stroke-width:0.5;stroke-dasharray:3 3} .label{font: 12px sans-serif; fill:#222} .title{font: 16px sans-serif; font-weight:600; fill:#111} .curve{fill:none;stroke:#0a7;stroke-width:2} .bars{fill:#2a6fdb;opacity:0.7} .molecule{fill:#e67e22;opacity:0.8} .arrow{stroke:#555;stroke-width:1.2;marker-end:url(#arrow)} .legend{font: 12px sans-serif; fill:#222} </style> <defs> <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"> <path d="M0,0 L10,5 L0,10 z" fill="#555"/> </marker> </defs> <!-- Left panel: Maxwell-Boltzmann-like speed distribution --> <g transform="translate(40,30)"> <text class="title" x="140" y="-5">Gas Molecular Speed Distribution</text> <!-- axes --> <line class="axis" x1="0" y1="260" x2="320" y2="260"/> <line class="axis" x1="0" y1="260" x2="0" y2="0"/> <!-- grid --> <g> <line class="grid" x1="0" y1="220" x2="320" y2="220"/> <line class="grid" x1="0" y1="180" x2="320" y2="180"/> <line class="grid" x1="0" y1="140" x2="320" y2="140"/> <line class="grid" x1="0" y1="100" x2="320" y2="100"/> <line class="grid" x1="0" y1="60" x2="320" y2="60"/> </g> <text class="label" x="-5" y="-10" transform="rotate(-90 -5,-10)">Probability density</text> <text class="label" x="100" y="285">Molecular speed v</text>
+    <!-- MB-like curve -->
+<path class="curve" d="
+M 0,260
+C 40,250 60,230 80,200
+C 100,160 130,110 170,90
+C 210,80 240,115 260,150
+C 285,195 300,230 320,260
+"/>
+
+<!-- legend -->
+<rect x="190" y="10" width="12" height="12" fill="#0a7"/>
+<text class="legend" x="208" y="21">f(v) ~ Maxwell-Boltzmann</text>
+</g> <!-- Right panel: Audio spectral distribution --> <g transform="translate(480,30)"> <text class="title" x="120" y="-5">Audio Spectral Energy Distribution</text> <!-- axes --> <line class="axis" x1="0" y1="260" x2="320" y2="260"/> <line class="axis" x1="0" y1="260" x2="0" y2="0"/> <!-- grid --> <g> <line class="grid" x1="0" y1="220" x2="320" y2="220"/> <line class="grid" x1="0" y1="180" x2="320" y2="180"/> <line class="grid" x1="0" y1="140" x2="320" y2="140"/> <line class="grid" x1="0" y1="100" x2="320" y2="100"/> <line class="grid" x1="0" y1="60" x2="320" y2="60"/> </g> <text class="label" x="-5" y="-10" transform="rotate(-90 -5,-10)">Normalised energy ρ(f)</text> <text class="label" x="110" y="285">Frequency f</text>
+<!-- spectral bars -->
+<g class="bars">
+    <rect x="10"  y="200" width="10" height="60"/>
+    <rect x="24"  y="170" width="10" height="90"/>
+    <rect x="38"  y="150" width="10" height="110"/>
+    <rect x="52"  y="120" width="10" height="140"/>
+    <rect x="66"  y="90"  width="10" height="170"/>
+    <rect x="80"  y="80"  width="10" height="180"/>
+    <rect x="94"  y="95"  width="10" height="165"/>
+    <rect x="108" y="120" width="10" height="140"/>
+    <rect x="122" y="140" width="10" height="120"/>
+    <rect x="136" y="160" width="10" height="100"/>
+    <rect x="150" y="170" width="10" height="90"/>
+    <rect x="164" y="165" width="10" height="95"/>
+    <rect x="178" y="150" width="10" height="110"/>
+    <rect x="192" y="130" width="10" height="130"/>
+    <rect x="206" y="120" width="10" height="140"/>
+    <rect x="220" y="125" width="10" height="135"/>
+    <rect x="234" y="140" width="10" height="120"/>
+    <rect x="248" y="165" width="10" height="95"/>
+    <rect x="262" y="185" width="10" height="75"/>
+    <rect x="276" y="205" width="10" height="55"/>
+    <rect x="290" y="220" width="10" height="40"/>
+  </g>
+  
+  <!-- legend -->
+  <rect x="175" y="10" width="12" height="12" fill="#2a6fdb" opacity="0.7"/>
+  <text class="legend" x="193" y="21">ρ(f) = |X(f,t)|² / Σ|X|²</text>
+</g> <!-- Connecting arrows --> <g> <line class="arrow" x1="360" y1="110" x2="480" y2="110"/> <line class="arrow" x1="360" y1="200" x2="480" y2="200"/> <text class="label" x="373" y="100">Analogy</text> <text class="label" x="368" y="215">Energy ↔ Probability</text> </g> </svg>

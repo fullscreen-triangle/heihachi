@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?> <svg width="720" height="300" viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg"> <style> .box{fill:none;stroke:#444;stroke-width:1.5} .traj{fill:none;stroke:#2a6fdb;stroke-width:2} .return{fill:#e74c3c} .lbl{font:12px sans-serif} .title{font:16px sans-serif;font-weight:700} </style> <text class="title" x="180" y="22">Poincaré Recurrence in a Bounded Phase Space</text> <rect class="box" x="60" y="40" width="600" height="220" rx="8"/> <text class="lbl" x="65" y="35">Bounded region</text>
+    <path class="traj" d="M90,200 C 180,220 180,120 260,140 C 340,160 320,220 400,210 C 480,200 540,140 600,160
+                          C 660,180 610,220 540,230 C 470,240 380,220 320,200 C 260,180 220,160 180,160
+                          C 140,160 120,180 110,190 C 100,200 95,205 90,200 z"/>
+    
+    <!-- returns --> <circle class="return" cx="265" cy="145" r="4"/> <circle class="return" cx="398" cy="210" r="4"/> <circle class="return" cx="540" cy="230" r="4"/> <text class="lbl" x="280" y="140">Returns</text> </svg>
