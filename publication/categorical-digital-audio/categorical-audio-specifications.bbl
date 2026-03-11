@@ -1,0 +1,203 @@
+\begin{thebibliography}{10}
+
+\bibitem{nyquist1928}
+Harry Nyquist.
+\newblock Certain topics in telegraph transmission theory.
+\newblock {\em Transactions of the American Institute of Electrical Engineers},
+  47(2):617--644, 1928.
+
+\bibitem{shannon1949}
+Claude~E. Shannon.
+\newblock Communication in the presence of noise.
+\newblock {\em Proceedings of the IRE}, 37(1):10--21, 1949.
+
+\bibitem{whittaker1915}
+Edmund~T. Whittaker.
+\newblock On the functions which are represented by the expansions of the
+  interpolation-theory.
+\newblock {\em Proceedings of the Royal Society of Edinburgh}, 35:181--194,
+  1915.
+
+\bibitem{gabor1946}
+Dennis Gabor.
+\newblock Theory of communication.
+\newblock {\em Journal of the Institution of Electrical Engineers---Part III:
+  Radio and Communication Engineering}, 93(26):429--457, 1946.
+
+\bibitem{flandrin1999}
+Patrick Flandrin.
+\newblock {\em Time-Frequency/Time-Scale Analysis}.
+\newblock Academic Press, 1999.
+
+\bibitem{cohen1995}
+Leon Cohen.
+\newblock Time-frequency distributions---a review.
+\newblock {\em Proceedings of the IEEE}, 77(7):941--981, 1989.
+
+\bibitem{shannon1948}
+Claude~E. Shannon.
+\newblock A mathematical theory of communication.
+\newblock {\em Bell System Technical Journal}, 27(3):379--423, 1948.
+
+\bibitem{pohlmann2010}
+Ken~C. Pohlmann.
+\newblock {\em Principles of Digital Audio}.
+\newblock McGraw-Hill, 6th edition, 2010.
+
+\bibitem{sony1999dsd}
+{Sony Corporation} and {Philips Electronics}.
+\newblock Super {A}udio {CD} system description.
+\newblock 1999.
+\newblock Scarlet Book specification.
+
+\bibitem{stuart2014mqa}
+J.~Robert Stuart and Peter~G. Craven.
+\newblock {MQA}: A new approach to high-resolution audio.
+\newblock {\em Journal of the Audio Engineering Society}, 62:133--142, 2014.
+
+\bibitem{brandenburg1994}
+Karlheinz Brandenburg.
+\newblock {MP3} and {AAC} explained.
+\newblock In {\em Proceedings of the AES 17th International Conference}, pages
+  99--110, 1994.
+
+\bibitem{valin2012}
+Jean-Marc Valin, Koen Vos, and Timothy~B. Terriberry.
+\newblock Definition of the {O}pus audio codec.
+\newblock In {\em IETF RFC 6716}, 2012.
+
+\bibitem{flac2001}
+Josh Coalson.
+\newblock Free {L}ossless {A}udio {C}odec ({FLAC}) format specification.
+\newblock 2001.
+\newblock Available at \url{https://xiph.org/flac/format.html}.
+
+\bibitem{poincare1890}
+Henri Poincar{\'e}.
+\newblock Sur le probl{\`e}me des trois corps et les {\'e}quations de la
+  dynamique.
+\newblock {\em Acta Mathematica}, 13:1--270, 1890.
+
+\bibitem{sachikonye2026counting}
+Kundai~Farai Sachikonye.
+\newblock On the thermodynamic consequences of categorical state counting:
+  Oscillatory categorical partitioning based recursive harmonic networks.
+\newblock {\em Stella-Lorraine Technical Report}, 2026.
+\newblock In preparation.
+
+\bibitem{watkinson2001}
+John Watkinson.
+\newblock {\em The Art of Digital Audio}.
+\newblock Focal Press, 3rd edition, 2001.
+
+\bibitem{zwicker2007}
+Eberhard Zwicker and Hugo Fastl.
+\newblock {\em Psychoacoustics: Facts and Models}.
+\newblock Springer, 3rd edition, 2007.
+
+\bibitem{moore2012}
+Brian C.~J. Moore.
+\newblock {\em An Introduction to the Psychology of Hearing}.
+\newblock Emerald Group Publishing, 6th edition, 2012.
+
+\bibitem{bilmes1993}
+Jeff~A. Bilmes.
+\newblock Timing is of the essence: Perceptual and computational techniques for
+  representing, learning, and reproducing expressive timing in percussive
+  rhythm.
+\newblock {\em Master's thesis, MIT Media Lab}, 1993.
+
+\bibitem{friberg2002}
+Anders Friberg and Andreas Sundstr{\"o}m.
+\newblock Swing ratios and ensemble timing in jazz performance: Evidence for a
+  common rhythmic pattern.
+\newblock {\em Music Perception}, 19(3):333--349, 2002.
+
+\bibitem{madison2011}
+Guy Madison, Fabien Gouyon, Fredrik Ulrich, and Kalle Epstein.
+\newblock Modeling the tendency for music to induce movement in humans: First
+  correlations with low-level audio descriptors across music genres.
+\newblock {\em Journal of Experimental Psychology: Human Perception and
+  Performance}, 37(5):1578--1594, 2011.
+
+\bibitem{iyer2002}
+Vijay Iyer.
+\newblock Embodied mind, situated cognition, and expressive microtiming in
+  {A}frican-{A}merican music.
+\newblock {\em Music Perception}, 19(3):387--414, 2002.
+
+\bibitem{honing2012}
+Henkjan Honing.
+\newblock Without it no music: Beat induction as a fundamental musical trait.
+\newblock {\em Annals of the New York Academy of Sciences}, 1252(1):85--91,
+  2012.
+
+\bibitem{butterfield2010}
+Matthew Butterfield.
+\newblock Participatory discrepancies and the perception of beats in jazz.
+\newblock {\em Music Perception}, 27(3):157--176, 2010.
+
+\bibitem{sachikonye2026thermodynamics}
+Kundai~Farai Sachikonye.
+\newblock Thermodynamic consequences of categorical state counting in bounded
+  phase space: Arrow of time and entropy generation.
+\newblock {\em Stella-Lorraine Technical Report}, 2026.
+\newblock In preparation.
+
+\bibitem{sachikonye2026catscript}
+Kundai~Farai Sachikonye.
+\newblock {CatScript}: A domain-specific language for trans-{P}lanckian
+  temporal resolution calculations.
+\newblock {\em Stella-Lorraine Technical Report}, 2026.
+\newblock In preparation.
+
+\bibitem{arnold1989}
+Vladimir~I. Arnold.
+\newblock {\em Mathematical Methods of Classical Mechanics}.
+\newblock Springer, 2nd edition, 1989.
+
+\bibitem{tabor1989}
+Michael Tabor.
+\newblock {\em Chaos and Integrability in Nonlinear Dynamics}.
+\newblock John Wiley \& Sons, 1989.
+
+\bibitem{cover2006}
+Thomas~M. Cover and Joy~A. Thomas.
+\newblock {\em Elements of Information Theory}.
+\newblock John Wiley \& Sons, 2nd edition, 2006.
+
+\bibitem{rudin1987}
+Walter Rudin.
+\newblock {\em Real and Complex Analysis}.
+\newblock McGraw-Hill, 3rd edition, 1987.
+
+\bibitem{grochenig2001}
+Karlheinz Gr{\"o}chenig.
+\newblock Foundations of time-frequency analysis.
+\newblock {\em Birkh{\"a}user}, 2001.
+
+\bibitem{bello2005}
+Juan~P. Bello, Laurent Daudet, Samer Abdallah, Chris Duxbury, Mike Davies, and
+  Mark~B. Sandler.
+\newblock A tutorial on onset detection in music signals.
+\newblock {\em IEEE Transactions on Speech and Audio Processing},
+  13(5):1035--1047, 2005.
+
+\bibitem{muller2015}
+Meinard M{\"u}ller.
+\newblock {\em Fundamentals of Music Processing}.
+\newblock Springer, 2015.
+
+\bibitem{danielsen2010}
+Anne Danielsen.
+\newblock Here, there and everywhere: Three accounts of pulse in {D'Angelo's}
+  ``{L}eft and {R}ight''.
+\newblock {\em Musical Rhythm in the Age of Digital Reproduction}, pages
+  19--35, 2010.
+
+\bibitem{berger1971}
+Toby Berger.
+\newblock Rate distortion theory: A mathematical basis for data compression.
+\newblock {\em Prentice Hall}, 1971.
+
+\end{thebibliography}

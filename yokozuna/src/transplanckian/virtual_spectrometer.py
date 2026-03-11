@@ -320,27 +320,19 @@ class VirtualSpectrometer:
     # -------------------------------------------------------------------
 
     def compute_partition_coordinate(
-        self, mode: dict, phase_at_t: float
+        self, mode: dict, phase_at_t: float, mode_rank: int = 0
     ) -> PartitionCoordinate:
         """Compute partition coordinate (n, l, m, s) for a mode at time t.
 
         n: partition depth (fixed by spectrometer configuration)
-        l: harmonic order = floor(amplitude_ratio * (n-1))
-        m: phase index = floor(n * phase / (2π)) mod n, mapped to [-l, l]
-        s: chirality = sign of instantaneous frequency deviation
+        l: harmonic order — derived from mode rank (0 = strongest mode)
+        m: phase index = floor(n * phase / (2*pi)) mod n, mapped to [-l, l]
+        s: chirality = sign of phase velocity
         """
         n = self.partition_depth
-        freq = mode['frequency']
-        amp = mode['amplitude']
-        energy = mode['energy']
 
-        # Harmonic order from amplitude ranking
-        # l = 0 for fundamental (strongest), higher for overtones
-        # We use a normalized energy measure
-        max_energy = 0.5 * (2 * np.pi * self.sample_rate / 2) ** 2  # reference max
-        energy_ratio = min(energy / (max_energy + 1e-30), 1.0)
-        l = int(np.floor(energy_ratio * (n - 1)))
-        l = max(0, min(l, n - 1))
+        # Harmonic order from mode rank (strongest mode = l=0, weakest = l=n-1)
+        l = min(mode_rank, n - 1)
 
         # Phase index: map continuous phase to discrete state in [-l, l]
         phase_normalized = (phase_at_t % (2 * np.pi)) / (2 * np.pi)
@@ -352,8 +344,10 @@ class VirtualSpectrometer:
         else:
             m = 0
 
-        # Chirality: +0.5 if frequency increasing, -0.5 if decreasing
-        s = 0.5  # default: advancing
+        # Chirality from phase velocity direction
+        freq = mode['frequency']
+        phase_velocity = 2 * np.pi * freq  # angular velocity
+        s = 0.5 if phase_velocity >= 0 else -0.5
 
         return PartitionCoordinate(n=n, l=l, m=m, s=s)
 
@@ -412,8 +406,8 @@ class VirtualSpectrometer:
                 t_center = t_current + len(frame) / (2 * self.sample_rate)
                 phase_at_t = mode['phase'] + 2 * np.pi * mode['frequency'] * t_center
 
-                # Partition coordinate
-                partition = self.compute_partition_coordinate(mode, phase_at_t)
+                # Partition coordinate (mode_idx = rank by amplitude, 0 = strongest)
+                partition = self.compute_partition_coordinate(mode, phase_at_t, mode_rank=mode_idx)
 
                 state = CategoricalState(
                     time=t_current,

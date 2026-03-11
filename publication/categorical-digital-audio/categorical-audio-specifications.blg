@@ -1,0 +1,51 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: categorical-audio-specifications.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
+The style file: unsrt.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--empty journal in sony1999dsd
+Warning--empty journal in flac2001
+You've used 35 entries,
+            1791 wiz_defined-function locations,
+            631 strings with 8026 characters,
+and the built_in function-call counts, 6670 in all, are:
+= -- 630
+> -- 193
+< -- 2
++ -- 85
+- -- 50
+* -- 360
+:= -- 1066
+add.period$ -- 110
+call.type$ -- 35
+change.case$ -- 32
+chr.to.int$ -- 0
+cite$ -- 37
+duplicate$ -- 337
+empty$ -- 721
+format.name$ -- 50
+if$ -- 1492
+int.to.chr$ -- 0
+int.to.str$ -- 35
+missing$ -- 45
+newline$ -- 183
+num.names$ -- 35
+pop$ -- 116
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 118
+stack$ -- 0
+substring$ -- 395
+swap$ -- 49
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 2
+while$ -- 69
+width$ -- 37
+write$ -- 383
+(There were 2 warnings)

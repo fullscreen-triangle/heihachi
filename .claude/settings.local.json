@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls frontend/juvhe-wema-spades/src/pages/*.js)",
+      "Bash(npx next build)",
+      "Bash(npm install gsap)"
+    ]
+  }
+}
