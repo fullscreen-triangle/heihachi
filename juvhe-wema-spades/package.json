@@ -1,0 +1,43 @@
+{
+  "name": "juvhe_wema_spades",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@langchain/anthropic": "^0.3.15",
+    "@langchain/openai": "^0.4.7",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@types/node": "^20.11.24",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "@types/three": "^0.169.0",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^13.5.11",
+    "framer-motion": "^10.0.1",
+    "gsap": "^3.14.2",
+    "maath": "^0.10.8",
+    "next": "^13.2.1",
+    "openai": "^4.89.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "three": "^0.169.0",
+    "three-stdlib": "^2.36.1",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "autoprefixer": "^10.4.13",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.2.7"
+  }
+}
