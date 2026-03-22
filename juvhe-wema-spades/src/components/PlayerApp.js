@@ -1,62 +1,55 @@
 'use client'
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { PlayerAudioProvider, usePlayerAudio } from './PlayerAudioProvider'
 import PlayerVisualizer from './PlayerVisualizer'
-import TrackSearch from './TrackSearch'
 
-// Available tracks in public/audio/
-const LIBRARY = [
-    { name: 'Audio Omega', src: '/audio/Audio_Omega.mp3' },
+const PLAYLIST = [
     { name: 'Noisia - Feed the Machine (BSE)', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3' },
-    { name: 'Mindscape - Jarhead', src: '/audio/audio_mindscape_jarhead.mp3' },
-    { name: 'Benga - Electro West', src: '/audio/benga_electro_west.mp3' },
-    { name: "DJ's Fresh - Heavyweight", src: '/audio/djs_fresh_heavyweight.mp3' },
-    { name: 'Dream Continuum - Be Free', src: '/audio/dream_continuum_be_free.mp3' },
+    { name: 'Konflict - Messiah (Magnetude Remix)', src: '/audio/Konflict-Messiah-Magnetude.mp3' },
+    { name: 'Noisia - Stigma (Neosignal Remix)', src: '/audio/Noisia_Stigma(NeosignalRemix).mp3' },
+    { name: 'Spor - Running Man', src: '/audio/Spor_RunningMan.mp3' },
+    { name: 'Squarepusher - Dark Steering', src: '/audio/Squarepusher_Dark_Steering.mp3' },
 ]
 
 function PlayerUI() {
     const {
         audioData, trackInfo, ambientCompensation,
-        loadTrack, loadFile, play, pause, seek, setVolume,
+        loadTrack, play, pause, seek, setVolume,
         toggleAmbientCompensation
     } = usePlayerAudio()
 
-    const [vizMode, setVizMode] = useState('desk') // 'desk' | 'raymarch'
-    const [showSearch, setShowSearch] = useState(false)
-    const [showLibrary, setShowLibrary] = useState(false)
+    const [vizMode, setVizMode] = useState('desk')
     const [volumeVal, setVolumeVal] = useState(1)
-    const fileInputRef = useRef(null)
-    const dropRef = useRef(null)
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [started, setStarted] = useState(false)
+    const indexRef = useRef(0)
 
-    // Drag and drop
-    const handleDragOver = useCallback((e) => {
-        e.preventDefault()
-        e.stopPropagation()
-    }, [])
-
-    const handleDrop = useCallback(async (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        const file = e.dataTransfer.files[0]
-        if (file && file.type.startsWith('audio/')) {
-            await loadFile(file)
-            play()
-        }
-    }, [loadFile, play])
-
-    const handleFileSelect = useCallback(async (e) => {
-        const file = e.target.files[0]
-        if (file) {
-            await loadFile(file)
-            play()
-        }
-    }, [loadFile, play])
-
-    const handleLibrarySelect = useCallback(async (track) => {
+    const playTrackAtIndex = useCallback(async (index) => {
+        const track = PLAYLIST[index]
+        indexRef.current = index
+        setCurrentIndex(index)
         await loadTrack(track.src, track.name)
         play()
-        setShowLibrary(false)
     }, [loadTrack, play])
+
+    const handleStart = useCallback(async () => {
+        setStarted(true)
+        await playTrackAtIndex(0)
+    }, [playTrackAtIndex])
+
+    const handleSkip = useCallback(async () => {
+        const nextIndex = (indexRef.current + 1) % PLAYLIST.length
+        await playTrackAtIndex(nextIndex)
+    }, [playTrackAtIndex])
+
+    // Auto-advance when track ends
+    useEffect(() => {
+        if (!started) return
+        if (trackInfo.duration > 0 && trackInfo.currentTime >= trackInfo.duration - 0.3 && !audioData.isPlaying) {
+            const nextIndex = (indexRef.current + 1) % PLAYLIST.length
+            playTrackAtIndex(nextIndex)
+        }
+    }, [audioData.isPlaying, trackInfo.currentTime, trackInfo.duration, started, playTrackAtIndex])
 
     const handleVolumeChange = useCallback((e) => {
         const v = parseFloat(e.target.value)
@@ -72,21 +65,15 @@ function PlayerUI() {
     }
 
     return (
-        <div
-            ref={dropRef}
-            className="relative w-full h-full bg-[#0a0a0f] overflow-hidden"
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-        >
+        <div className="relative w-full h-full bg-[#0a0a0f] overflow-hidden">
             {/* 3D Visualizer Background */}
             <div className="absolute inset-0 z-0">
                 <PlayerVisualizer mode={vizMode} audioData={audioData} />
             </div>
 
-            {/* Top bar — viz mode toggle + search + ambient */}
+            {/* Top bar — viz mode toggle + ambient */}
             <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-3">
-                    {/* Viz mode toggle */}
                     <div className="flex rounded-full border border-white/20 overflow-hidden">
                         <button
                             onClick={() => setVizMode('desk')}
@@ -108,7 +95,6 @@ function PlayerUI() {
                         </button>
                     </div>
 
-                    {/* Ambient compensation toggle */}
                     <button
                         onClick={toggleAmbientCompensation}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${ambientCompensation
@@ -123,79 +109,7 @@ function PlayerUI() {
                         {ambientCompensation ? 'ANC On' : 'ANC'}
                     </button>
                 </div>
-
-                <div className="flex items-center gap-3">
-                    {/* Search button */}
-                    <button
-                        onClick={() => { setShowSearch(!showSearch); setShowLibrary(false) }}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${showSearch
-                            ? 'border-purple-400/50 bg-purple-400/10 text-purple-300'
-                            : 'border-white/20 text-white/50 hover:text-white/80'
-                            }`}
-                    >
-                        Search
-                    </button>
-
-                    {/* Library button */}
-                    <button
-                        onClick={() => { setShowLibrary(!showLibrary); setShowSearch(false) }}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${showLibrary
-                            ? 'border-blue-400/50 bg-blue-400/10 text-blue-300'
-                            : 'border-white/20 text-white/50 hover:text-white/80'
-                            }`}
-                    >
-                        Library
-                    </button>
-
-                    {/* Upload button */}
-                    <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 rounded-full text-xs font-medium border border-white/20 text-white/50 hover:text-white/80 transition-all"
-                    >
-                        Upload
-                    </button>
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="audio/*"
-                        className="hidden"
-                        onChange={handleFileSelect}
-                    />
-                </div>
             </div>
-
-            {/* Search panel */}
-            {showSearch && (
-                <div className="absolute top-14 right-6 z-30 w-80">
-                    <TrackSearch onSelect={async (track) => {
-                        if (track.previewUrl) {
-                            await loadTrack(track.previewUrl, `${track.artist} - ${track.title}`)
-                            play()
-                        }
-                        setShowSearch(false)
-                    }} />
-                </div>
-            )}
-
-            {/* Library panel */}
-            {showLibrary && (
-                <div className="absolute top-14 right-6 z-30 w-72 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg overflow-hidden">
-                    <div className="p-3 border-b border-white/10">
-                        <span className="text-white/70 text-xs font-medium uppercase tracking-wider">Track Library</span>
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                        {LIBRARY.map((track, i) => (
-                            <button
-                                key={i}
-                                onClick={() => handleLibrarySelect(track)}
-                                className="w-full text-left px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 transition-all border-b border-white/5 last:border-0"
-                            >
-                                {track.name}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
 
             {/* Audio level indicators */}
             {audioData.isPlaying && (
@@ -211,36 +125,43 @@ function PlayerUI() {
                 {/* Track name */}
                 <div className="text-center mb-3">
                     <span className="text-white/90 text-sm font-medium">
-                        {trackInfo.name || 'No track loaded — drop a file or select from library'}
+                        {trackInfo.name || 'Press play to start the jukebox'}
                     </span>
+                    {started && (
+                        <span className="text-white/40 text-xs ml-2">
+                            {currentIndex + 1} / {PLAYLIST.length}
+                        </span>
+                    )}
                 </div>
 
                 {/* Seek bar */}
-                <div className="flex items-center gap-3 mb-3">
-                    <span className="text-white/50 text-xs w-10 text-right font-mono">
-                        {formatTime(trackInfo.currentTime)}
-                    </span>
-                    <input
-                        type="range"
-                        min={0}
-                        max={trackInfo.duration || 1}
-                        step={0.1}
-                        value={trackInfo.currentTime || 0}
-                        onChange={(e) => seek(parseFloat(e.target.value))}
-                        className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer
-                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3
-                            [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full"
-                    />
-                    <span className="text-white/50 text-xs w-10 font-mono">
-                        {formatTime(trackInfo.duration)}
-                    </span>
-                </div>
+                {started && (
+                    <div className="flex items-center gap-3 mb-3">
+                        <span className="text-white/50 text-xs w-10 text-right font-mono">
+                            {formatTime(trackInfo.currentTime)}
+                        </span>
+                        <input
+                            type="range"
+                            min={0}
+                            max={trackInfo.duration || 1}
+                            step={0.1}
+                            value={trackInfo.currentTime || 0}
+                            onChange={(e) => seek(parseFloat(e.target.value))}
+                            className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer
+                                [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3
+                                [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full"
+                        />
+                        <span className="text-white/50 text-xs w-10 font-mono">
+                            {formatTime(trackInfo.duration)}
+                        </span>
+                    </div>
+                )}
 
                 {/* Controls row */}
                 <div className="flex items-center justify-center gap-6">
                     {/* Play/Pause */}
                     <button
-                        onClick={audioData.isPlaying ? pause : play}
+                        onClick={started ? (audioData.isPlaying ? pause : play) : handleStart}
                         className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 border border-white/20
                             hover:bg-white/20 transition-all"
                     >
@@ -255,6 +176,21 @@ function PlayerUI() {
                             </svg>
                         )}
                     </button>
+
+                    {/* Skip */}
+                    {started && (
+                        <button
+                            onClick={handleSkip}
+                            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 border border-white/20
+                                hover:bg-white/20 transition-all"
+                            title="Skip to next track"
+                        >
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6 4l12 8-12 8V4z" />
+                                <rect x="18" y="4" width="2" height="16" />
+                            </svg>
+                        </button>
+                    )}
 
                     {/* Volume */}
                     <div className="flex items-center gap-2">

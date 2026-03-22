@@ -13,7 +13,15 @@ THREE.ColorManagement.legacyMode = false
 // ============================================
 const AudioContext = createContext()
 
-function AudioProvider({ children, audioSrc = '/audio/track.mp3' }) {
+const DEFAULT_PLAYLIST = [
+    { name: 'Noisia - Feed the Machine (BSE)', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3' },
+    { name: 'Konflict - Messiah (Magnetude Remix)', src: '/audio/Konflict-Messiah-Magnetude.mp3' },
+    { name: 'Noisia - Stigma (Neosignal Remix)', src: '/audio/Noisia_Stigma(NeosignalRemix).mp3' },
+    { name: 'Spor - Running Man', src: '/audio/Spor_RunningMan.mp3' },
+    { name: 'Squarepusher - Dark Steering', src: '/audio/Squarepusher_Dark_Steering.mp3' },
+]
+
+function AudioProvider({ children, playlist = DEFAULT_PLAYLIST }) {
     const [audioData, setAudioData] = useState({
         frequency: 0,
         bass: 0,
@@ -22,6 +30,8 @@ function AudioProvider({ children, audioSrc = '/audio/track.mp3' }) {
         volume: 0,
         isPlaying: false
     })
+    const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
+    const [trackName, setTrackName] = useState(playlist[0]?.name || '')
 
     const analyserRef = useRef(null)
     const dataArrayRef = useRef(null)
@@ -30,39 +40,15 @@ function AudioProvider({ children, audioSrc = '/audio/track.mp3' }) {
     const audioElementRef = useRef(null)
     const animationFrameRef = useRef(null)
     const connectedRef = useRef(false)
+    const trackIndexRef = useRef(0)
 
-    const initAudio = async () => {
-        try {
-            if (!audioContextRef.current) {
-                audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
-                analyserRef.current = audioContextRef.current.createAnalyser()
-                analyserRef.current.fftSize = 256
-                analyserRef.current.smoothingTimeConstant = 0.8
-                dataArrayRef.current = new Uint8Array(analyserRef.current.frequencyBinCount)
-            }
-
-            if (audioContextRef.current.state === 'suspended') {
-                await audioContextRef.current.resume()
-            }
-
-            if (!audioElementRef.current) {
-                audioElementRef.current = new Audio(audioSrc)
-                audioElementRef.current.crossOrigin = 'anonymous'
-                audioElementRef.current.loop = true
-            }
-
-            if (!connectedRef.current) {
-                sourceRef.current = audioContextRef.current.createMediaElementSource(audioElementRef.current)
-                sourceRef.current.connect(analyserRef.current)
-                analyserRef.current.connect(audioContextRef.current.destination)
-                connectedRef.current = true
-            }
-
-            await audioElementRef.current.play()
-            setAudioData(prev => ({ ...prev, isPlaying: true }))
-            analyzeAudio()
-        } catch (error) {
-            console.error('Audio initialization failed:', error)
+    const ensureAudioContext = () => {
+        if (!audioContextRef.current) {
+            audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
+            analyserRef.current = audioContextRef.current.createAnalyser()
+            analyserRef.current.fftSize = 256
+            analyserRef.current.smoothingTimeConstant = 0.8
+            dataArrayRef.current = new Uint8Array(analyserRef.current.frequencyBinCount)
         }
     }
 
@@ -91,6 +77,64 @@ function AudioProvider({ children, audioSrc = '/audio/track.mp3' }) {
         animationFrameRef.current = requestAnimationFrame(analyzeAudio)
     }
 
+    const playTrack = async (index) => {
+        try {
+            ensureAudioContext()
+
+            if (audioContextRef.current.state === 'suspended') {
+                await audioContextRef.current.resume()
+            }
+
+            const track = playlist[index]
+            if (!track) return
+
+            if (audioElementRef.current) {
+                audioElementRef.current.pause()
+                audioElementRef.current.removeEventListener('ended', handleTrackEnded)
+            }
+
+            if (!audioElementRef.current) {
+                audioElementRef.current = new Audio()
+                audioElementRef.current.crossOrigin = 'anonymous'
+            }
+
+            audioElementRef.current.src = track.src
+
+            if (!connectedRef.current) {
+                sourceRef.current = audioContextRef.current.createMediaElementSource(audioElementRef.current)
+                sourceRef.current.connect(analyserRef.current)
+                analyserRef.current.connect(audioContextRef.current.destination)
+                connectedRef.current = true
+            }
+
+            audioElementRef.current.addEventListener('ended', handleTrackEnded)
+
+            trackIndexRef.current = index
+            setCurrentTrackIndex(index)
+            setTrackName(track.name)
+
+            await audioElementRef.current.play()
+            setAudioData(prev => ({ ...prev, isPlaying: true }))
+            analyzeAudio()
+        } catch (error) {
+            console.error('Audio playback failed:', error)
+        }
+    }
+
+    const handleTrackEnded = () => {
+        const nextIndex = (trackIndexRef.current + 1) % playlist.length
+        playTrack(nextIndex)
+    }
+
+    const initAudio = async () => {
+        await playTrack(trackIndexRef.current)
+    }
+
+    const skipTrack = async () => {
+        const nextIndex = (trackIndexRef.current + 1) % playlist.length
+        await playTrack(nextIndex)
+    }
+
     const stopAudio = () => {
         if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current)
@@ -104,6 +148,7 @@ function AudioProvider({ children, audioSrc = '/audio/track.mp3' }) {
     const cleanup = () => {
         stopAudio()
         if (audioElementRef.current) {
+            audioElementRef.current.removeEventListener('ended', handleTrackEnded)
             audioElementRef.current.pause()
             audioElementRef.current.src = ''
         }
@@ -117,7 +162,7 @@ function AudioProvider({ children, audioSrc = '/audio/track.mp3' }) {
     }, [])
 
     return (
-        <AudioContext.Provider value={{ audioData, initAudio, stopAudio }}>
+        <AudioContext.Provider value={{ audioData, initAudio, stopAudio, skipTrack, trackName, currentTrackIndex, playlist }}>
             {children}
         </AudioContext.Provider>
     )
@@ -310,7 +355,7 @@ export function Computers(props) {
                 audioReactType="colorShift"
             />
             <ScreenVideoAudioReactive
-                videoSrc="/gifs/sign.gif"
+                videoSrc="/gifs/cheetah-greyhound.gif"
                 frame="Object_221"
                 panel="Object_222"
                 position={[-3.42, 3.06, 1.3]}
@@ -656,31 +701,58 @@ function Leds({ instances }) {
 // AUDIO CONTROL UI
 // ============================================
 export function AudioControls({ className = '' }) {
-    const { audioData, initAudio, stopAudio } = useAudioData()
+    const { audioData, initAudio, stopAudio, skipTrack, trackName } = useAudioData()
 
     return (
-        <button
-            onClick={audioData.isPlaying ? stopAudio : initAudio}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border border-white/30
-                bg-white/10 backdrop-blur-sm text-white text-sm font-medium
-                hover:bg-white/20 transition-all duration-300 cursor-pointer ${className}`}
-        >
-            {audioData.isPlaying ? (
-                <>
-                    <span className="w-3 h-3 flex items-center justify-center">
-                        <span className="block w-2 h-2 border-l-2 border-r-2 border-white" />
-                    </span>
-                    Pause
-                </>
-            ) : (
-                <>
-                    <span className="w-3 h-3 flex items-center justify-center">
-                        <span className="block w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[8px] border-l-white" />
-                    </span>
-                    Play
-                </>
+        <div className={`flex items-center gap-3 ${className}`}>
+            {/* Track name */}
+            {audioData.isPlaying && trackName && (
+                <span className="text-white/60 text-xs font-medium truncate max-w-[200px] hidden sm:block">
+                    {trackName}
+                </span>
             )}
-        </button>
+
+            {/* Play/Pause */}
+            <button
+                onClick={audioData.isPlaying ? stopAudio : initAudio}
+                className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30
+                    bg-white/10 backdrop-blur-sm text-white text-sm font-medium
+                    hover:bg-white/20 transition-all duration-300 cursor-pointer"
+            >
+                {audioData.isPlaying ? (
+                    <>
+                        <span className="w-3 h-3 flex items-center justify-center">
+                            <span className="block w-2 h-2 border-l-2 border-r-2 border-white" />
+                        </span>
+                        Pause
+                    </>
+                ) : (
+                    <>
+                        <span className="w-3 h-3 flex items-center justify-center">
+                            <span className="block w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[8px] border-l-white" />
+                        </span>
+                        Play
+                    </>
+                )}
+            </button>
+
+            {/* Skip */}
+            {audioData.isPlaying && (
+                <button
+                    onClick={skipTrack}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-white/30
+                        bg-white/10 backdrop-blur-sm text-white text-sm font-medium
+                        hover:bg-white/20 transition-all duration-300 cursor-pointer"
+                    title="Skip to next track"
+                >
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 4l12 8-12 8V4z" />
+                        <rect x="18" y="4" width="2" height="16" />
+                    </svg>
+                    Skip
+                </button>
+            )}
+        </div>
     )
 }
 

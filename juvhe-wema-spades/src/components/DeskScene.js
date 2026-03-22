@@ -5,9 +5,9 @@ import { BakeShadows, Environment } from '@react-three/drei'
 import { Instances, Computers, AudioControls } from './Desk'
 import { AudioProvider } from './Desk'
 
-const DeskScene = ({ audioSrc = '/audio/Audio_Omega.mp3' }) => {
+const DeskScene = () => {
     return (
-        <AudioProvider audioSrc={audioSrc}>
+        <AudioProvider>
             <div className="absolute inset-0 z-0">
                 <Canvas
                     shadows
