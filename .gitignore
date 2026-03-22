@@ -72,4 +72,4 @@ Thumbs.db
 *.sql
 *.sqlite
 
-public/
+# public/ — allow juvhe-wema-spades/public for Vercel deployment
