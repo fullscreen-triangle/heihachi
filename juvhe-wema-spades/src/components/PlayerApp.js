@@ -19,6 +19,7 @@ function PlayerUI() {
     } = usePlayerAudio()
 
     const [vizMode, setVizMode] = useState('desk')
+    const [catMode, setCatMode] = useState(0) // 0: partition, 1: gabor, 2: groove, 3: s-entropy
     const [volumeVal, setVolumeVal] = useState(1)
     const [currentIndex, setCurrentIndex] = useState(0)
     const [started, setStarted] = useState(false)
@@ -68,7 +69,7 @@ function PlayerUI() {
         <div className="relative w-full h-full bg-[#0a0a0f] overflow-hidden">
             {/* 3D Visualizer Background */}
             <div className="absolute inset-0 z-0">
-                <PlayerVisualizer mode={vizMode} audioData={audioData} />
+                <PlayerVisualizer mode={vizMode} audioData={audioData} catMode={catMode} />
             </div>
 
             {/* Top bar — viz mode toggle + ambient */}
@@ -93,7 +94,39 @@ function PlayerUI() {
                         >
                             Raymarch
                         </button>
+                        <button
+                            onClick={() => setVizMode('categorical')}
+                            className={`px-3 py-1.5 text-xs font-medium transition-all ${vizMode === 'categorical'
+                                ? 'bg-white/20 text-white'
+                                : 'text-white/50 hover:text-white/80'
+                                }`}
+                        >
+                            CAT
+                        </button>
                     </div>
+
+                    {/* Categorical sub-modes */}
+                    {vizMode === 'categorical' && (
+                        <div className="flex rounded-full border border-emerald-500/30 overflow-hidden">
+                            {[
+                                { label: 'Partition', mode: 0 },
+                                { label: 'Gabor', mode: 1 },
+                                { label: 'Groove', mode: 2 },
+                                { label: 'S-Entropy', mode: 3 },
+                            ].map(({ label, mode }) => (
+                                <button
+                                    key={mode}
+                                    onClick={() => setCatMode(mode)}
+                                    className={`px-2.5 py-1 text-[10px] font-medium transition-all ${catMode === mode
+                                        ? 'bg-emerald-500/20 text-emerald-300'
+                                        : 'text-white/40 hover:text-white/70'
+                                        }`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     <button
                         onClick={toggleAmbientCompensation}

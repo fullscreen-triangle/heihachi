@@ -1,10 +1,14 @@
 'use client'
-import { Suspense, useMemo } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { BakeShadows, Environment } from '@react-three/drei'
 import { Instances, Computers, AudioProvider } from './Desk'
+import { CategoricalObserver } from './CategoricalObserver'
 
-const PlayerVisualizer = ({ mode = 'desk', audioData }) => {
+const PlayerVisualizer = ({ mode = 'desk', audioData, catMode = 0 }) => {
+    if (mode === 'categorical') {
+        return <CategoricalVisualizer audioData={audioData} catMode={catMode} />
+    }
     if (mode === 'raymarch') {
         return <RaymarchVisualizer audioData={audioData} />
     }
@@ -70,6 +74,18 @@ function RaymarchVisualizer({ audioData }) {
         >
             <AudioReactiveRaymarch audioData={audioData} />
         </WebGPUCanvas>
+    )
+}
+
+function CategoricalVisualizer({ audioData, catMode = 0 }) {
+    return (
+        <Canvas
+            camera={{ position: [0, 0, 1] }}
+            style={{ width: '100%', height: '100%' }}
+            gl={{ antialias: true }}
+        >
+            <CategoricalObserver audioData={audioData} mode={catMode} />
+        </Canvas>
     )
 }
 
