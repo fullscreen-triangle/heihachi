@@ -2,11 +2,11 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useContext, createContext, useRef, useEffect, useState } from 'react'
-import { useGLTF, Merged, RenderTexture, PerspectiveCamera, Text, useVideoTexture } from '@react-three/drei'
+import { useGLTF, Merged, RenderTexture, PerspectiveCamera, Text, useTexture } from '@react-three/drei'
 import { gsap } from 'gsap/dist/gsap'
 import { Vector3 } from 'three'
 
-THREE.ColorManagement.legacyMode = false
+THREE.ColorManagement.enabled = true
 
 // ============================================
 // AUDIO CONTEXT & ANALYZER
@@ -459,19 +459,13 @@ function ScreenVideoAudioReactive({
     const materialRef = useRef()
     const { audioData } = useAudioData()
 
-    const videoTexture = useVideoTexture(videoSrc, {
-        loop: true,
-        muted: true,
-        crossOrigin: 'anonymous',
-        autoplay: true,
-        playsInline: true,
-    })
+    const imageTexture = useTexture(videoSrc)
 
     // Custom shader for advanced effects
     const shaderMaterial = useMemo(() => {
         return new THREE.ShaderMaterial({
             uniforms: {
-                uTexture: { value: videoTexture },
+                uTexture: { value: imageTexture },
                 uTime: { value: 0 },
                 uAudioBass: { value: 0 },
                 uAudioMid: { value: 0 },
@@ -581,7 +575,7 @@ function ScreenVideoAudioReactive({
             `,
             toneMapped: false,
         })
-    }, [videoTexture])
+    }, [imageTexture])
 
     // Set effect type
     useEffect(() => {

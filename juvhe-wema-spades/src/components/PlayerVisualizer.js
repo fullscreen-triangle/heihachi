@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { BakeShadows, Environment } from '@react-three/drei'
 import { Instances, Computers, AudioProvider } from './Desk'
@@ -41,31 +41,43 @@ function DeskVisualizer() {
 }
 
 function RaymarchVisualizer({ audioData }) {
-    const WebGPUCanvas = useMemo(() => {
-        try {
-            const mod = require('./canvas')
-            return mod.default
-        } catch (e) {
-            return null
-        }
+    const [modules, setModules] = useState({ Canvas: null, Raymarch: null })
+    const [error, setError] = useState(false)
+
+    useEffect(() => {
+        let cancelled = false
+        Promise.all([
+            import('./canvas').then(m => m.default),
+            import('./raymarching/AudioReactiveRaymarch').then(m => m.AudioReactiveRaymarch),
+        ]).then(([Canvas, Raymarch]) => {
+            if (!cancelled) setModules({ Canvas, Raymarch })
+        }).catch(() => {
+            if (!cancelled) setError(true)
+        })
+        return () => { cancelled = true }
     }, [])
 
-    const AudioReactiveRaymarch = useMemo(() => {
-        try {
-            const mod = require('./raymarching/AudioReactiveRaymarch')
-            return mod.AudioReactiveRaymarch
-        } catch (e) {
-            return null
-        }
-    }, [])
-
-    if (!WebGPUCanvas || !AudioReactiveRaymarch) {
+    if (error) {
         return (
             <div className="w-full h-full flex items-center justify-center bg-[#0a0a0f]">
-                <p className="text-white/40 text-sm">WebGPU not available — requires three/tsl</p>
+                <p className="text-white/40 text-sm">WebGPU not available — try Chrome 113+ or Edge 113+</p>
             </div>
         )
     }
+
+    if (!modules.Canvas || !modules.Raymarch) {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-[#0a0a0f]">
+                <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+                    <p className="text-white/40 text-sm">Loading WebGPU renderer...</p>
+                </div>
+            </div>
+        )
+    }
+
+    const WebGPUCanvas = modules.Canvas
+    const AudioReactiveRaymarch = modules.Raymarch
 
     return (
         <WebGPUCanvas

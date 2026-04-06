@@ -1,0 +1,375 @@
+/**
+ * Author: Shadow Themes
+ * Author URL: https://shadow-themes.com
+ */
+
+:root {
+    /* ============
+       COLOR SCHEME
+       ============ */
+
+    /* --- BASE COLORS --- */
+
+    /* Body Background Color */
+    --anita-s-bg-body: #0E0E10;
+
+    /* Headings and Accents Color */
+    --anita-s-heading: #E6E6E6;
+
+    /* Content Text color. Also is used for Input borders and Text */
+    --anita-s-content: #A6A6A6;
+
+    /* Meta Text Color */
+    --anita-s-meta: #E6E6E6C0;
+
+    /* Background Color for Containers and Sub-menus */
+    --anita-s-bg-container: #212224;
+
+
+    /* --- UI ELEMENTS --- */
+
+    /* Spotlight Top Gradient */
+    --anita-s-spotlight01: radial-gradient(circle, #84ABD5 0%, #84ABD500) no-repeat center center;
+
+    /* Spotlight Bottom Gradient */
+    --anita-s-spotlight02: radial-gradient(circle, #FFEBD3 0%, #FFEBD300) no-repeat center center;
+
+    /* Carousel Gradient Overlay gradient */
+    --anita-s-overlay-gradient: linear-gradient(0deg, #0E0E10 0%, #0E0E1080 50%, #0E0E1000 100%);
+
+    /* Interractive Cursor Color */
+    --anita-s-cursor: var(--anita-s-heading);
+
+
+    /* --- FORMS FIELDS --- */
+
+    /* Default Input field border color */
+    --anita-s-input-border: var(--anita-s-content);
+
+    /* Default Input field Background color */
+    --anita-s-input-background: var(--anita-s-bg-container);
+
+    /* Default Input field Text color */
+    --anita-s-input-text: var(--anita-s-content);
+
+    /* Focused Input field Border color */
+    --anita-s-input-focus-border: var(--anita-s-heading);
+
+    /* Focused Input field Background color */
+    --anita-s-input-focus-background: var(--anita-s-bg-container);
+
+    /* Focused Input field Text color */
+    --anita-s-input-focus-text: var(--anita-s-heading);
+
+    /* Normal Button Border color */
+    --anita-s-button-border: var(--anita-s-content);
+
+    /* Normal Button Text color */
+    --anita-s-button-text: var(--anita-s-heading);
+
+    /* Normal Button Background color */
+    --anita-s-button-bg: #E6E6E600;
+
+    /* Hover Button Border color */
+    --anita-s-button-hover-border: var(--anita-s-heading);
+
+    /* Hover Button Text color */
+    --anita-s-button-hover-text: var(--anita-s-heading);
+
+    /* Hover Button Background color */
+    --anita-s-button-hover-bg: #E6E6E610;
+
+    /* Input field Error Border color */
+    --anita-s-input-border-error: #F22727;
+
+    /* Input field Error Text color */
+    --anita-s-input-color-error: #F22727;
+
+
+    /* --- TYPOGRAHY COLORS --- */
+
+    /* Link Color */
+    --anita-s-link: var(--anita-s-heading);
+
+    /* Hover Link Color */
+    --anita-s-link-hover: var(--anita-s-heading);
+
+
+    /* --- NAVIGATION MENU --- */
+
+    /* Main Menu Normal link color */
+    --anita-s-menu-link: var(--anita-s-meta);
+
+    /* Main Menu Hover link color */
+    --anita-s-menu-link-hover: var(--anita-s-heading);
+
+    /* Main Menu Active link color */
+    --anita-s-menu-link-active: var(--anita-s-heading);
+
+    /* Sub-Menu Background color (for Simple Menu only) */
+    --anita-s-sub-menu-bg: var(--anita-s-bg-container);
+
+    /* Sub-Menu Normal Link color */
+    --anita-s-sub-menu-link: var(--anita-s-meta);
+
+    /* Sub-Menu Hover Link color */
+    --anita-s-sub-menu-link-hover: var(--anita-s-heading);
+
+    /* Sub-Menu Active Link color */
+    --anita-s-sub-menu-link-active: var(--anita-s-heading);
+
+
+    /* --- FOOTER --- */
+
+    /* Copyright Text Color */
+    --anita-s-footer-copyright: var(--anita-s-content);
+
+    /* Footer Link color (Social Links) */
+    --anita-s-footer-link: var(--anita-s-heading);
+
+    /* Footer Link Hover color (Social Links) */
+    --anita-s-footer-link-hover: var(--anita-s-heading);
+
+
+    /* ==========
+       TYPOGRAPHY
+       ========== */
+
+    /* --- FONT FAMILIES --- */
+
+    /* Headings Font Family */
+    --anita-t-heading-ff: 'Rajdhani', sans-serif;
+
+    /* Content Font Family */
+    --anita-t-content-ff: 'Open Sans', sans-serif;
+
+    /* --- HEADINGS FONT VALUES --- */
+
+    /* Page Title font size */
+    --anita-t-title-fs: 96px;
+
+    /* Fullscreen Galleries Caption font size */
+    --anita-t-caption-fs: 64px;
+
+    /* H1 Heading font size */
+    --anita-t-h1-fs: 64px;
+
+    /* H2 Heading font size */
+    --anita-t-h2-fs: 45px;
+
+    /* H3 Heading font size */
+    --anita-t-h3-fs: 40px;
+
+    /* H4 Heading font size */
+    --anita-t-h4-fs: 33px;
+
+    /* H5 Heading font size */
+    --anita-t-h5-fs: 28px;
+
+    /* H6 Heading font size */
+    --anita-t-h6-fs: 24px;
+
+    /* Heading line height */
+    --anita-t-heading-lh: 1.25em;
+
+    /* Heading Font Weight */
+    --anita-t-heading-fw: 700;
+
+    /* H1 Heading bottom spacing */
+    --anita-t-h1-spacing: 0.7em;
+
+    /* H2 Heading bottom spacing */
+    --anita-t-h2-spacing: 0.75em;
+
+    /* H3 Heading bottom spacing */
+    --anita-t-h3-spacing: 0.85em;
+
+    /* H4 Heading bottom spacing */
+    --anita-t-h4-spacing: 1em;
+
+    /* H5 Heading bottom spacing */
+    --anita-t-h5-spacing: 1em;
+
+    /* H6 Heading bottom spacing */
+    --anita-t-h6-spacing: 1.65em;
+
+    /* Headings SUP opacity */
+    --anita-o-heading-sup: 0.25;
+
+
+    /* --- CONTENT FONT VALUES --- */
+
+    /* Content text Font Size */
+    --anita-t-content-fs: 16px;
+
+    /* Content text Line Height */
+    --anita-t-content-lh: 1.8em;
+
+    /* Content text Font Weight */
+    --anita-t-content-fw: 600;
+
+    /* Bold text Font Weight (For tag <strong>) */
+    --anita-t-content-strong-fw: 800;
+
+    /* Meta text Font Size */
+    --anita-t-meta-fs: 14px;
+
+    /* Footer text Font Size */
+    --anita-t-footer-fs: 14px;
+
+
+    /* --- MENU FONT VALUES --- */
+
+    /* Fullscreen Main menu Font Size */
+    --anita-t-fullscreen-menu-fs: 64px;
+
+    /* Fullscreen Sub-menu Font Size */
+    --anita-t-fullscreen-sub-menu-fs: 16px;
+
+    /* Simple Main menu Font Size */
+    --anita-t-simple-menu-fs: 14px;
+
+    /* Simple Sub-menu Font Size */
+    --anita-t-sub-menu-fs: 14px;
+
+
+    /* --- FORMS FONT VALUES --- */
+
+    /* Input field Font Size */
+    --anita-t-input-fs: 14px;
+
+    /* Button Font Size */
+    --anita-t-button-fs: 18px;
+
+
+    /* =================
+       GRID AND SPACINGS
+       ================= */
+
+    /* Maximum Content Width */
+    --anita-container-width: 1400px;
+
+    /* Page TOP spacing */
+    --anita-container-top-spacing: 240px;
+
+    /* Page BOTTOM spacing */
+    --anita-container-bottom-spacing: 200px;
+
+    /* Grid items Normal spacing */
+    --anita-grid-gap: 40px;
+
+    /* Grid items Small spacing */
+    --anita-grid-small-gap: 20px;
+
+    /* Section Bottom spacing */
+    --anita-section-gap: 240px;
+
+    /* Small bottom spacing (for blocks custom class) */
+    --anita-bottom-gap-small: 40px;
+
+    /* Medium bottom spacing (for blocks custom class) */
+    --anita-bottom-gap-medium: 80px;
+
+    /* Large bottom spacing (for blocks custom class) */
+    --anita-bottom-gap-large: 120px;
+
+    /* Header inner spacing */
+    --anita-header-spacing: 40px 50px 40px 50px;
+
+    /* Footer inner spacing */
+    --anita-footer-spacing: 41px 50px 42px 50px;
+
+    /* Button Inner Spacing */
+    --anita-button-padding: 17px 32px 17px 32px;
+}
+
+/* =================
+   RESPONSIVE VALUES
+   ================= */
+
+/* --- Medium Screens --- */
+@media only screen and (max-width: 1680px) {
+    :root {
+        --anita-container-width: 1280px;
+    }
+}
+
+/* --- Laptop --- */
+@media only screen and (max-width: 1366px) {
+    :root {
+        --anita-container-width: 1100px;
+        --anita-container-top-spacing: 160px;
+        --anita-container-bottom-spacing: 140px;
+        --anita-section-gap: 160px;
+
+        --anita-t-title-fs: 80px;
+        --anita-t-caption-fs: 48px;
+        --anita-t-h1-fs: 50px;
+        --anita-t-h2-fs: 40px;
+        --anita-t-h3-fs: 35px;
+        --anita-t-h4-fs: 30px;
+        --anita-t-h5-fs: 24px;
+        --anita-t-h6-fs: 20px;
+        --anita-t-fullscreen-menu-fs: 48px;
+
+        --anita-header-spacing: 30px 50px 30px 50px;
+        --anita-footer-spacing: 31px 50px 32px 50px;
+    }
+}
+
+/* --- Tablet: Landscape --- */
+@media only screen and (max-width: 1200px) {
+    :root {
+        --anita-container-width: 940px;
+        --anita-grid-gap: 30px;
+
+        --anita-t-title-fs: 64px;
+        --anita-t-caption-fs: 40px;
+        --anita-t-h1-fs: 40px;
+        --anita-t-h2-fs: 36px;
+        --anita-t-h3-fs: 32px;
+        --anita-t-h4-fs: 28px;
+        --anita-t-h5-fs: 24px;
+        --anita-t-h6-fs: 20px;
+        --anita-t-fullscreen-menu-fs: 40px;
+
+        --anita-header-spacing: 30px 30px 30px 30px;
+        --anita-footer-spacing: 31px 30px 32px 30px;
+    }
+}
+
+/* --- Tablet: Portrait --- */
+@media only screen and (max-width: 960px) {
+    :root {
+        --anita-container-width: calc(100vw - 2 * var(--anita-grid-gap));
+
+        --anita-t-title-fs: 48px;
+        --anita-t-caption-fs: 40px;
+        --anita-t-h1-fs: 32px;
+        --anita-t-h2-fs: 28px;
+        --anita-t-h3-fs: 26px;
+        --anita-t-h4-fs: 24px;
+        --anita-t-h5-fs: 20px;
+        --anita-t-h6-fs: 18px;
+        --anita-t-fullscreen-menu-fs: 32px;
+    }
+}
+
+/* --- Mobile Phones --- */
+@media only screen and (max-width: 739px) {
+    :root {
+        --anita-container-bottom-spacing: 100px;
+
+        --anita-grid-gap: 20px;
+        --anita-bottom-gap-small: 20px;
+        --anita-bottom-gap-medium: 40px;
+        --anita-bottom-gap-large: 60px;
+        --anita-section-gap: 80px;
+
+        --anita-t-title-fs: 36px;
+        --anita-t-caption-fs: 32px;
+
+        --anita-header-spacing: 20px 20px 20px 20px;
+        --anita-footer-spacing: 19px 20px 18px 20px;
+    }
+}

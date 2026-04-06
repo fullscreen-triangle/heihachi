@@ -3,7 +3,10 @@
     "allow": [
       "Bash(ls frontend/juvhe-wema-spades/src/pages/*.js)",
       "Bash(npx next build)",
-      "Bash(npm install gsap)"
+      "Bash(npm install gsap)",
+      "Bash(node -e ':*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)"
     ]
   }
 }
