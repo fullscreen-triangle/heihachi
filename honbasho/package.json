@@ -1,5 +1,5 @@
 {
-  "name": "juvhe_wema_spades",
+  "name": "honbasho",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,6 +14,7 @@
     "@langchain/openai": "^0.4.7",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@react-three/postprocessing": "^3.0.4",
     "@types/node": "^20.11.24",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
@@ -25,6 +26,7 @@
     "maath": "^0.10.8",
     "next": "^13.2.1",
     "openai": "^4.89.0",
+    "postprocessing": "^6.39.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "three": "^0.169.0",
