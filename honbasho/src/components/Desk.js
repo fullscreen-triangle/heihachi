@@ -5,6 +5,7 @@ import { useMemo, useContext, createContext, useRef, useEffect, useState } from 
 import { useGLTF, Merged, RenderTexture, PerspectiveCamera, Text, useTexture } from '@react-three/drei'
 import { gsap } from 'gsap/dist/gsap'
 import { Vector3 } from 'three'
+import { twistMaterial } from './twistMaterial'
 
 THREE.ColorManagement.enabled = true
 
@@ -215,14 +216,41 @@ export function Computers(props) {
     const instances = useContext(context)
     const groupRef = useRef()
     const { audioData } = useAudioData()
+    const shaderRef = useRef(null)
+    const twistApplied = useRef(false)
 
     const wireframeMaterial = new THREE.MeshBasicMaterial({
         color: 'green',
         wireframe: true
     })
 
-    // Audio-reactive group animation
-    useFrame((state) => {
+    // Apply twist material to the main Texture material
+    useEffect(() => {
+        if (twistApplied.current || !m.Texture) return
+        const mat = m.Texture
+        twistMaterial(mat, (shader) => {
+            shaderRef.current = shader
+            shader.uniforms.randomFactors.value = [0.4, 0.3]
+        })
+        mat.needsUpdate = true
+        twistApplied.current = true
+    }, [m])
+
+    // Audio-reactive group animation + twist uniforms
+    useFrame((state, delta) => {
+        // Drive twist shader with audio
+        if (shaderRef.current) {
+            shaderRef.current.uniforms.uTime.value += delta
+            if (audioData.isPlaying) {
+                shaderRef.current.uniforms.uAudioBass.value = audioData.bass
+                shaderRef.current.uniforms.uAudioVolume.value = audioData.volume
+            } else {
+                // Gentle idle twist when not playing
+                shaderRef.current.uniforms.uAudioBass.value *= 0.95
+                shaderRef.current.uniforms.uAudioVolume.value *= 0.95
+            }
+        }
+
         if (groupRef.current && audioData.isPlaying) {
             // Subtle rotation based on bass
             groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * audioData.bass * 0.1
@@ -317,7 +345,7 @@ export function Computers(props) {
             <instances.Object1 position={[-0.94, 3.98, -4.66]} rotation={[Math.PI, 0.02, -Math.PI / 2]} scale={1.52} />
 
             {/* All your existing mesh components... */}
-            <mesh castShadow receiveShadow geometry={n.Object_140.geometry} material={m.Texture} position={[5.53, 2.18, 0.17]} rotation={[-Math.PI, 0, 0]} scale={-1} />
+            <mesh castShadow receiveShadow geometry={n.Object_140.geometry} wireframe={true} material={m.Texture} position={[5.53, 2.18, 0.17]} rotation={[-Math.PI, 0, 0]} scale={-1} />
             <mesh geometry={n.Object_140.geometry} material={wireframeMaterial} position={[5.53, 2.18, 0.17]} rotation={[-Math.PI, 0, 0]} scale={-1} />
 
             {/* Audio-reactive video screens with effects */}
@@ -404,7 +432,7 @@ function Screen({ frame, panel, children, ...props }) {
     return (
         <group {...props} ref={groupRef}>
             <mesh castShadow receiveShadow geometry={nodes[frame].geometry} material={materials.Texture} />
-            <mesh geometry={nodes[panel].geometry}>
+            <mesh wireframe={true} geometry={nodes[panel].geometry}>
                 <meshBasicMaterial toneMapped={false}>
                     <RenderTexture width={512} height={512} attach="map" anisotropy={16}>
                         {children}

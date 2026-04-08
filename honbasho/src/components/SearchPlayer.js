@@ -6,11 +6,11 @@ import { useSpotify } from '../hooks/useSpotify'
 import { useTrackObserver } from '../hooks/useTrackObserver'
 
 const LOCAL_PLAYLIST = [
-    { id: 'local-1', name: 'Noisia - Feed the Machine (BSE)', artist: 'Noisia', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3', albumArt: '' },
-    { id: 'local-2', name: 'Konflict - Messiah (Magnetude Remix)', artist: 'Konflict', src: '/audio/Konflict-Messiah-Magnetude.mp3', albumArt: '' },
-    { id: 'local-3', name: 'Noisia - Stigma (Neosignal Remix)', artist: 'Noisia', src: '/audio/Noisia_Stigma(NeosignalRemix).mp3', albumArt: '' },
-    { id: 'local-4', name: 'Spor - Running Man', artist: 'Spor', src: '/audio/Spor_RunningMan.mp3', albumArt: '' },
-    { id: 'local-5', name: 'Squarepusher - Dark Steering', artist: 'Squarepusher', src: '/audio/Squarepusher_Dark_Steering.mp3', albumArt: '' },
+    { id: 'local-1', name: 'Feed the Machine', artist: 'Black Sun Empire & Noisia', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3', albumArt: '/albums/bse-feed-the-machine.png' },
+    { id: 'local-2', name: 'Messiah (Magnetude Remix)', artist: 'Konflict', src: '/audio/Konflict-Messiah-Magnetude.mp3', albumArt: '/albums/konflikt-messiah-magnetude-remix.jpg' },
+    { id: 'local-3', name: 'Stigma (Neosignal Remix)', artist: 'Noisia', src: '/audio/Noisia_Stigma(NeosignalRemix).mp3', albumArt: '/albums/noisia-stigma_neosignal-remix.jpg' },
+    { id: 'local-4', name: 'Running Man', artist: 'Spor', src: '/audio/Spor_RunningMan.mp3', albumArt: '/albums/spor-the-running-man.jpg' },
+    { id: 'local-5', name: 'Dark Steering', artist: 'Squarepusher', src: '/audio/Squarepusher_Dark_Steering.mp3', albumArt: '/albums/squarepusher-dark-steering.jpg' },
 ]
 
 function SearchPlayerUI() {
