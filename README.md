@@ -1,5 +1,4 @@
 <h1 align="center">Heihachi</h1>
-<p align="center"><em>What makes a tiger so strong is that it lacks humanity</em></p>
 
 <p align="center">
   <img src="./docs/heihachi.png" alt="Heihachi Logo" width="300"/>
@@ -8,1378 +7,356 @@
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Heihachi Audio Analysis Framework
+## Abstract
 
-Advanced audio analysis framework powered by thermodynamic gas molecular processing for real-time meaning synthesis in audio analysis. Designed specifically for electronic music with focus on neurofunk and drum & bass genres, Heihachi uses gas molecular equilibrium restoration to understand audio content without pattern storage, achieving unprecedented efficiency and consciousness-aware audio processing capabilities.
+Heihachi is an audio analysis and synthesis framework that implements the Categorical Audio Transport (CAT) specification. The framework treats audio signals as bounded oscillatory systems in finite phase space, where each signal carries two orthogonal information channels: the physical channel (PCM samples, bounded by sampling rate and Gabor uncertainty) and a categorical channel (partition coordinates and S-entropy trajectories, independent of sampling parameters). The categorical channel enables inter-sample trajectory recovery, simultaneous time-frequency precision beyond the Gabor limit, and objective groove quantification through Riemannian geometry on S-entropy space.
 
-## ⚛️ Gas Molecular Audio Processing
+The system expresses audio as a thermodynamic gas ensemble, where oscillatory modes are molecular degrees of freedom, partition coordinates $(n, \ell, m, s)$ encode the categorical state at each temporal position, and S-entropy coordinates $(S_k, S_t, S_e)$ provide a continuous representation on a three-dimensional manifold. This representation enables a key result: **similarity between audio signals is computed as interference** between their categorical spectra, not as distance in an embedding space.
 
-Heihachi employs thermodynamic gas molecular processing to understand audio content through real-time equilibrium restoration rather than pattern matching. Audio input creates perturbations in neural gas molecular ensembles, and meaning emerges through the pathway taken to restore equilibrium - eliminating the need for template storage while providing direct emotional and consciousness state analysis.
+The framework comprises three layers: a Rust-accelerated signal processing core, a Python analysis and distillation pipeline, and a browser-based GPU observation apparatus (WebGL/WebGPU shaders) that renders categorical state in real time. A companion web application ([honbasho](./honbasho)) provides a search-engine-style player with liquid-distortion visualization, Spotify integration, and an interference-based track similarity system.
 
-### The Science Behind Gas Molecular Processing
+## 1. Theoretical Foundation
 
-Based on thermodynamic principles and consciousness research, audio perception operates like gas molecules in a system - input disturbances create perturbations, and meaning is synthesized through the restoration pathway back to equilibrium. Our system leverages this understanding through:
+### 1.1 Categorical Audio State Space
 
-- **Real-Time Equilibrium Restoration**: Audio input perturbs gas molecular ensembles, creating unique restoration pathways that represent meaning
-- **Minimum Variance Synthesis**: The system finds the restoration pathway requiring minimum thermodynamic variance, which naturally corresponds to the most probable meaning
-- **Direct Emotional Prediction**: Gas molecular states directly map to emotional responses (valence, arousal, tension, flow) without intermediate processing
-- **Consciousness State Tracking**: Monitor user engagement and comprehension through gas molecular equilibrium patterns
-- **Zero Storage Requirements**: No pattern templates needed - meaning synthesized fresh from equilibrium restoration every time
+Following the CAT specification (Sachikonye, 2026), the categorical state space of an audio signal is the product:
 
-### 🧠 Consciousness-Aware Processing
+$$\mathcal{C} = \mathcal{S} \times \mathcal{P}$$
 
-Heihachi's gas molecular system naturally provides consciousness modeling without external dependencies. The thermodynamic equilibrium states directly correspond to consciousness patterns, enabling:
+where $\mathcal{S} = \{(S_k, S_t, S_e) \in \mathbb{R}_{\geq 0}^3\}$ is the continuous S-entropy coordinate space and $\mathcal{P} = \{(n, \ell, m, s)\}$ is the discrete partition coordinate space.
 
-**Direct Benefits:**
-- **Unified Processing**: Gas molecular equilibrium handles both audio analysis and consciousness modeling in one system
-- **Real-Time Emotional Response**: Direct mapping from molecular states to emotional coordinates (valence, arousal, tension, flow)
-- **User State Tracking**: Monitor engagement and comprehension through equilibrium restoration patterns
-- **Streamlined Architecture**: No external probabilistic reasoning systems needed - everything emerges from thermodynamic principles
+**S-Entropy Coordinates** (Definition 3.2): For an audio signal $x(t)$:
 
-## Table of Contents
-- [Overview](#overview)
-- [⚛️ Gas Molecular Audio Processing](#gas-molecular-audio-processing)
-- [🧠 Consciousness-Aware Processing](#consciousness-aware-processing)
-- [🦀 Rust-Powered Architecture](#rust-powered-architecture)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Gas Molecular Processing Usage](#gas-molecular-processing-usage)
-- [Real-Time Emotional Analysis](#real-time-emotional-analysis)
-- [Theoretical Foundation](#theoretical-foundation)
-- [Core Components](#core-components)
-- [REST API](#rest-api)
-- [HuggingFace Integration](#huggingface-integration)
-- [Experimental Results](#experimental-results)
-- [Performance Optimizations](#performance-optimizations)
-- [Applications](#applications)
-- [Future Directions](#future-directions)
-- [License](#license)
-- [Citation](#citation)
+$$S_k = k_B \ln\!\left(\frac{|\delta\phi| + \phi_0}{\phi_0}\right), \quad S_t = k_B \ln\!\left(\frac{\tau}{\tau_0}\right), \quad S_e = k_B \ln\!\left(\frac{E + E_0}{E_0}\right)$$
 
-## 🎵 Real-Time Audio Understanding
+where $\delta\phi$ is the phase deviation from a reference oscillator (spectral complexity), $\tau$ is the categorical period (temporal granularity), and $E$ is the instantaneous signal energy (dynamic range).
 
-### Gas Molecular Meaning Synthesis
+**Partition Coordinates** (Definition 3.4): Each oscillatory mode is addressed by a 4-tuple $(n, \ell, m, s)$ where $n$ is the partition depth (distinguishable amplitude levels), $\ell \in \{0, \ldots, n{-}1\}$ is the harmonic order, $m \in \{-\ell, \ldots, +\ell\}$ is the phase index, and $s \in \{-\frac{1}{2}, +\frac{1}{2}\}$ is the chirality. The total degeneracy at depth $n$ is $g_n = 2n^2$.
 
-Heihachi's approach represents a fundamental shift in audio analysis - instead of comparing audio against stored patterns, the system synthesizes meaning in real-time through thermodynamic equilibrium restoration. Audio input creates perturbations in gas molecular ensembles, and the meaning emerges naturally from the restoration pathway.
+### 1.2 Triple Equivalence
 
-**Key Components:**
-- **Gas Molecular Ensemble**: Neural gas molecules with thermodynamic properties that respond to audio input
-- **Perturbation Analysis**: Audio creates forces that disturb the molecular equilibrium state
-- **Equilibrium Restoration**: The system finds the minimum variance pathway back to equilibrium
-- **Meaning Synthesis**: The restoration pathway itself represents the audio's meaning and emotional content
+The framework derives from two axioms (bounded phase space and categorical observation) that three descriptions of any persistent dynamical system are equivalent:
 
-### How It Works
+| Representation | State Count | Audio Interpretation |
+|---|---|---|
+| **Oscillatory** | Frequency, phase, amplitude | Physical signal |
+| **Categorical** | Partition cell occupancy | Information-theoretic state |
+| **Partitional** | Coordinates $(n, \ell, m, s)$ | Structured address |
 
-1. **Audio Input**: Raw audio data enters the gas molecular processing system
-2. **Molecular Perturbation**: Audio frequencies create forces that disturb gas molecular positions and velocities
-3. **Equilibrium Restoration**: The system calculates the pathway requiring minimum thermodynamic variance to restore equilibrium
-4. **Direct Meaning Extraction**: The restoration pathway directly encodes the audio's meaning, emotional content, and user impact
-5. **Real-Time Response**: Emotional coordinates (valence, arousal, tension, flow) are directly read from the molecular state
+These yield identical state counts $\Omega_{\text{osc}} = \Omega_{\text{cat}} = \Omega_{\text{part}} = n^M$ and entropies $S = k_B M \ln n$. Since observation = computation = partitioning (o=c=p), a GPU fragment shader reading partition state simultaneously computes all three representations in a single texture fetch.
 
-### Scientific Innovation
+### 1.3 Similarity as Interference
 
-This approach is based on the principle that consciousness operates like a thermodynamic system - perturbations create meaning through the specific pathway taken to restore equilibrium, eliminating the need for pattern storage while providing unprecedented insight into audio content and user emotional response.
+Two audio signals expressed as categorical spectra (collections of oscillator phases across partition classes) have a natural similarity measure: **interference visibility**.
 
-## ⚡ High-Performance Processing
+$$V = \left|\frac{1}{N} \sum_{k=1}^{N} e^{i(\Phi_{A,k} - \Phi_{B,k})}\right|$$
 
-### Streamlined Architecture
+where $\Phi_{A,k}$ and $\Phi_{B,k}$ are the accumulated phases of tracks A and B in oscillator class $k$. High visibility ($V \to 1$) indicates constructive interference (similar tracks). Low visibility ($V \to 0$) indicates destructive interference (dissimilar tracks). No matching algorithm, embedding space, or distance metric is required. The physics of superposition performs the comparison.
 
-Heihachi uses a unified gas molecular processing architecture that eliminates complex dependencies and external reasoning systems. All audio analysis, consciousness modeling, and emotional prediction happen directly within the thermodynamic framework.
+### 1.4 Groove Metric
 
-### Core Processing Engine
+Expressive micro-timing (groove) is formalized as geodesic deviation in S-entropy space. The Riemannian metric tensor $G$ on the S-entropy manifold has components:
 
-The gas molecular system provides:
+$$g_{kk} = \frac{1}{S_k + \epsilon}, \quad g_{tt} = \frac{1}{S_t + \epsilon}, \quad g_{ee} = \frac{1}{S_e + \epsilon}, \quad g_{kt} = \frac{1}{2}\sqrt{S_k S_t}$$
 
-- **Unified Framework**: Single system handles audio analysis, consciousness modeling, and emotional prediction
-- **Real-Time Processing**: Sub-50ms latency for all operations through thermodynamic optimization
-- **Zero Storage**: No pattern databases or templates needed - meaning synthesized fresh every time
-- **Direct Emotional Mapping**: Molecular states directly correspond to emotional coordinates
-- **Consciousness Tracking**: User engagement and comprehension monitoring through equilibrium patterns
+The geodesic distance between two rhythmic events quantifies the groove deviation with resolution independent of sample rate, providing the first physics-based measure of rhythmic feel.
 
-### Performance Benefits
+### 1.5 Gabor Bypass
 
-**Processing Optimization:**
-- **Audio Analysis**: <20ms through equilibrium restoration
-- **Emotional Prediction**: <5ms direct molecular state reading
-- **Consciousness Tracking**: <10ms equilibrium pattern analysis
-- **End-to-End Latency**: <35ms total processing time
+The S-entropy coordinates provide simultaneous time and frequency precision beyond the Gabor limit:
 
-**Architecture Advantages:**
-- **Simplified Deployment**: No external dependencies or complex integrations
-- **Reduced Memory**: 10³-10⁵× reduction in storage requirements
-- **Linear Scaling**: Performance scales linearly with processing load
-- **Real-Time Guarantee**: Consistent sub-50ms response times
+$$\delta S_k \cdot \delta S_t \sim \frac{2\pi k_B^2}{n^2 \phi_0} \to 0 \quad \text{as} \quad n \to \infty$$
 
-## 🦀 Rust-Powered Architecture
+This does not violate the Gabor-Heisenberg uncertainty principle because S-entropy coordinates are categorical observables, not physical observables. The commutation relation $[\hat{O}_{\text{cat}}, \hat{O}_{\text{phys}}] = 0$ ensures categorical precision is orthogonal to physical precision.
 
-### High-Performance Gas Molecular Engine
+## 2. System Architecture
 
-Heihachi's Rust backend is optimized specifically for gas molecular processing:
+### 2.1 Processing Core (Rust + Python)
 
-**Performance Benefits:**
-- **15-25x speed improvements** through thermodynamic optimization
-- **Memory safety** with zero-cost gas molecular abstractions
-- **Parallel processing** for large molecular ensemble calculations
-- **Real-time capabilities** for live equilibrium restoration
+```
+Audio File → Signal Processing (Rust) → Feature Extraction → Categorical State
+                                                                    ↓
+                      ┌─────────────────────────────────────────────┤
+                      ↓                                             ↓
+            S-Entropy Trajectory                           Partition Coordinates
+            (Sk, St, Se) per frame                         (n, ℓ, m, s) per mode
+                      ↓                                             ↓
+              Groove Metric                                Phase Spectrum
+          (Riemannian distance)                        (8 oscillator classes)
+                      ↓                                             ↓
+                      └──────────────┬──────────────────────────────┘
+                                     ↓
+                          Track Observation JSON
+                     (structured categorical state)
+```
 
-**Architecture:**
-- **Rust Core**: Gas molecular physics, equilibrium restoration, thermodynamic calculations
-- **Python Interface**: PyO3 bindings for audio analysis and consciousness modeling
-- **Web Interface**: Real-time gas molecular visualization and processing monitoring
-- **REST API**: Unified access to gas molecular processing and emotional analysis
+**Rust Core**: Thermodynamic calculations, molecular physics simulation, equilibrium restoration, real-time signal processing. Provides 15-25x speed improvement over pure Python for spectral decomposition and partition coordinate computation.
 
-### Optimized Implementation
+**Python Interface**: PyO3 bindings for audio analysis, batch processing, REST API, and HuggingFace model integration.
 
-The gas molecular architecture maximizes Rust's strengths:
-- **Rust**: Thermodynamic calculations, molecular physics, real-time equilibrium restoration
-- **Python**: Audio analysis wrapper, consciousness modeling interface, visualization tools
-- **TypeScript**: Gas molecular state visualization, real-time processing monitoring
+### 2.2 GPU Observation Apparatus (WebGL)
 
-## Overview
+The browser-based renderer implements four observation modes as fragment shaders:
 
-Heihachi implements novel approaches to audio analysis by combining neurological models of rhythm processing with advanced signal processing techniques. The system is built upon established neuroscientific research demonstrating that humans possess an inherent ability to synchronize motor responses with external rhythmic stimuli. This framework provides high-performance analysis for:
+| Mode | Shader | Paper Reference | Output |
+|---|---|---|---|
+| **Partition Observation** | Synthesizes categorical waveform from $(n, \ell, m, s)$ | Theorem 5.1 | Waveform reconstruction |
+| **Gabor Bypass** | Categorical time-frequency representation | Theorem 6.1 | Simultaneous time-frequency precision |
+| **Groove Metric** | Riemannian distance on S-entropy manifold | Section 7 | Geodesic deviation field |
+| **S-Entropy Manifold** | 3D $(S_k, S_t, S_e)$ trajectory | Definition 3.2 | Phase space topology |
 
-- Detailed drum pattern recognition and visualization
-- Bass sound design decomposition
-- Component separation and analysis
-- Comprehensive visualization tools
-- Neural-based feature extraction
-- Memory-optimized processing for large files
+CPU computes S-entropy from Web Audio API analyser data. GPU renders the categorical state. The rendered texture IS the categorical observation, not a visualization of it.
 
-## Features
+### 2.3 Liquid Distortion (Water-Surface Interference)
 
-- **⚛️ Gas Molecular Processing**: Real-time audio meaning synthesis through thermodynamic equilibrium restoration
-- **🧠 Direct Consciousness Modeling**: Built-in emotional prediction and user state tracking without external dependencies
-- **🦀 Rust-Powered Performance**: 15-25x speed improvements through thermodynamic optimization
-- **⚡ Sub-35ms Processing**: Ultra-low latency for real-time audio analysis and emotional response
-- **🎯 Zero Storage Architecture**: No pattern templates or databases - meaning synthesized fresh every time
-- **📊 Direct Emotional Mapping**: Real-time valence, arousal, tension, and flow prediction from molecular states
-- High-performance audio file processing with thermodynamic efficiency
-- Batch processing for large electronic music datasets
-- Memory optimization through elimination of pattern storage
-- Parallel processing for gas molecular ensemble calculations
-- Real-time gas molecular visualization and processing monitoring
-- Interactive consciousness state exploration and emotional response tracking
-- Progress tracking for equilibrium restoration processes
-- Export options for molecular states and emotional predictions
-- Comprehensive CLI with gas molecular processing commands
-- HuggingFace integration optimized with thermodynamic preprocessing
-- **Consciousness State Validation**: Real-time user engagement and comprehension monitoring
-- **Unified Processing Architecture**: Single system handles audio analysis, consciousness modeling, and emotional prediction
+Album artwork is rendered through a water-surface displacement shader driven by audio frequency data. The displacement field is the physical interference pattern of the audio signal's oscillatory content:
 
-## Installation
+- **Bass** drives large surface waves (ocean swell)
+- **Mid** drives secondary wave interference patterns
+- **Treble** drives fine capillary wave detail
+- **Volume** drives concentric water-droplet ripples (caustics)
+
+Post-processing applies chromatic aberration proportional to distortion magnitude and vignette framing. For playlists, transitions between tracks use a displacement wave wash effect.
+
+### 2.4 Interference-Based Track Similarity
+
+Each track accumulates a `TrackSpectrum` during playback: S-entropy statistics (mean, standard deviation), partition depth histogram, and phase accumulator across 8 oscillator classes. Similarity between any two tracks is computed as interference visibility of their phase spectra. No training, no embeddings, no feature engineering.
+
+### 2.5 Expert Query Generation (Purpose Pipeline)
+
+The [Purpose framework](https://github.com/fullscreen-triangle/purpose) generates stratified expert queries from categorical observations for LLM articulation:
+
+| Depth | Query Type | Example |
+|---|---|---|
+| **Basic** | Factual | "What is the dominant partition depth and what does it indicate?" |
+| **Intermediate** | Analytical | "What does the temporal entropy trajectory reveal about groove?" |
+| **Advanced** | Synthesis | "Characterize the S-entropy region this track occupies." |
+| **Expert** | Research-level | "Analyze the phase spectrum across 8 oscillator classes." |
+
+The LLM does not perform matching. The interference shader already computes similarity. The LLM **articulates** the result: explaining why two tracks interfere constructively or destructively in terms of categorical properties, not genre labels.
+
+## 3. Web Application
+
+The [honbasho](./honbasho) directory contains the Next.js web application deployed on Vercel.
+
+### 3.1 Player / Search Engine
+
+The `/player` page functions as an audio search engine:
+
+1. **Search**: Spotify OAuth PKCE integration for searching and streaming tracks
+2. **Display**: Album artwork rendered through the liquid distortion shader
+3. **Playback**: Jukebox-style transport with auto-advance and skip controls
+4. **Observation**: Real-time categorical state extraction during playback
+5. **Comparison**: Interference visibility between observed tracks
+
+Local fallback playlist includes 5 drum & bass / neurofunk reference tracks with album artwork.
+
+### 3.2 Landing Page (3D Desk Scene)
+
+The homepage renders a 3D computer desk scene (GLB model) with:
+- Audio-reactive twist deformation via `onBeforeCompile` vertex shader injection
+- GIF textures on monitor screens with per-screen audio-reactive fragment shaders (twist, glitch, chromatic aberration, pixelate, RGB split)
+- GSAP-driven explosion/reassembly animation
+- Audio-reactive LED color and scale pulsing
+
+### 3.3 Categorical Observation Modes
+
+The `/player` page supports multiple visualization backends:
+- **Desk**: 3D computer scene with audio-reactive materials
+- **Raymarch**: WebGPU SDF raymarcher with audio-driven geometry
+- **CAT**: Four categorical observation shader modes (Partition, Gabor, Groove, S-Entropy)
+
+## 4. Signal Processing Pipeline
+
+### 4.1 Feature Extraction
+
+| Module | Method | Output |
+|---|---|---|
+| Spectral Analysis | FFT, multi-band decomposition | Frequency content, harmonic structure |
+| Rhythmic Analysis | Onset detection, beat tracking | Drum patterns, groove quantification |
+| Component Analysis | Source separation (Demucs v4) | Isolated stems (drums, bass, vocals, other) |
+| Temporal Analysis | Change-point detection | Structural boundaries, transitions |
+
+### 4.2 HuggingFace Model Integration
+
+| Model | Task | Priority |
+|---|---|---|
+| microsoft/BEATs | Generic spectral + temporal embeddings (768-d) | High |
+| openai/whisper-large-v3 | Robust features (1280-d) | High |
+| Demucs v4 | 4-stem or 6-stem separation | High |
+| Beat-Transformer | Beat/downbeat tracking (F-measure ~0.86) | High |
+| laion/clap-htsat-fused | Text-audio similarity (512-d embeddings) | Medium |
+
+### 4.3 REST API
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/v1/analyze` | POST | Full audio analysis |
+| `/api/v1/features` | POST | Feature extraction |
+| `/api/v1/beats` | POST | Beat detection |
+| `/api/v1/drums` | POST | Drum pattern analysis |
+| `/api/v1/stems` | POST | Source separation |
+| `/api/v1/semantic/analyze` | POST | Semantic analysis |
+| `/api/v1/semantic/search` | POST | Semantic search |
+| `/api/v1/batch-analyze` | POST | Batch processing |
+
+## 5. Experimental Results
+
+### 5.1 Drum Hit Analysis
+
+Analysis of a 33-minute electronic music mix identified **91,179 drum hits** classified into five categories:
+
+| Drum Type | Count | Proportion | Avg. Confidence | Avg. Velocity |
+|---|---|---|---|---|
+| Hi-hat | 26,530 | 29.1% | 0.223 | 1.646 |
+| Snare | 16,699 | 18.3% | 0.381 | 1.337 |
+| Tom | 16,635 | 18.2% | 0.385 | 1.816 |
+| Kick | 16,002 | 17.6% | 0.370 | 0.589 |
+| Cymbal | 15,313 | 16.8% | 0.284 | 1.962 |
+
+<img src="./visualizations/drum_feature_analysis/drum_hit_types_pie.png" alt="Drum Hit Types Distribution" width="500"/>
+
+<img src="./visualizations/drum_feature_analysis/drum_density.png" alt="Drum Hit Density Over Time" width="700"/>
+
+<img src="./visualizations/drum_feature_analysis/drum_pattern_heatmap.png" alt="Drum Pattern Heatmap" width="700"/>
+
+### 5.2 Classification Performance
+
+Confidence-velocity scatter analysis reveals type-specific clusters in the feature space, with toms and snares showing the most distinctive spectral signatures and hi-hats showing the widest distribution:
+
+<img src="./visualizations/drum_feature_analysis/confidence_velocity_scatter.png" alt="Confidence vs Velocity" width="700"/>
+
+## 6. Installation
 
 ### Quick Install
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/heihachi.git
+git clone https://github.com/fullscreen-triangle/heihachi.git
 cd heihachi
-
-# Run the setup script
 python scripts/setup.py
 ```
 
 ### Options
 
-The setup script supports several options:
-
 ```
 --install-dir DIR     Installation directory
 --dev                 Install development dependencies
 --no-gpu              Skip GPU acceleration dependencies
---no-interactive      Skip interactive mode dependencies
---shell-completion    Install shell completion scripts
---no-confirm          Skip confirmation prompts
 --venv                Create and use a virtual environment
---venv-dir DIR        Virtual environment directory (default: .venv)
 ```
 
-### Manual Installation
-
-If you prefer to install manually:
+### Web Application
 
 ```bash
-# Create and activate virtual environment (optional)
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install the package
-pip install -e .
+cd honbasho
+npm install --legacy-peer-deps
+npm run dev
 ```
 
-## Usage
+Set `NEXT_PUBLIC_SPOTIFY_CLIENT_ID` in `.env.local` for Spotify integration.
 
-### Basic Usage
+## 7. Usage
+
+### CLI
 
 ```bash
-# Process a single audio file
+# Process audio
 heihachi process audio.wav --output results/
 
-# Process a directory of audio files
-heihachi process audio_dir/ --output results/
-
-# Batch processing with different configurations
+# Batch processing
 heihachi batch audio_dir/ --config configs/performance.yaml
+
+# HuggingFace models
+heihachi hf extract audio.mp3 --output features.json
+heihachi hf analyze-drums audio.wav --visualize
+heihachi hf beats audio.mp3 --output beats.json
 ```
 
-### Interactive Mode
-
-```bash
-# Start interactive command-line explorer with processed results
-heihachi interactive --results-dir results/
-
-# Start web-based interactive explorer
-heihachi interactive --web --results-dir results/
-
-# Compare multiple results with interactive explorer
-heihachi compare results1/ results2/
-
-# Show only progress demo
-heihachi demo --progress-demo
-```
-
-### Export Options
-
-```bash
-# Export results to different formats
-heihachi export results/ --format json
-heihachi export results/ --format csv
-heihachi export results/ --format markdown
-```
-
-### Command-Line Interface (CLI)
-
-The basic command structure is:
-
-```bash
-python -m src.main [input_file] [options]
-```
-
-Where `[input_file]` can be either a single audio file or a directory containing multiple audio files.
-
-#### Command-Line Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `input_file` | Path to audio file or directory (required) | - |
-| `-c, --config` | Path to configuration file | ../configs/default.yaml |
-| `-o, --output` | Path to output directory | ../results |
-| `--cache-dir` | Path to cache directory | ../cache |
-| `-v, --verbose` | Enable verbose logging | False |
-
-#### Examples
-
-```bash
-# Process a single audio file
-python -m src.main /path/to/track.wav
-
-# Process an entire directory of audio files
-python -m src.main /path/to/audio/folder
-
-# Use a custom configuration file
-python -m src.main /path/to/track.wav -c /path/to/custom_config.yaml
-
-# Specify custom output directory
-python -m src.main /path/to/track.wav -o /path/to/custom_output
-
-# Enable verbose logging
-python -m src.main /path/to/track.wav -v
-```
-
-### Processing Results
-
-After processing, the results are saved to the output directory (default: `../results`). For each audio file, the following is generated:
-
-1. **Analysis data**: JSON files containing detailed analysis results
-2. **Visualizations**: Graphs and plots showing various aspects of the audio analysis
-3. **Summary report**: Overview of the key findings and detected patterns
-
-## Gas Molecular Processing Usage
-
-### Real-Time Audio Analysis
-
-```bash
-# Start gas molecular audio analysis
-heihachi gas-analyze audio.wav --real-time
-
-# Process with consciousness tracking
-heihachi gas-analyze audio.wav --consciousness-tracking --emotional-prediction
-
-# Batch processing with gas molecular optimization
-heihachi gas-batch audio_directory/ --molecular-ensemble-size 1000
-```
-
-### Gas Molecular Processing Workflow
-
-1. **Audio Input**: Feed audio data into the gas molecular processing system
-2. **Molecular Perturbation**: System calculates how audio disturbs the gas molecular equilibrium
-3. **Equilibrium Restoration**: Find the minimum variance pathway back to equilibrium
-4. **Meaning Extraction**: The restoration pathway directly represents the audio's meaning
-5. **Emotional Prediction**: Read emotional coordinates directly from molecular states
-
-### API Integration
+### Python API
 
 ```python
-from heihachi.gas_molecular import GasMolecularProcessor, ConsciousnessTracker
+from heihachi.gas_molecular import GasMolecularProcessor
 
-# Initialize gas molecular system
-gas_processor = GasMolecularProcessor(ensemble_size=1000)
-
-# Process audio through gas molecular system
-molecular_state = gas_processor.process_audio("audio.wav")
-
-# Get equilibrium restoration pathway
+processor = GasMolecularProcessor(ensemble_size=1000)
+molecular_state = processor.process_audio("audio.wav")
 restoration_path = molecular_state.restore_equilibrium()
-
-# Extract meaning and emotional response
 meaning = restoration_path.extract_meaning()
-emotions = restoration_path.get_emotional_response()
-
-# Track user consciousness state
-consciousness = ConsciousnessTracker()
-user_state = consciousness.track_state(molecular_state)
-
-print(f"Emotional Response: valence={emotions.valence}, arousal={emotions.arousal}")
-print(f"User Engagement: {user_state.engagement_level}")
 ```
 
-### Real-Time Emotional Analysis
-
-**Molecular State Mapping:**
-- **Valence**: Positive/negative emotional tone from molecular equilibrium patterns
-- **Arousal**: Energy level from molecular movement and perturbation strength  
-- **Tension**: Stress/relaxation from variance in equilibrium restoration
-- **Flow State**: Processing smoothness from restoration pathway efficiency
-- **Engagement**: User attention level from consciousness state patterns
-- **Comprehension**: Understanding depth from equilibrium stability
-
-**Direct Processing Benefits:**
-- **No Training Required**: Works immediately without machine learning training
-- **Universal Application**: Same system works for any audio content
-- **Real-Time Response**: Sub-35ms emotional prediction
-- **Memory Efficient**: No pattern storage - fresh synthesis every time
-- **Consciousness Aware**: Built-in user state tracking and engagement monitoring
-
-## Advanced Gas Molecular Processing
-
-### Real-Time Processing Configuration
+### REST API
 
 ```bash
-# Start Heihachi with optimized gas molecular processing
-heihachi start --gas-molecular --ensemble-size 1000
-
-# Start with custom molecular configuration
-heihachi start --gas-molecular --config configs/gas_molecular.yaml
-
-# Development mode with real-time molecular visualization
-heihachi dev --molecular-visualization --real-time-emotional-tracking
-```
-
-### Integrated Processing Workflow
-
-```python
-from heihachi.gas_molecular import GasMolecularProcessor, EmotionalStateTracker
-
-# Initialize gas molecular system
-gas_processor = GasMolecularProcessor(ensemble_size=1000)
-emotion_tracker = EmotionalStateTracker()
-
-# Process audio through gas molecular system
-molecular_state = gas_processor.process_audio("audio.wav")
-
-# Get equilibrium restoration pathway
-restoration_path = molecular_state.restore_equilibrium()
-
-# Extract meaning and emotional response directly from molecular state
-meaning = restoration_path.extract_meaning()
-emotional_state = restoration_path.get_emotional_coordinates()
-
-# Track user consciousness state through molecular patterns
-user_consciousness = emotion_tracker.track_consciousness(molecular_state)
-
-# Generate consciousness-informed analysis results
-analysis_results = gas_processor.generate_analysis(
-    molecular_state=molecular_state,
-    restoration_path=restoration_path,
-    consciousness_state=user_consciousness
-)
-```
-
-### Advanced Molecular Features
-
-**Real-Time Consciousness Monitoring:**
-```python
-# Monitor consciousness emergence during gas molecular processing
-consciousness_stream = gas_processor.stream_consciousness_analysis()
-
-for molecular_state, consciousness_level in consciousness_stream:
-    if consciousness_level > 0.7:  # High consciousness threshold
-        # Trigger enhanced emotional analysis
-        enhanced_emotions = emotion_tracker.enhanced_emotional_analysis(
-            molecular_state, consciousness_level
-        )
-        gas_processor.apply_consciousness_enhancement(enhanced_emotions)
-```
-
-**Thermodynamic State Analysis:**
-```python
-# Access molecular thermodynamic states
-thermo_analysis = gas_processor.thermodynamic_analysis(audio_input)
-
-# Perturbation analysis
-perturbation_state = thermo_analysis.calculate_perturbations(audio_input)
-
-# Equilibrium restoration pathway
-restoration_state = thermo_analysis.find_minimum_variance_pathway(
-    perturbation_state
-)
-
-# Direct meaning extraction from pathway
-meaning_coordinates = thermo_analysis.extract_meaning_coordinates(
-    restoration_state
-)
-```
-
-**Emotional Response Quantification:**
-```python
-# Get precise emotional coordinates from molecular states
-emotional_analysis = gas_processor.quantify_emotions(molecular_state)
-
-print(f"Valence (positive/negative): {emotional_analysis.valence}")
-print(f"Arousal (energy level): {emotional_analysis.arousal}")
-print(f"Tension (stress/relaxation): {emotional_analysis.tension}")
-print(f"Flow State (processing smoothness): {emotional_analysis.flow}")
-print(f"User Engagement: {emotional_analysis.engagement}")
-print(f"Comprehension Level: {emotional_analysis.comprehension}")
-```
-
-### Performance Monitoring
-
-```python
-# Monitor gas molecular processing performance
-performance_stats = gas_processor.get_performance_stats()
-
-print(f"Molecular Perturbation Analysis: {performance_stats.perturbation_ms}ms")
-print(f"Equilibrium Restoration: {performance_stats.restoration_ms}ms")
-print(f"Meaning Synthesis: {performance_stats.synthesis_ms}ms")
-print(f"Emotional Extraction: {performance_stats.emotional_ms}ms")
-print(f"Total Processing Time: {performance_stats.total_ms}ms")
-```
-
-### Configuration Management
-
-**Gas Molecular Processing Settings:**
-```yaml
-# configs/gas_molecular.yaml
-gas_molecular:
-  ensemble_size: 1000
-  temperature: 298.15  # Room temperature in Kelvin
-  equilibrium_threshold: 0.001
-  
-  # Processing settings
-  processing:
-    perturbation_sensitivity: 0.1
-    restoration_algorithm: "minimum_variance"
-    real_time_processing: true
-    consciousness_tracking: true
-  
-  # Performance settings
-  performance:
-    max_molecular_calculations: 50
-    batch_processing: true
-    optimization_enabled: true
-  
-  # Emotional mapping settings
-  emotional:
-    valence_sensitivity: 0.2
-    arousal_sensitivity: 0.15
-    tension_sensitivity: 0.1
-    flow_sensitivity: 0.05
-```
-
-## Theoretical Foundation
-
-### Neural Basis of Rhythm Processing
-
-The framework is built upon established neuroscientific research demonstrating that humans possess an inherent ability to synchronize motor responses with external rhythmic stimuli. This phenomenon, known as beat-based timing, involves complex interactions between auditory and motor systems in the brain.
-
-Key neural mechanisms include:
-
-1. **Beat-based Timing Networks**
-   - Basal ganglia-thalamocortical circuits
-   - Supplementary motor area (SMA)
-   - Premotor cortex (PMC)
-
-2. **Temporal Processing Systems**
-   - Duration-based timing mechanisms
-   - Beat-based timing mechanisms
-   - Motor-auditory feedback loops
-
-### Motor-Auditory Coupling
-
-Research has shown that low-frequency neural oscillations from motor planning areas guide auditory sampling, expressed through coherence measures:
-
-$$C_{xy}(f) = \frac{|S_{xy}(f)|^2}{S_{xx}(f)S_{yy}(f)}$$
-
-Where:
-- $C_{xy}(f)$ represents coherence at frequency $f$
-- $S_{xy}(f)$ is the cross-spectral density
-- $S_{xx}(f)$ and $S_{yy}(f)$ are auto-spectral densities
-
-### Mathematical Framework
-
-In addition to the coherence measures, we utilize several key mathematical formulas:
-
-1. **Spectral Decomposition**:
-   For analyzing sub-bass and Reese bass components:
-
-$$X(k) = \sum_{n=0}^{N-1} x(n)e^{-j2\pi kn/N}$$
-
-2. **Groove Pattern Analysis**:
-   For microtiming deviations:
-
-$$MT(n) = \frac{1}{K}\sum_{k=1}^{K} |t_k(n) - t_{ref}(n)|$$
-
-3. **Amen Break Detection**:
-   Pattern matching score:
-
-$$S_{amen}(t) = \sum_{f} w(f)|X(f,t) - A(f)|^2$$
-
-4. **Reese Bass Analysis**:
-   For analyzing modulation and phase relationships:
-
-$$R(t,f) = \left|\sum_{k=1}^{K} A_k(t)e^{j\phi_k(t)}\right|^2$$
-
-5. **Transition Detection**:
-   For identifying mix points and transitions:
-
-$$T(t) = \alpha\cdot E(t) + \beta\cdot S(t) + \gamma\cdot H(t)$$
-
-6. **Similarity Computation**:
-   For comparing audio segments:
-
-$$Sim(x,y) = \frac{\sum_i w_i \cdot sim_i(x,y)}{\sum_i w_i}$$
-
-7. **Segment Clustering**:
-   Using DBSCAN with adaptive distance:
-
-$$D(p,q) = \sqrt{\sum_{i=1}^{N} \lambda_i(f_i(p) - f_i(q))^2}$$
-
-## Core Components
-
-### 1. Feature Extraction Pipeline
-
-#### Rhythmic Analysis
-- Automated drum pattern recognition
-- Groove quantification
-- Microtiming analysis
-- Syncopation detection
-
-#### Spectral Analysis
-- Multi-band decomposition
-- Harmonic tracking
-- Timbral feature extraction
-- Sub-bass characterization
-
-#### Component Analysis
-- Sound source separation
-- Transformation detection
-- Energy distribution analysis
-- Component relationship mapping
-
-### 2. Alignment Modules
-
-#### Amen Break Analysis
-- Pattern matching and variation detection
-- Transformation identification
-- Groove characteristic extraction
-- VIP/Dubplate classification
-- Robust onset envelope extraction with fault tolerance
-- Dynamic time warping with optimal window functions
-
-#### Prior Subspace Analysis
-- Neurofunk-specific component separation
-- Bass sound design analysis
-- Effect chain detection
-- Temporal structure analysis
-
-#### Composite Similarity
-- Multi-band similarity computation
-- Transformation-aware comparison
-- Groove-based alignment
-- Confidence scoring
-
-### 3. Annotation System
-
-#### Peak Detection
-- Multi-band onset detection
-- Adaptive thresholding
-- Feature-based peak classification
-- Confidence scoring
-
-#### Segment Clustering
-- Pattern-based segmentation
-- Hierarchical clustering
-- Relationship analysis
-- Transition detection
-
-#### Transition Detection
-- Mix point identification
-- Blend type classification
-- Energy flow analysis
-- Structure boundary detection
-
-### 4. Robust Processing Framework
-
-#### Error Handling and Validation
-- Empty audio detection and graceful recovery
-- Sample rate validation and default fallbacks
-- Signal integrity verification
-- Automatic recovery mechanisms
-
-#### Memory Management
-- Streaming processing for large files
-- Resource optimization and monitoring
-- Garbage collection optimization
-- Chunked processing of large audio files
-
-#### Signal Processing Enhancements
-- Proper window functions to eliminate spectral leakage
-- Normalized processing paths
-- Adaptive parameters based on content
-- Fault-tolerant alignment algorithms
-
-## REST API
-
-Heihachi provides a comprehensive REST API for integrating audio analysis capabilities into web applications, mobile apps, and other systems. The API supports both synchronous and asynchronous processing, making it suitable for both real-time and batch processing scenarios.
-
-### Quick Start
-
-```bash
-# Install API dependencies
-pip install flask flask-cors flask-limiter
-
-# Start the API server
+# Start server
 python api_server.py --host 0.0.0.0 --port 5000
 
-# Or with custom configuration
-python api_server.py --production --config-path configs/production.yaml
-```
+# Analyze audio
+curl -X POST http://localhost:5000/api/v1/analyze -F "file=@track.wav"
 
-### API Endpoints
-
-| Endpoint | Method | Description | Rate Limit |
-|----------|--------|-------------|------------|
-| `/health` | GET | Health check | None |
-| `/api` | GET | API information and endpoints | None |
-| `/api/v1/analyze` | POST | Full audio analysis | 10/min |
-| `/api/v1/features` | POST | Extract audio features | 20/min |
-| `/api/v1/beats` | POST | Detect beats and tempo | 20/min |
-| `/api/v1/drums` | POST | Analyze drum patterns | 10/min |
-| `/api/v1/stems` | POST | Separate audio stems | 5/min |
-| `/api/v1/semantic/analyze` | POST | Semantic analysis with emotion mapping | 10/min |
-| `/api/v1/semantic/search` | POST | Search indexed tracks semantically | 20/min |
-| `/api/v1/semantic/emotions` | POST | Extract emotional features only | 20/min |
-| `/api/v1/semantic/text-analysis` | POST | Analyze text descriptions | 30/min |
-| `/api/v1/semantic/stats` | GET | Get semantic search statistics | None |
-| `/api/v1/batch-analyze` | POST | Batch process multiple files | 2/min |
-| `/api/v1/jobs/{id}` | GET | Get job status and results | None |
-| `/api/v1/jobs` | GET | List all jobs (paginated) | None |
-
-### Usage Examples
-
-#### 1. Analyze Single Audio File
-
-**Synchronous Processing:**
-```bash
-curl -X POST http://localhost:5000/api/v1/analyze \
-  -F "file=@track.wav" \
-  -F "config=configs/default.yaml"
-```
-
-**Asynchronous Processing:**
-```bash
-curl -X POST http://localhost:5000/api/v1/analyze \
-  -F "file=@track.wav" \
-  -F "async=true"
-```
-
-#### 2. Extract Features
-
-```bash
-curl -X POST http://localhost:5000/api/v1/features \
-  -F "file=@track.mp3" \
-  -F "model=microsoft/BEATs-base"
-```
-
-#### 3. Detect Beats
-
-```bash
-curl -X POST http://localhost:5000/api/v1/beats \
-  -F "file=@track.wav"
-```
-
-#### 4. Analyze Drums
-
-```bash
-curl -X POST http://localhost:5000/api/v1/drums \
-  -F "file=@track.mp3" \
-  -F "visualize=true"
-```
-
-#### 5. Separate Stems
-
-```bash
-curl -X POST http://localhost:5000/api/v1/stems \
-  -F "file=@track.wav" \
-  -F "save_stems=true" \
-  -F "format=wav"
-```
-
-#### 6. Batch Processing
-
-```bash
-curl -X POST http://localhost:5000/api/v1/batch-analyze \
-  -F "files=@track1.wav" \
-  -F "files=@track2.mp3" \
-  -F "files=@track3.wav"
-```
-
-#### 7. Semantic Analysis with Emotional Mapping
-
-```bash
-curl -X POST http://localhost:5000/api/v1/semantic/analyze \
-  -F "file=@track.wav" \
-  -F "include_emotions=true" \
-  -F "index_for_search=true" \
-  -F "title=Track Title" \
-  -F "artist=Artist Name"
-```
-
-#### 8. Extract Emotional Features Only
-
-```bash
-curl -X POST http://localhost:5000/api/v1/semantic/emotions \
-  -F "file=@track.mp3"
-```
-
-#### 9. Semantic Search
-
-```bash
+# Semantic search
 curl -X POST http://localhost:5000/api/v1/semantic/search \
   -H "Content-Type: application/json" \
   -d '{"query": "dark aggressive neurofunk with heavy bass", "top_k": 5}'
 ```
 
-#### 10. Text Analysis
+## 8. Performance
 
-```bash
-curl -X POST http://localhost:5000/api/v1/semantic/text-analysis \
-  -H "Content-Type: application/json" \
-  -d '{"text": "This track has an amazing dark atmosphere with aggressive drums"}'
+| Operation | Latency |
+|---|---|
+| Spectral decomposition | <20 ms |
+| Partition coordinate computation | <5 ms |
+| S-entropy trajectory update | <2 ms |
+| Interference visibility (2 tracks) | <1 ms |
+| GPU categorical observation (fragment shader) | ~2 ms/frame |
+| End-to-end analysis | <35 ms |
+
+Memory: no pattern storage required. Categorical state is synthesized from the signal in real time. Storage scales with number of observed tracks, not with a pre-computed database.
+
+## 9. Repository Structure
+
 ```
-
-#### 11. Check Job Status
-
-```bash
-curl http://localhost:5000/api/v1/jobs/550e8400-e29b-41d4-a716-446655440000
+heihachi/
+├── src/                    # Rust + Python signal processing core
+├── core/                   # Rust core library
+├── honbasho/               # Next.js web application
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   │   ├── Desk.js                  # 3D desk scene with twist material
+│   │   │   ├── LiquidDistortion.js      # Water-surface displacement shader
+│   │   │   ├── CategoricalObserver.js   # S-entropy + partition observation shader
+│   │   │   ├── InterferenceObserver.js  # Track superposition shader
+│   │   │   ├── SearchPlayer.js          # Search engine player UI
+│   │   │   └── PlayerAudioProvider.js   # Web Audio API analyser
+│   │   ├── lib/
+│   │   │   ├── spotify.js               # Spotify OAuth PKCE + API client
+│   │   │   ├── categoricalAudio.js      # S-entropy, partition coords, interference
+│   │   │   └── purposeAudio.js          # Expert query generation (Purpose pipeline)
+│   │   └── hooks/
+│   │       ├── useSpotify.js            # Spotify auth hook
+│   │       └── useTrackObserver.js      # Per-track categorical state accumulator
+│   └── public/             # Static assets (GLB models, audio, album art)
+├── publication/            # LaTeX sources for CAT specification paper
+├── configs/                # Processing configuration files
+├── api_server.py           # REST API server
+└── scripts/                # Setup and utility scripts
 ```
-
-### Python Client Example
-
-```python
-import requests
-import json
-
-# API base URL
-base_url = "http://localhost:5000/api/v1"
-
-# Upload and analyze audio file
-def analyze_audio(file_path, async_processing=False):
-    url = f"{base_url}/analyze"
-    
-    with open(file_path, 'rb') as f:
-        files = {'file': f}
-        data = {'async': str(async_processing).lower()}
-        
-        response = requests.post(url, files=files, data=data)
-        return response.json()
-
-# Extract features
-def extract_features(file_path, model='microsoft/BEATs-base'):
-    url = f"{base_url}/features"
-    
-    with open(file_path, 'rb') as f:
-        files = {'file': f}
-        data = {'model': model}
-        
-        response = requests.post(url, files=files, data=data)
-        return response.json()
-
-# Check job status
-def get_job_status(job_id):
-    url = f"{base_url}/jobs/{job_id}"
-    response = requests.get(url)
-    return response.json()
-
-# Semantic analysis with emotions
-def semantic_analyze(file_path, include_emotions=True, index_for_search=False, title=None, artist=None):
-    url = f"{base_url}/semantic/analyze"
-    
-    with open(file_path, 'rb') as f:
-        files = {'file': f}
-        data = {
-            'include_emotions': str(include_emotions).lower(),
-            'index_for_search': str(index_for_search).lower()
-        }
-        if title:
-            data['title'] = title
-        if artist:
-            data['artist'] = artist
-        
-        response = requests.post(url, files=files, data=data)
-        return response.json()
-
-# Semantic search
-def semantic_search(query, top_k=5, enhance_query=True):
-    url = f"{base_url}/semantic/search"
-    data = {
-        'query': query,
-        'top_k': top_k,
-        'enhance_query': enhance_query
-    }
-    
-    response = requests.post(url, json=data)
-    return response.json()
-
-# Extract emotions only
-def extract_emotions(file_path):
-    url = f"{base_url}/semantic/emotions"
-    
-    with open(file_path, 'rb') as f:
-        files = {'file': f}
-        response = requests.post(url, files=files)
-        return response.json()
-
-# Example usage
-if __name__ == "__main__":
-    # Synchronous analysis
-    result = analyze_audio("track.wav", async_processing=False)
-    print("Analysis result:", json.dumps(result, indent=2))
-    
-    # Semantic analysis with emotion mapping
-    semantic_result = semantic_analyze("track.wav", include_emotions=True, 
-                                     index_for_search=True, title="My Track", artist="My Artist")
-    print("Emotions:", semantic_result['semantic_analysis']['emotions'])
-    
-    # Extract just emotions
-    emotions = extract_emotions("track.wav")
-    print("Emotional analysis:", emotions['emotions'])
-    print("Dominant emotion:", emotions['summary']['dominant_emotion'])
-    
-    # Search for similar tracks
-    search_results = semantic_search("dark aggressive neurofunk with heavy bass")
-    print("Search results:", search_results['results'])
-    
-    # Asynchronous analysis
-    job = analyze_audio("long_track.wav", async_processing=True)
-    job_id = job['job_id']
-    print(f"Job created: {job_id}")
-    
-    # Poll job status
-    import time
-    while True:
-        status = get_job_status(job_id)
-        print(f"Job status: {status['status']}")
-        
-        if status['status'] in ['completed', 'failed']:
-            break
-        
-        time.sleep(5)  # Wait 5 seconds before checking again
-```
-
-### JavaScript/Node.js Client Example
-
-```javascript
-const FormData = require('form-data');
-const fetch = require('node-fetch');
-const fs = require('fs');
-
-const API_BASE = 'http://localhost:5000/api/v1';
-
-// Analyze audio file
-async function analyzeAudio(filePath, asyncProcessing = false) {
-    const form = new FormData();
-    form.append('file', fs.createReadStream(filePath));
-    form.append('async', asyncProcessing.toString());
-    
-    const response = await fetch(`${API_BASE}/analyze`, {
-        method: 'POST',
-        body: form
-    });
-    
-    return await response.json();
-}
-
-// Extract features
-async function extractFeatures(filePath, model = 'microsoft/BEATs-base') {
-    const form = new FormData();
-    form.append('file', fs.createReadStream(filePath));
-    form.append('model', model);
-    
-    const response = await fetch(`${API_BASE}/features`, {
-        method: 'POST',
-        body: form
-    });
-    
-    return await response.json();
-}
-
-// Check job status
-async function getJobStatus(jobId) {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}`);
-    return await response.json();
-}
-
-// Example usage
-(async () => {
-    try {
-        // Extract features
-        const features = await extractFeatures('track.mp3');
-        console.log('Features:', JSON.stringify(features, null, 2));
-        
-        // Start async analysis
-        const job = await analyzeAudio('track.wav', true);
-        console.log('Job started:', job.job_id);
-        
-        // Poll job status
-        let status;
-        do {
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-            status = await getJobStatus(job.job_id);
-            console.log('Job status:', status.status);
-        } while (!['completed', 'failed'].includes(status.status));
-        
-        if (status.status === 'completed') {
-            console.log('Results:', JSON.stringify(status.results, null, 2));
-        }
-        
-    } catch (error) {
-        console.error('Error:', error);
-    }
-})();
-```
-
-### Response Formats
-
-All API endpoints return JSON responses with the following structure:
-
-**Success Response:**
-```json
-{
-    "status": "completed",
-    "results": {
-        // Analysis results vary by endpoint
-    },
-    "processing_time": 45.2
-}
-```
-
-**Async Job Response:**
-```json
-{
-    "job_id": "550e8400-e29b-41d4-a716-446655440000",
-    "status": "processing",
-    "message": "Analysis started. Use /api/v1/jobs/{job_id} to check status."
-}
-```
-
-**Error Response:**
-```json
-{
-    "error": "File too large",
-    "message": "Maximum file size is 500MB"
-}
-```
-
-### Configuration
-
-Configure the API using environment variables or command-line arguments:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | 5000 | Server port |
-| `MAX_FILE_SIZE` | 500MB | Maximum upload file size |
-| `PROCESSING_TIMEOUT` | 1800 | Processing timeout in seconds |
-| `MAX_CONCURRENT_JOBS` | 5 | Maximum concurrent processing jobs |
-| `HUGGINGFACE_API_KEY` | "" | HuggingFace API key for gated models |
-| `UPLOAD_FOLDER` | uploads | Directory for uploaded files |
-| `RESULTS_FOLDER` | results | Directory for results |
-
-### Deployment
-
-#### Docker Deployment
-
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-
-EXPOSE 5000
-CMD ["python", "api_server.py", "--production", "--host", "0.0.0.0"]
-```
-
-#### Production Deployment
-
-```bash
-# Using gunicorn for production
-pip install gunicorn
-
-# Start with gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 "src.api.app:create_app()"
-
-# Or with custom configuration
-gunicorn -w 4 -b 0.0.0.0:5000 --timeout 1800 "src.api.app:create_app()"
-```
-
-## HuggingFace Integration
-
-Heihachi integrates specialized AI models from Hugging Face, enabling advanced neural processing of audio using state-of-the-art models. This integration follows a structured implementation approach with models carefully selected for electronic music analysis tasks.
-
-### Available Models
-
-The following specialized audio analysis models are available:
-
-| Category | Model Type | Default Model | Description | Priority |
-|----------|------------|---------------|-------------|----------|
-| **Core Feature Extraction** | Generic spectral + temporal embeddings | [microsoft/BEATs](https://huggingface.co/microsoft/BEATs) | Bidirectional ViT-style encoder trained with acoustic tokenisers; provides 768-d latent at ~20 ms hop | High |
-| | Robust speech & non-speech features | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) | Trained on >5M hours; encoder provides 1280-d features tracking energy, voicing & language | High |
-| **Audio Source Separation** | Stem isolation | [Demucs v4](https://huggingface.co/spaces/abidlabs/music-separation) | Returns 4-stem or 6-stem tensors for component-level analysis | High |
-| **Rhythm Analysis** | Beat / down-beat tracking | [Beat-Transformer](https://huggingface.co/nicolaus625/cmi) | Dilated self-attention encoder with F-measure ~0.86 | High |
-| | Low-latency beat-tracking | [BEAST](https://github.com/beats-team/beast) | 50 ms latency, causal attention; ideal for real-time DJ analysis | Medium |
-| | Drum-onset / kit piece ID | [DunnBC22/wav2vec2-base-Drum_Kit_Sounds](https://huggingface.co/DunnBC22/wav2vec2-base-Drum_Kit_Sounds) | Fine-tuned on kick/snare/tom/overhead labels | Medium |
-| **Multimodal & Similarity** | Multimodal similarity / tagging | [laion/clap-htsat-fused](https://huggingface.co/laion/clap-htsat-fused) | Query with free-text and compute cosine similarity on 512-d embeddings | Medium |
-| | Zero-shot tag & prompt embedding | [UniMus/OpenJMLA](https://huggingface.co/UniMus/OpenJMLA) | Score arbitrary tag strings for effect-chain heuristics | Medium |
-| **Future Extensions** | Audio captioning | [slseanwu/beats-conformer-bart-audio-captioner](https://huggingface.co/slseanwu/beats-conformer-bart-audio-captioner) | Produces textual descriptions per segment | Low |
-| | Similarity retrieval UI | CLAP embeddings + FAISS | Index embeddings and expose nearest-neighbor search | Low |
-
-### Configuration
-
-Configure HuggingFace models in `configs/huggingface.yaml`:
-
-```yaml
-# Enable/disable HuggingFace integration
-enabled: true
-
-# API key for accessing HuggingFace models (leave empty to use public models only)
-api_key: ""
-
-# Specialized model settings
-feature_extraction:
-  enabled: true
-  model: "microsoft/BEATs-base"
-
-beat_detection:
-  enabled: true
-  model: "nicolaus625/cmi"
-
-# Additional models (disabled by default to save resources)
-drum_sound_analysis:
-  enabled: false
-  model: "DunnBC22/wav2vec2-base-Drum_Kit_Sounds"
-
-similarity:
-  enabled: false
-  model: "laion/clap-htsat-fused"
-
-# See configs/huggingface.yaml for all available options
-```
-
-### HuggingFace Commands
-
-```bash
-# Extract features
-python -m src.main hf extract path/to/audio.mp3 --output features.json
-
-# Separate stems
-python -m src.main hf separate path/to/audio.mp3 --output-dir ./stems --save-stems
-
-# Detect beats
-python -m src.main hf beats path/to/audio.mp3 --output beats.json
-
-# Analyze drums
-python -m src.main hf analyze-drums audio.wav --visualize
-
-# Other available commands
-python -m src.main hf drum-patterns audio.wav --mode pattern
-python -m src.main hf tag audio.wav --categories "genre:techno,house,ambient"
-python -m src.main hf caption audio.wav --mix-notes
-python -m src.main hf similarity audio.wav --mode timestamps --query "bass drop"
-python -m src.main hf realtime-beats --file --input audio.wav
-```
-
-### Python API Usage
-
-```python
-from heihachi.huggingface import FeatureExtractor, StemSeparator, BeatDetector
-
-# Extract features
-extractor = FeatureExtractor(model="microsoft/BEATs-base")
-features = extractor.extract(audio_path="track.mp3")
-
-# Separate stems
-separator = StemSeparator()
-stems = separator.separate(audio_path="track.mp3")
-drums = stems["drums"]
-bass = stems["bass"]
-
-# Detect beats
-detector = BeatDetector()
-beats = detector.detect(audio_path="track.mp3", visualize=True, output_path="beats.png")
-print(f"Tempo: {beats['tempo']} BPM")
-```
-
-## Experimental Results
-
-This section presents visualization results from audio analysis examples processed through the Heihachi framework, demonstrating the capabilities of the system in extracting meaningful insights from audio data.
-
-### Drum Hit Analysis
-
-The following visualizations showcase the results from analyzing drum hits within a 33-minute electronic music mix. The analysis employs a multi-stage approach:
-
-1. **Onset Detection**: Using adaptive thresholding with spectral flux and phase deviation to identify percussion events
-2. **Drum Classification**: Neural network classification to categorize each detected hit
-3. **Confidence Scoring**: Model-based confidence estimation for each classification
-4. **Temporal Analysis**: Pattern recognition across the timeline of detected hits
-
-#### Analysis Overview
-
-<img src="./visualizations/drum_feature_analysis/drum_hit_types_pie.png" alt="Drum Hit Types Distribution" width="600"/>
-
-The analysis identified **91,179 drum hits** spanning approximately 33 minutes (1999.5 seconds) of audio. The percussion events were classified into five primary categories with the following distribution:
-
-- **Hi-hat**: 26,530 hits (29.1%)
-- **Snare**: 16,699 hits (18.3%)
-- **Tom**: 16,635 hits (18.2%)
-- **Kick**: 16,002 hits (17.6%)
-- **Cymbal**: 15,313 hits (16.8%)
-
-These classifications were derived using a specialized audio recognition model that separates and identifies percussion components based on their spectral and temporal characteristics.
-
-#### Drum Hit Density Timeline
-
-<img src="./visualizations/drum_feature_analysis/drum_density.png" alt="Drum Hit Density Over Time" width="800"/>
-
-The density plot reveals the distribution of drum hits over time, providing insight into the rhythmic structure and intensity variations throughout the mix. Notable observations include:
-
-- Clear sections of varying percussion density, indicating track transitions and arrangement changes
-- Consistent underlying beat patterns maintained throughout the mix
-- Periodic intensity peaks corresponding to build-ups and drops in the arrangement
-
-#### Pattern Visualization
-
-<img src="./visualizations/drum_feature_analysis/drum_pattern_heatmap.png" alt="Drum Pattern Heatmap" width="800"/>
-
-The heatmap visualization represents normalized hit density across time for each drum type, revealing:
-
-- Structured patterns in kick and snare placement, typical of electronic dance music
-- Variations in hi-hat and cymbal usage that correspond to energy shifts
-- Clearly defined segments with distinct drum programming approaches
-
-#### Detailed Timeline Analysis
-
-<img src="./visualizations/drum_feature_analysis/drum_hits_timeline.png" alt="Drum Hits Timeline" width="800"/>
-
-The timeline visualization provides a comprehensive view of all drum events plotted against time, allowing for detailed analysis of the rhythmic structure. Key observations from this temporal analysis include:
-
-- **Microtiming Variations**: Subtle deviations from the quantized grid, particularly evident in hi-hats and snares, contribute to the human feel of the percussion
-- **Structural Markers**: Clear delineation of musical sections visible through changes in drum event density and type distribution
-- **Layering Techniques**: Overlapping drum hits at key points (e.g., stacked kick and cymbal events) to create impact moments
-- **Rhythmic Motifs**: Recurring patterns of specific drum combinations that serve as stylistic identifiers throughout the mix
-
-The temporal analysis employed statistical methods to identify:
-
-1. **Event Clustering**: Hierarchical clustering based on temporal proximity, velocity, and drum type
-2. **Pattern Detection**: N-gram analysis of drum sequences to identify common motifs
-3. **Grid Alignment**: Adaptive grid inference to determine underlying tempo and quantization
-4. **Transition Detection**: Change-point analysis to identify structural boundaries
-
-These analytical methods reveal the sophisticated rhythmic programming underlying the seemingly straightforward electronic beat patterns, with calculated variation applied to create both consistency and interest.
-
-#### Hit Classification Confidence
-
-<img src="./visualizations/drum_feature_analysis/avg_confidence_velocity.png" alt="Average Confidence and Velocity by Drum Type" width="600"/>
-
-The confidence metrics for the drum classification model demonstrate varying levels of certainty depending on the drum type:
-
-| Drum Type | Avg. Confidence | Avg. Velocity |
-|-----------|----------------|---------------|
-| Tom       | 0.385          | 1.816         |
-| Snare     | 0.381          | 1.337         |
-| Kick      | 0.370          | 0.589         |
-| Cymbal    | 0.284          | 1.962         |
-| Hi-hat    | 0.223          | 1.646         |
-
-The confidence scores reflect the model's certainty in classification, with higher values for toms and snares suggesting these sounds have more distinctive spectral signatures. Meanwhile, velocity measurements indicate the relative energy of each hit, with cymbals and toms showing the highest average values.
-
-#### Classification Performance Analysis
-
-<img src="./visualizations/drum_feature_analysis/confidence_velocity_scatter.png" alt="Confidence vs Velocity Scatter Plot" width="800"/>
-
-The scatter plot visualization reveals the relationship between classification confidence and hit velocity across all percussion events. This analysis provides critical insights into the performance of the neural classification model:
-
-1. **Velocity-Confidence Correlation**: The plot demonstrates a positive correlation between hit velocity and classification confidence for most drum types, particularly evident in the upper-right quadrant where high-velocity hits receive more confident classifications.
-
-2. **Type-Specific Clusters**: Each percussion type forms distinct clusters in the confidence-velocity space, with:
-   - **Kicks** (blue): Concentrated in the low-velocity, medium-confidence region
-   - **Snares** (orange): Forming a broad distribution across medium velocities with varying confidence
-   - **Toms** (green): Creating a distinctive cluster in the high-velocity, high-confidence region
-   - **Hi-hats** (red): Showing the widest distribution, indicating greater variability in classification performance
-   - **Cymbals** (purple): Forming a more diffuse pattern at higher velocities with moderate confidence
-
-3. **Classification Challenges**: The lower confidence regions (bottom half of the plot) indicate areas where the model experiences greater uncertainty, particularly:
-   - Low-velocity hits across all percussion types
-   - Overlapping spectral characteristics between similar percussion sounds (e.g., certain hi-hats and cymbals)
-   - Boundary cases where multiple drum types may be present simultaneously
-
-4. **Performance Insights**: The density of points in different regions provides a robust evaluation metric for the classification model, revealing both strengths in distinctive percussion identification and challenges in boundary cases.
-
-This visualization serves as a valuable tool for evaluating classification performance and identifying specific areas for model improvement in future iterations of the framework.
-
-#### Interactive Timeline
-
-The drum hit analysis also generated an interactive HTML timeline that allows for detailed exploration of the percussion events. This visualization maps each drum hit across time with interactive tooltips displaying precise timing, confidence scores, and velocity information.
-
-The interactive timeline is available at:
-```
-visualizations/drum_feature_analysis/interactive_timeline.html
-```
-
-**To view the interactive timeline alongside the music:**
-
-1. Open the interactive timeline HTML file in a browser
-2. In a separate browser tab, play the corresponding audio mix
-3. Synchronize playback position to explore the relationship between audio and detected drum events
-
-#### Technical Implementation Notes
-
-The drum hit analysis pipeline employs several advanced techniques:
-
-1. **Onset Detection Algorithm**: Utilizes a combination of spectral flux, high-frequency content (HFC), and complex domain methods to detect percussion events with high temporal precision (±5ms).
-
-2. **Neural Classification**: Implements a specialized convolutional neural network trained on isolated drum samples to classify detected onsets into specific percussion categories.
-
-3. **Confidence Estimation**: Employs softmax probability outputs from the classification model to assess classification reliability, with additional weighting based on signal-to-noise ratio and onset clarity.
-
-4. **Pattern Recognition**: Applies a sliding-window approach with dynamic time warping (DTW) to identify recurring rhythmic patterns and variations.
-
-5. **Memory-Optimized Processing**: Implements chunked processing with a sliding window approach to handle large audio files while maintaining consistent analysis quality.
-
-The complete analysis was performed using the following command:
-
-```bash
-python -m src.main hf analyze-drums /path/to/mix.mp3 --visualize
-```
-
-### Limitations and Future Improvements
-
-Current limitations of the drum analysis include:
-
-- Occasional misclassification between similar drum types (e.g., toms vs. snares)
-- Limited ability to detect layered drum hits occurring simultaneously
-- Reduced accuracy during segments with heavy processing effects
-
-Future improvements will focus on:
-
-- Enhanced separation of overlapping drum sounds
-- Tempo-aware pattern recognition
-- Integration with musical structure analysis
-- Improved classification of electronic drum sounds and synthesized percussion
-
-## Performance Optimizations
-
-### Memory Management
-- Streaming processing for large files
-- Efficient cache utilization
-- GPU memory optimization
-- Automatic garbage collection optimization
-- Chunked loading for very large files
-- Audio validation at each processing stage
-
-### Parallel Processing
-- Multi-threaded feature extraction
-- Batch processing capabilities
-- Distributed analysis support
-- Adaptive resource allocation
-- Scalable parallel execution
-
-### Storage Efficiency
-- Compressed result storage
-- Metadata indexing
-- Version control for analysis results
-- Simple, consistent path handling
-
-## Applications
-
-### 1. DJ Mix Analysis
-- Track boundary detection
-- Transition type classification
-- Mix structure analysis
-- Energy flow visualization
-
-### 2. Production Analysis
-- Sound design deconstruction
-- Arrangement analysis
-- Effect chain detection
-- Reference track comparison
-
-### 3. Music Information Retrieval
-- Similar track identification
-- Style classification
-- Groove pattern matching
-- VIP/Dubplate detection
-
-## Future Directions
-
-1. **Enhanced Neural Processing**
-   - Integration of deep learning models
-   - Real-time processing capabilities
-   - Adaptive threshold optimization
-
-2. **Extended Analysis Capabilities**
-   - Additional genre support
-   - Extended effect detection
-   - Advanced pattern recognition
-   - Further error resilience improvements
-
-3. **Improved Visualization**
-   - Interactive dashboards
-   - 3D visualization options
-   - Real-time visualization
-   - Error diagnostics visualization
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License. See [LICENSE](LICENSE) for details.
 
 ## Citation
 
-If you use this framework in your research, please cite:
-
 ```bibtex
-@software{heihachi2024,
-  title = {Heihachi: Neural Processing of Electronic Music},
+@software{heihachi2026,
+  title = {Heihachi: Categorical Audio Transport Framework},
   author = {Kundai Farai Sachikonye},
-  year = {2024},
+  year = {2026},
   url = {https://github.com/fullscreen-triangle/heihachi}
 }
 ```
+
+## References
+
+1. Sachikonye, K. F. (2026). "On the Geometric Consequences of Categorical Partitioning in Digital Audio Representation: An Orthogonal Information Channel for Digital Audio Beyond the Nyquist-Shannon-Gabor Limits."
+
+2. Sachikonye, K. F. (2026). "Ray-Tracing as Cellular Computation: Simultaneous Optical, Chromatographic, and Circuit Observation Through Volumetric Partition Traversal."
