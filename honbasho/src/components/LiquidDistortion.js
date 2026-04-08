@@ -1,9 +1,6 @@
 'use client'
 import { useRef, useMemo, useEffect, useState, useCallback } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
-import { EffectComposer, ShockWave, ChromaticAberration, Vignette } from '@react-three/postprocessing'
-import { BlendFunction, KernelSize } from 'postprocessing'
 import * as THREE from 'three'
 
 /**
@@ -205,71 +202,16 @@ function WaterPlane({ imageUrl, audioData, intensity, transition, transitionDir 
     )
 }
 
-// ── Post-processing scene with audio-reactive effects ──────────────
+// ── Scene wrapper ───────────────────────────────────────────────────
 function LiquidScene({ imageUrl, audioData, intensity = 1, transition = 0, transitionDir = 1 }) {
-    const shockWaveRef = useRef()
-    const chromaRef = useRef()
-    const lastBassHit = useRef(0)
-    const bassThreshold = useRef(0)
-
-    useFrame((state) => {
-        if (!audioData) return
-
-        const t = state.clock.elapsedTime
-        const bass = audioData.bass || 0
-
-        // Trigger shockwave on bass transients
-        if (bass > 0.6 && bass > bassThreshold.current + 0.15 && t - lastBassHit.current > 0.8) {
-            if (shockWaveRef.current) {
-                shockWaveRef.current.position.set(0, 0, 0)
-                shockWaveRef.current.speed = 1.5 + bass
-                shockWaveRef.current.amplitude = 0.02 + bass * 0.03
-                shockWaveRef.current.waveSize = 0.1 + bass * 0.15
-            }
-            lastBassHit.current = t
-        }
-        bassThreshold.current = bass * 0.9 + bassThreshold.current * 0.1 // Adaptive threshold
-
-        // Chromatic aberration follows volume
-        if (chromaRef.current) {
-            const vol = audioData.volume || 0
-            chromaRef.current.offset.set(
-                Math.sin(t * 2) * vol * 0.003,
-                Math.cos(t * 1.5) * vol * 0.002
-            )
-        }
-    })
-
     return (
-        <>
-            <WaterPlane
-                imageUrl={imageUrl}
-                audioData={audioData}
-                intensity={intensity}
-                transition={transition}
-                transitionDir={transitionDir}
-            />
-            <EffectComposer>
-                <ShockWave
-                    ref={shockWaveRef}
-                    position={[0, 0, 0]}
-                    speed={2}
-                    maxRadius={1}
-                    waveSize={0.15}
-                    amplitude={0.02}
-                />
-                <ChromaticAberration
-                    ref={chromaRef}
-                    blendFunction={BlendFunction.NORMAL}
-                    offset={new THREE.Vector2(0.001, 0.001)}
-                />
-                <Vignette
-                    offset={0.3}
-                    darkness={0.6}
-                    blendFunction={BlendFunction.NORMAL}
-                />
-            </EffectComposer>
-        </>
+        <WaterPlane
+            imageUrl={imageUrl}
+            audioData={audioData}
+            intensity={intensity}
+            transition={transition}
+            transitionDir={transitionDir}
+        />
     )
 }
 
