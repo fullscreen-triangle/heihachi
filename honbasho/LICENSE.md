@@ -1,6 +1,6 @@
-Next.js Blog Project (Personal Use License)
+Honbasho (Personal Use License)
 
-Copyright (c) 2023 CodeBucks
+Copyright (c) 2026 Fullscreen Triangle
 
 This software and associated documentation files ("the Software") are provided for personal use only, subject to the following conditions:
 
@@ -8,7 +8,7 @@ This software and associated documentation files ("the Software") are provided f
 
 2. Any commercial use of the Software is strictly prohibited under this license. For commercial use, please contact the copyright holder for a separate commercial license.
 
-3. Attribution to the original author is required when using the Software for commercial purposes. Please provide attribution by adding a link to https://devdreaming.com and stating that the software was created by CodeBucks or designed by CodeBucks.
+3. Attribution to the original author is required when using the Software for commercial purposes. 
 
 4. Redistributions of the Software or derivative works are not permitted under this license.
 
@@ -16,4 +16,4 @@ This software and associated documentation files ("the Software") are provided f
 
 The Software is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
 
-For any inquiries regarding commercial use, please contact at codebucks27@gmail.com.
+
