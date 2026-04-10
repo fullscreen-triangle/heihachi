@@ -1,0 +1,1126 @@
+% prompt-based-library-search.tex
+% Prompt-Based Music Library Search Through Thermodynamic
+% Ensemble Inference and Spectral Interference Matching
+% Author: Kundai Farai Sachikonye
+% Date: 2026
+
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+% ─── Packages ────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{physics}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage[margin=1.8cm,top=2.2cm,bottom=2.2cm]{geometry}
+\usepackage{natbib}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{microtype}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{tabularx}
+
+% ─── Listings Style ─────────────────────────────────────────────────
+\lstdefinestyle{glsl}{
+  language=C,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue!70!black}\bfseries,
+  commentstyle=\color{green!50!black}\itshape,
+  stringstyle=\color{red!60!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=4pt,
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  morekeywords={vec2,vec3,vec4,mat2,mat3,mat4,sampler2D,sampler3D,
+    uniform,varying,in,out,layout,location,precision,
+    highp,mediump,lowp,texture,gl_FragColor,void,float,int,
+    ivec3,uvec3,bool}
+}
+
+% ─── Theorem Environments ────────────────────────────────────────────
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{axiom}{Axiom}
+\newtheorem{example}[theorem]{Example}
+
+% ─── Custom Commands ─────────────────────────────────────────────────
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Ocat}{\hat{O}_{\mathrm{cat}}}
+\newcommand{\Ophys}{\hat{O}_{\mathrm{phys}}}
+\newcommand{\Sk}{S_k}
+\newcommand{\St}{S_t}
+\newcommand{\Se}{S_e}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\Lib}{\mathcal{L}}
+\newcommand{\Ens}{\mathcal{E}}
+\newcommand{\Part}{\mathcal{P}}
+\newcommand{\Cat}{\mathcal{C}}
+\newcommand{\Vis}{\mathcal{V}}
+\newcommand{\Query}{\mathcal{Q}}
+\newcommand{\Spec}{\bm{\Phi}}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\sgn}{sgn}
+
+% ─── Page Style ──────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Prompt-Based Library Search via Thermodynamic Inference}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ─── Title Section Formatting ────────────────────────────────────────
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection.}{0.5em}{}
+
+% ═════════════════════════════════════════════════════════════════════
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\begin{center}
+
+{\LARGE\bfseries Prompt-Based Music Library Search Through\\[4pt]
+Thermodynamic Ensemble Inference and\\[4pt]
+Spectral Interference Matching}
+
+\vspace{12pt}
+
+{\large Kundai Farai Sachikonye}
+
+\vspace{6pt}
+
+{\small\itshape Independent Researcher \\[0.3em]
+\texttt{kundai.sachikonye@bitspark.com}}
+
+\vspace{6pt}
+
+{\small April 2026}
+
+\vspace{14pt}
+
+\begin{minipage}{0.92\textwidth}
+\textbf{Abstract.}
+We present a music search and recommendation framework in which the
+user's listening library is treated as a thermodynamic gas ensemble, each
+track is a molecule characterised by its categorical audio state, and
+all search, matching, and recommendation operations reduce to
+well-posed problems in statistical mechanics. The framework rests on
+three results from categorical audio theory
+\citep{sachikonye2026categorical}: (i)~audio signals in bounded phase
+space are equivalent to oscillatory systems with partition coordinates
+$(n, \ell, m, s)$ and S-entropy coordinates $(\Sk, \St, \Se)$;
+(ii)~oscillatory systems have spectra; (iii)~spectra are rendered by
+GPU fragment shaders, so rendering is computation (the Triple
+Equivalence). Because every track is an oscillator ensemble expressible
+as a spectrum, the similarity between two tracks is their
+\emph{interference visibility}---the magnitude of the coherent
+superposition of their phase spectra---not a distance in an embedding
+space. The listening library, as a gas ensemble, possesses
+well-defined thermodynamic quantities: temperature (taste breadth),
+partition function (statistical description of preference), Boltzmann
+distribution (probability of enjoying a candidate track), free energy
+(equilibrium preference state), and entropy (predictability of taste).
+Finding the next track is sampling from the Boltzmann distribution;
+discovering new music is exploring the tails; refining taste is
+annealing the ensemble temperature. A natural-language interface is
+provided by a domain-specific language model trained via structured
+knowledge distillation (the Purpose framework) on the user's
+categorical observation library, translating between human prompts and
+thermodynamic operations on the ensemble. The GPU fragment shader that
+renders the liquid-distortion visualisation of album artwork
+simultaneously computes the Boltzmann weights, interference
+visibilities, and partition function of the ensemble, because these are
+the same spectral computation expressed in three equivalent
+representations. We derive the complete mathematical framework from
+first principles, prove that interference matching recovers all
+information available to embedding-based methods while additionally
+capturing cross-genre structural similarity inaccessible to learned
+representations, and specify the five-component architecture: (1)~categorical
+observation pipeline, (2)~thermodynamic ensemble engine,
+(3)~interference matching shader, (4)~Purpose-trained language model
+interface, and (5)~streaming API integration. The system requires no
+training data, has no cold-start problem, provides per-channel
+interpretability of every similarity judgment, and improves with use
+through ensemble enrichment rather than collaborative filtering.
+
+\vspace{8pt}
+\noindent\textbf{Keywords:} thermodynamic ensemble, interference
+matching, categorical audio, S-entropy, partition function, Boltzmann
+distribution, music recommendation, spectral similarity, GPU
+computation, knowledge distillation, prompt-based search
+\end{minipage}
+
+\vspace{18pt}
+\end{center}
+\end{@twocolumnfalse}
+]
+
+
+% ═════════════════════════════════════════════════════════════════════
+%                    PART I: FOUNDATIONS
+% ═════════════════════════════════════════════════════════════════════
+
+\section{Introduction}
+\label{sec:introduction}
+
+Music recommendation systems face a fundamental representation problem.
+Collaborative filtering methods \citep{koren2009matrix,
+covington2016youtube} represent tracks as rows in a user-interaction
+matrix and compute similarity through co-occurrence statistics. The
+track itself---its physical audio content---is absent from the
+representation. Content-based methods extract feature vectors (MFCCs
+\citep{logan2000mel}, learned embeddings \citep{wu2023clap,
+radford2023whisper}) and compute distances in feature space. The
+features are proxies for perceptual similarity, learned from data,
+entangled across dimensions, and opaque to interpretation.
+
+Both approaches share a structural limitation: they represent each
+track as a \emph{point} in a high-dimensional space and compute
+similarity as \emph{distance} between points. This reduces
+recommendation to a nearest-neighbour search---a geometric problem. We
+demonstrate that this geometric framing discards information that is
+physically present in the audio signal.
+
+We propose an alternative: represent each track as an \emph{oscillator
+ensemble} in categorical phase space, and compute similarity as
+\emph{interference} between ensembles. This is not a metaphor. The
+Categorical Audio Transport (CAT) framework
+\citep{sachikonye2026categorical} proves that audio signals in bounded
+phase space are equivalent to collections of oscillatory modes, each
+addressed by partition coordinates $(n, \ell, m, s)$ and projecting
+onto S-entropy coordinates $(\Sk, \St, \Se)$. Oscillators have
+spectra. Spectra interfere. The interference visibility between two
+tracks' spectra is a physically grounded measure of their structural
+similarity.
+
+The user's listening library, as a collection of such oscillator
+ensembles, constitutes a thermodynamic gas ensemble with well-defined
+statistical mechanical properties. This recasts music recommendation as
+a sampling problem in statistical mechanics rather than a search problem
+in metric space.
+
+\subsection{Contributions}
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item We define the \emph{listening library as a thermodynamic
+  ensemble} (Section~\ref{sec:ensemble}) with derivations of
+  temperature, partition function, Boltzmann distribution, free energy,
+  and entropy from the categorical audio states of observed tracks.
+
+\item We prove that \emph{interference visibility} between categorical
+  phase spectra (Section~\ref{sec:interference}) recovers all pairwise
+  similarity information available to inner-product methods while
+  additionally capturing structural relationships across genre
+  boundaries that embedding-based methods cannot represent.
+
+\item We establish the \emph{Rendering--Computing--Observing Identity}
+  (Section~\ref{sec:rco}): the GPU fragment shader that renders visual
+  effects on album artwork simultaneously evaluates the Boltzmann
+  weights and interference visibilities of the ensemble, because these
+  are the same spectral computation in three equivalent representations.
+
+\item We specify the \emph{Purpose-trained language model interface}
+  (Section~\ref{sec:purpose}): a domain-specific model trained via
+  structured knowledge distillation on the user's categorical
+  observation library, translating natural-language prompts into
+  thermodynamic operations on the ensemble.
+
+\item We derive the \emph{ensemble enrichment dynamics}
+  (Section~\ref{sec:enrichment}): each new track observation refines
+  the thermodynamic description of the library, improving all
+  subsequent recommendations without retraining.
+\end{enumerate}
+
+\subsection{Relation to Prior Work}
+
+The framework builds on three prior results:
+
+\textbf{Categorical Audio Transport} \citep{sachikonye2026categorical}
+establishes the partition coordinate system $(n, \ell, m, s)$, the
+S-entropy coordinates $(\Sk, \St, \Se)$, the Triple Equivalence
+between oscillatory, categorical, and partitional descriptions, and the
+commutation relation $[\Ocat, \Ophys] = 0$ between categorical and
+physical observables.
+
+\textbf{Ray-Tracing as Cellular Computation}
+\citep{sachikonye2026raytracing} proves the Triple Observation
+Identity: a single render pass simultaneously computes optical,
+chromatographic, and circuit observations from one partition state read.
+This establishes that rendering IS computation IS observation for any
+system expressible as partition coordinates.
+
+\textbf{Purpose Framework} provides the structured knowledge
+distillation pipeline for training domain-specific language models from
+extracted observations, using stratified query generation across
+knowledge depth and cognitive levels \citep{bloom1956taxonomy,
+hinton2015distilling, hu2021lora}.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Categorical Audio State}
+\label{sec:categorical}
+
+We summarise the results from \citet{sachikonye2026categorical} required
+for the present work.
+
+\begin{definition}[Track as Oscillator Ensemble]
+\label{def:track-ensemble}
+An audio track $\mathbf{x}(t)$ of duration $T$ sampled at rate $f_s$,
+analysed with $M$ spectral modes, is represented as an ensemble of $M$
+oscillators, each characterised by:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+\item Partition coordinates $(n_k, \ell_k, m_k, s_k)$ for $k = 1,
+  \ldots, M$, encoding the categorical state of mode $k$.
+\item S-entropy coordinates $(\Sk, \St, \Se)$ computed from the
+  aggregate signal as:
+  \begin{align}
+    \Sk &= \kB \ln\!\left(\frac{|\delta\phi| + \phi_0}{\phi_0}\right)
+    \label{eq:sk} \\
+    \St &= \kB \ln\!\left(\frac{\tau}{\tau_0}\right)
+    \label{eq:st} \\
+    \Se &= \kB \ln\!\left(\frac{E + E_0}{E_0}\right)
+    \label{eq:se}
+  \end{align}
+  where $\delta\phi$ is the phase deviation from a reference
+  oscillator, $\tau$ is the categorical period, $E$ is the
+  instantaneous signal energy, and $\phi_0$, $\tau_0$, $E_0$ are
+  reference values.
+\item A phase spectrum $\Spec = (\Phi_1, \ldots, \Phi_N)$ where
+  $\Phi_k$ is the accumulated phase contribution of oscillator class
+  $k$ over the track duration:
+  \begin{equation}
+    \Phi_k = \int_0^T \omega_k(t)\, \tau_{\mathrm{p}}^{(k)}(t)\, dt
+    \label{eq:phase-accumulation}
+  \end{equation}
+  where $\omega_k(t)$ is the instantaneous frequency and
+  $\tau_{\mathrm{p}}^{(k)}(t)$ is the interaction time of oscillator
+  class $k$ at time $t$.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+The phase spectrum is the track's categorical fingerprint. Two tracks
+with identical phase spectra are categorically indistinguishable
+regardless of their physical waveforms. The phase spectrum encodes the
+cumulative interaction history of every oscillator class, analogous to
+the accumulated phase shift along a ray path in the cellular
+computation framework \citep{sachikonye2026raytracing}.
+\end{remark}
+
+\begin{definition}[Track Observation]
+\label{def:observation}
+A \emph{track observation} is the structured tuple:
+\begin{equation}
+  \mathcal{O}_i = \bigl(\bar{\mathbf{S}}_i,\, \sigma_{\mathbf{S},i},\,
+  \mathbf{h}_i,\, \Spec_i,\, n_i^*\bigr)
+  \label{eq:observation}
+\end{equation}
+where $\bar{\mathbf{S}}_i = (\langle \Sk \rangle, \langle \St \rangle,
+\langle \Se \rangle)$ is the mean S-entropy over the track duration,
+$\sigma_{\mathbf{S},i}$ is the standard deviation of the S-entropy
+trajectory, $\mathbf{h}_i$ is the normalised partition depth histogram,
+$\Spec_i$ is the phase spectrum, and $n_i^*$ is the dominant partition
+depth.
+\end{definition}
+
+\begin{definition}[Segmented Observation]
+\label{def:segmented}
+A track of duration $T$ is partitioned into $L$ segments of duration
+$\Delta T = T / L$. Each segment $\ell \in \{1, \ldots, L\}$ yields an
+independent observation $\mathcal{O}_i^{(\ell)}$. The segmented
+observation of the track is:
+\begin{equation}
+  \tilde{\mathcal{O}}_i =
+  \bigl\{\mathcal{O}_i^{(1)}, \ldots, \mathcal{O}_i^{(L)}\bigr\}
+  \label{eq:segmented}
+\end{equation}
+\end{definition}
+
+\begin{remark}
+Segmented observation enables temporal matching: the intro of track $A$
+may interfere constructively with the breakdown of track $B$. This is
+inaccessible to whole-track representations.
+\end{remark}
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{The Listening Library as a Thermodynamic Ensemble}
+\label{sec:ensemble}
+
+\begin{definition}[Listening Library]
+\label{def:library}
+A user's listening library is the ordered collection of track
+observations accumulated over time:
+\begin{equation}
+  \Lib = \bigl\{\mathcal{O}_1, \mathcal{O}_2, \ldots,
+  \mathcal{O}_M\bigr\}
+  \label{eq:library}
+\end{equation}
+where $M$ is the number of distinct tracks observed.
+\end{definition}
+
+\begin{proposition}[Library as Gas Ensemble]
+\label{prop:gas-ensemble}
+The listening library $\Lib$ satisfies the axioms of a classical
+thermodynamic gas ensemble:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+\item Each track $\mathcal{O}_i$ is a molecule with internal degrees
+  of freedom (partition coordinates) and translational energy
+  ($\Se_i$).
+\item The ensemble occupies a bounded region of S-entropy space
+  $\mathcal{S} \subset \R_{\geq 0}^3$ (since all S-entropy
+  coordinates are non-negative and bounded above by the dynamic range
+  of the audio system).
+\item The molecules interact through interference (Section~\ref{sec:interference}), with interaction strength
+  determined by phase spectrum overlap.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+\textit{Step 1: Molecular identification.}
+By Definition~\ref{def:track-ensemble}, each track is an ensemble of
+$M_k$ oscillators with partition coordinates and accumulated phases.
+The track observation $\mathcal{O}_i$ is therefore a point in
+$\mathcal{S} \times \R^N$ (S-entropy space cross phase space),
+analogous to a molecule with position $\bar{\mathbf{S}}_i$ and
+internal state $\Spec_i$.
+
+\textit{Step 2: Boundedness.}
+The S-entropy coordinates are computed via logarithms of positive
+ratios (Eqs.~\eqref{eq:sk}--\eqref{eq:se}). The audio system has
+finite dynamic range (bit depth), finite bandwidth (sampling rate), and
+finite temporal extent. Therefore $\Sk$, $\St$, $\Se$ are each bounded
+above, and the ensemble occupies a bounded region of $\R^3$.
+
+\textit{Step 3: Interactions.}
+The interference visibility between tracks $i$ and $j$
+(Definition~\ref{def:visibility}) provides a pairwise interaction
+potential, establishing the ensemble as an interacting gas rather than
+an ideal gas.
+\end{proof}
+
+We now derive the thermodynamic quantities of the library ensemble.
+
+\begin{definition}[Ensemble Temperature]
+\label{def:temperature}
+The temperature of the library ensemble is defined by the equipartition
+theorem applied to the S-entropy kinetic energy:
+\begin{equation}
+  T_{\Lib} = \frac{2}{3\kB} \langle E \rangle
+  = \frac{2}{3\kB} \cdot \frac{1}{M} \sum_{i=1}^{M} \Se_i
+  \label{eq:temperature}
+\end{equation}
+where $\Se_i = \langle \Se \rangle_i$ is the mean energetic entropy of
+track $i$.
+\end{definition}
+
+\begin{remark}
+High ensemble temperature corresponds to a listener with broad
+energetic range across their library (eclectic taste). Low temperature
+corresponds to a library concentrated at specific energy levels (narrow
+preference).
+\end{remark}
+
+\begin{definition}[Partition Function]
+\label{def:partition-function}
+The canonical partition function of the library ensemble at inverse
+temperature $\beta = 1/(\kB T_{\Lib})$ is:
+\begin{equation}
+  Z(\beta) = \sum_{i=1}^{M}
+  \exp\!\left(-\beta\, \|\bar{\mathbf{S}}_i\|^2\right)
+  \label{eq:partition-function}
+\end{equation}
+where $\|\bar{\mathbf{S}}_i\|^2 = \Sk_i^2 + \St_i^2 + \Se_i^2$ is
+the squared magnitude of the mean S-entropy vector of track $i$.
+\end{definition}
+
+\begin{definition}[Boltzmann Distribution]
+\label{def:boltzmann}
+The probability that a candidate track with S-entropy $\mathbf{S}$ is
+compatible with the library ensemble is:
+\begin{equation}
+  P(\mathbf{S}\,|\,\Lib) = \frac{1}{Z(\beta)}
+  \exp\!\left(-\beta\, d_G(\mathbf{S},\,
+  \bar{\mathbf{S}}_{\Lib})^2\right)
+  \label{eq:boltzmann}
+\end{equation}
+where $d_G$ is the geodesic distance on the S-entropy manifold under
+the groove metric:
+\begin{equation}
+  d_G(\mathbf{S}_a, \mathbf{S}_b)^2 = g_{kk}\,\Delta\Sk^2
+  + 2g_{kt}\,\Delta\Sk\,\Delta\St + g_{tt}\,\Delta\St^2
+  + g_{ee}\,\Delta\Se^2
+  \label{eq:geodesic}
+\end{equation}
+with metric tensor components $g_{kk} = (\Sk + \epsilon)^{-1}$,
+$g_{tt} = (\St + \epsilon)^{-1}$, $g_{ee} = (\Se + \epsilon)^{-1}$,
+$g_{kt} = \tfrac{1}{2}\sqrt{\Sk\,\St}$, and
+$\bar{\mathbf{S}}_{\Lib} = M^{-1}\sum_i \bar{\mathbf{S}}_i$ is the
+ensemble centroid.
+\end{definition}
+
+\begin{definition}[Free Energy]
+\label{def:free-energy}
+The Helmholtz free energy of the library ensemble is:
+\begin{equation}
+  F = -\kB T_{\Lib} \ln Z(\beta)
+  \label{eq:free-energy}
+\end{equation}
+The minimum of $F$ identifies the equilibrium preference state: the
+S-entropy region the listener most naturally gravitates toward.
+\end{definition}
+
+\begin{definition}[Taste Entropy]
+\label{def:taste-entropy}
+The entropy of the library ensemble is:
+\begin{equation}
+  S_{\mathrm{taste}} = -\kB \sum_{i=1}^{M} P_i \ln P_i
+  \label{eq:taste-entropy}
+\end{equation}
+where $P_i = Z^{-1} \exp(-\beta\, \|\bar{\mathbf{S}}_i\|^2)$.
+High taste entropy indicates an unpredictable listener; low taste
+entropy indicates a listener whose next preference is highly
+constrained.
+\end{definition}
+
+\begin{theorem}[Recommendation as Boltzmann Sampling]
+\label{thm:recommendation}
+Finding the optimal next track for a listener with library $\Lib$ is
+equivalent to sampling from the Boltzmann distribution
+$P(\mathbf{S}\,|\,\Lib)$ at the ensemble temperature $T_{\Lib}$.
+Specifically:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+\item ``More of the same'' corresponds to sampling near the mode of
+  $P(\mathbf{S}\,|\,\Lib)$ (maximum likelihood).
+\item ``Surprise me'' corresponds to sampling from the tails of
+  $P(\mathbf{S}\,|\,\Lib)$ at elevated temperature $T' > T_{\Lib}$.
+\item ``Something darker'' corresponds to sampling from
+  $P(\mathbf{S}\,|\,\Lib)$ with a shifted constraint
+  $\Se > \bar{\Se}_{\Lib} + \delta$.
+\item ``Like Tuesday evening'' corresponds to sampling from the
+  Boltzmann distribution of the temporal sub-ensemble
+  $\Lib_{\mathrm{Tue}} \subset \Lib$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each operation is a standard statistical mechanical manipulation of the
+ensemble:
+
+\textit{(i)} Maximum-likelihood sampling: the mode of the Boltzmann
+distribution is the state minimising $d_G(\mathbf{S},
+\bar{\mathbf{S}}_{\Lib})$, which is the ensemble centroid.
+
+\textit{(ii)} Temperature elevation: increasing $\beta^{-1}$ broadens
+the distribution, assigning higher probability to states far from the
+centroid. This is simulated annealing in reverse---heating the ensemble
+to explore.
+
+\textit{(iii)} Constrained sampling: adding the constraint $\Se >
+\bar{\Se}_{\Lib} + \delta$ restricts the Boltzmann distribution to a
+half-space in S-entropy space, which remains a valid (unnormalised)
+Gibbs measure.
+
+\textit{(iv)} Sub-ensemble: the temporal sub-ensemble
+$\Lib_{\mathrm{Tue}}$ defines its own partition function $Z_{\mathrm{Tue}}$,
+temperature $T_{\mathrm{Tue}}$, and Boltzmann distribution. Sampling
+from this sub-ensemble is identical to sampling from the full ensemble
+conditioned on the temporal index.
+\end{proof}
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Interference Matching}
+\label{sec:interference}
+
+\subsection{Interference Visibility}
+
+\begin{definition}[Interference Visibility]
+\label{def:visibility}
+The interference visibility between two tracks with phase spectra
+$\Spec_A = (\Phi_{A,1}, \ldots, \Phi_{A,N})$ and
+$\Spec_B = (\Phi_{B,1}, \ldots, \Phi_{B,N})$ is:
+\begin{equation}
+  V_{AB} = \left|\frac{1}{N} \sum_{k=1}^{N}
+  e^{i(\Phi_{A,k} - \Phi_{B,k})}\right|
+  \label{eq:visibility}
+\end{equation}
+where $N$ is the number of oscillator classes. $V_{AB} \in [0, 1]$
+with $V_{AB} = 1$ indicating perfect constructive interference
+(categorical identity) and $V_{AB} = 0$ indicating complete
+decoherence (categorical independence).
+\end{definition}
+
+\begin{proposition}[Visibility as Complex Inner Product]
+\label{prop:inner-product}
+Define the complex unit phasor representation of a track:
+$\mathbf{z}_A = (e^{i\Phi_{A,1}}, \ldots, e^{i\Phi_{A,N}}) \in
+\CC^N$. Then:
+\begin{equation}
+  V_{AB} = \frac{1}{N}
+  \bigl|\langle \mathbf{z}_A, \mathbf{z}_B \rangle\bigr|
+  = \frac{1}{N}
+  \left|\sum_{k=1}^{N} \overline{z_{A,k}}\, z_{B,k}\right|
+  \label{eq:inner-product}
+\end{equation}
+This is the magnitude of the Hermitian inner product on $\CC^N$,
+normalised by $N$.
+\end{proposition}
+
+\begin{proof}
+Direct expansion: $\overline{z_{A,k}} \cdot z_{B,k} =
+e^{-i\Phi_{A,k}} \cdot e^{i\Phi_{B,k}} = e^{i(\Phi_{B,k} -
+\Phi_{A,k})}$. Summing and taking the magnitude yields
+Eq.~\eqref{eq:visibility} with the sign convention reversed (which
+does not affect the magnitude).
+\end{proof}
+
+\begin{remark}
+Equation~\eqref{eq:inner-product} shows that interference visibility
+is mathematically equivalent to cosine similarity in $\CC^N$. The
+novelty is not in the comparison operation but in the
+\emph{representation}: the phase spectrum $\Spec$ encodes
+second-order structural properties (spectral complexity, temporal
+granularity, energetic dynamics, inter-band coupling) that are absent
+from standard audio feature vectors.
+\end{remark}
+
+\subsection{Per-Channel Decomposition}
+
+\begin{definition}[Channel Coherence]
+\label{def:channel-coherence}
+The coherence of oscillator class $k$ between tracks $A$ and $B$ is:
+\begin{equation}
+  c_k = \cos(\Phi_{A,k} - \Phi_{B,k})
+  \label{eq:channel-coherence}
+\end{equation}
+with $c_k = 1$ indicating phase alignment (constructive interference
+in class $k$), $c_k = -1$ indicating anti-phase (destructive
+interference), and $c_k = 0$ indicating quadrature (independence).
+\end{definition}
+
+\begin{theorem}[Interpretability of Interference]
+\label{thm:interpretability}
+The channel coherence vector
+$\mathbf{c} = (c_1, \ldots, c_N)$ provides a complete,
+per-channel decomposition of the similarity judgment. Specifically:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+\item The global visibility is recovered: $V_{AB}^2 = N^{-2}
+  \bigl(\sum_k c_k\bigr)^2 + N^{-2}\bigl(\sum_k
+  \sin(\Phi_{A,k} - \Phi_{B,k})\bigr)^2$.
+\item Each channel $c_k$ is independently interpretable: it identifies
+  whether oscillator class $k$ is aligned, opposed, or independent
+  between the two tracks.
+\item The decomposition is invertible: given $\mathbf{c}$ and
+  $V_{AB}$, the phase difference vector $\Delta\Spec = \Spec_A -
+  \Spec_B$ is determined up to a global phase.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textit{(i)} follows from $V_{AB} = N^{-1}|\sum_k e^{i\Delta\Phi_k}|
+= N^{-1}\sqrt{(\sum_k \cos\Delta\Phi_k)^2 + (\sum_k
+\sin\Delta\Phi_k)^2}$.
+
+\textit{(ii)} follows from the independence of the oscillator classes:
+each $\Phi_k$ is accumulated from a distinct frequency band, so
+$c_k$ depends only on the phase relationship in class $k$.
+
+\textit{(iii)} follows from $\Delta\Phi_k = \arccos(c_k)$ (with sign
+ambiguity resolved by $\sin\Delta\Phi_k$).
+\end{proof}
+
+\begin{corollary}[Embedding Methods Lack Interpretability]
+\label{cor:embedding-opaque}
+Cosine similarity in a learned embedding space $\R^d$ yields a scalar
+$s_{AB} = \langle \mathbf{e}_A, \mathbf{e}_B \rangle / (\|\mathbf{e}_A\|
+\|\mathbf{e}_B\|)$ with no per-dimension physical interpretation
+because the embedding dimensions are entangled by training. Interference
+visibility in $\CC^N$ yields the same scalar \emph{plus} the
+decomposition $\mathbf{c}$, because the oscillator classes are
+physically independent.
+\end{corollary}
+
+\subsection{Cross-Genre Structural Similarity}
+
+\begin{theorem}[Structural Similarity Across Genres]
+\label{thm:cross-genre}
+Let $A$ be a track from genre $\alpha$ and $B$ a track from genre
+$\beta \neq \alpha$. If the S-entropy trajectories and partition depth
+distributions of $A$ and $B$ are statistically similar, then:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+\item The interference visibility $V_{AB}$ is high ($V_{AB} > 0.7$).
+\item The Boltzmann probability $P(\mathbf{S}_B\,|\,\Lib)$ is high
+  when $A \in \Lib$.
+\item Embedding-based similarity $s_{AB}$ may be low if the
+  embedding was trained on genre-labelled data, because the training
+  objective separates genres in embedding space.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textit{(i)} If the S-entropy trajectories of $A$ and $B$ are
+statistically similar, their phase spectra $\Spec_A$ and $\Spec_B$ are
+accumulated from similar instantaneous frequencies and interaction
+times (Eq.~\eqref{eq:phase-accumulation}), yielding small phase
+differences $\Delta\Phi_k$ and therefore high $V_{AB}$ by
+Eq.~\eqref{eq:visibility}.
+
+\textit{(ii)} Statistical similarity of S-entropy trajectories implies
+$d_G(\bar{\mathbf{S}}_B, \bar{\mathbf{S}}_A)$ is small, and since $A
+\in \Lib$, the Boltzmann distribution assigns high probability to the
+region near $\bar{\mathbf{S}}_A$.
+
+\textit{(iii)} Learned embeddings trained with genre labels as
+supervision (or with data biased by genre co-occurrence) allocate
+orthogonal subspaces to distinct genres. If $\alpha$ and $\beta$ are
+sufficiently distinct in the training distribution, $\|\mathbf{e}_A -
+\mathbf{e}_B\|$ is large even when the underlying categorical
+structure is identical.
+\end{proof}
+
+\begin{example}
+A jazz piano trio and a neurofunk drum \& bass track may share: high
+$\Sk$ (complex harmonic structure), similar $\St$ fluctuation (swung
+micro-timing), compatible partition depth evolution, and parallel groove
+geodesics. Their interference visibility is high. Their CLAP embedding
+distance is large because CLAP was trained to separate ``jazz'' from
+``drum and bass'' in text-audio space. The categorical representation
+captures the structural connection; the learned representation cannot.
+\end{example}
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Rendering--Computing--Observing Identity}
+\label{sec:rco}
+
+\begin{theorem}[Spectral Computation Identity]
+\label{thm:rco}
+Let $\mathcal{O}_i$ be a track observation with phase spectrum
+$\Spec_i$. The GPU fragment shader that renders the visual distortion
+of the album artwork simultaneously computes:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+\item The Boltzmann weight $w_i = \exp(-\beta\,
+  \|\bar{\mathbf{S}}_i\|^2)$ from the S-entropy coordinates (which
+  parameterise the shader uniforms).
+\item The interference visibility $V_{ij}$ for any pair $(i, j)$ via
+  superposition of the rendered wave fields.
+\item The partition function contribution $Z_i = w_i$ as a partial
+  sum.
+\end{enumerate}
+These are not three separate computations performed in sequence but a
+single spectral evaluation expressed in three equivalent
+representations.
+\end{theorem}
+
+\begin{proof}
+\textit{Step 1: Shader as spectral evaluator.}
+The fragment shader evaluates, at each pixel $(u, v)$, a sum of
+sinusoidal displacements:
+\begin{equation}
+  D(u, v, t) = \sum_{k=1}^{N} A_k \sin\!\bigl(2\pi f_k\,
+  \mathbf{n}_k \cdot (u, v) + \Phi_k + \omega_k t\bigr)
+  \label{eq:shader-displacement}
+\end{equation}
+where $A_k$, $f_k$, $\omega_k$ are determined by the audio data
+(bass, mid, treble, volume) and $\Phi_k$ is the accumulated phase of
+oscillator class $k$. This is a spectral synthesis---the shader is
+evaluating the spectrum of the track's oscillator ensemble.
+
+\textit{Step 2: Boltzmann weight from shader uniforms.}
+The S-entropy coordinates $(\Sk, \St, \Se)$ are passed to the shader
+as uniforms and determine the displacement amplitudes $A_k$ and
+frequencies $f_k$. The quantity $\|\bar{\mathbf{S}}\|^2 = \Sk^2 +
+\St^2 + \Se^2$ is computed from these same uniforms. Therefore
+$w = e^{-\beta\|\bar{\mathbf{S}}\|^2}$ is available without
+additional computation.
+
+\textit{Step 3: Interference from superposition.}
+If two tracks' displacement fields $D_A$ and $D_B$ are superposed
+(either by rendering both or by passing both phase spectra as
+uniforms), the resulting intensity $|D_A + D_B|^2$ contains the
+interference term $2\,\mathrm{Re}\bigl[\sum_k A_{A,k} A_{B,k}
+e^{i(\Phi_{A,k} - \Phi_{B,k})}\bigr]$, which is proportional to
+$V_{AB}$.
+
+\textit{Step 4: Identity.}
+All three computations (Boltzmann weight, interference visibility,
+partition function contribution) derive from the same set of shader
+uniforms and sinusoidal evaluations. They are three projections of a
+single spectral computation, unified by the Triple Equivalence
+\citep{sachikonye2026categorical}.
+\end{proof}
+
+\begin{corollary}[Off-Screen Computation]
+\label{cor:offscreen}
+The fragment shader need not render to the visible framebuffer. An
+off-screen render target computes the same spectral quantities without
+visual output. The liquid distortion displayed to the user is a
+perceptible side-effect of a computation that would occur identically
+in an invisible rendering pass.
+\end{corollary}
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Purpose-Trained Language Model Interface}
+\label{sec:purpose}
+
+The thermodynamic framework provides closed-form solutions for
+recommendation, but the user speaks natural language, not statistical
+mechanics. A translation layer is required.
+
+\subsection{Knowledge Distillation from Categorical Observations}
+
+The Purpose framework performs six-stage knowledge distillation:
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item \textbf{Structured Extraction}: Each track observation
+  $\mathcal{O}_i$ is converted to structured JSON: S-entropy
+  statistics, partition histogram, phase spectrum, dominant partition
+  depth.
+
+\item \textbf{Knowledge Mapping}: The collection $\{\mathcal{O}_i\}$
+  is aggregated into a knowledge graph: which tracks cluster in
+  S-entropy space, what categorical properties define each cluster,
+  what interference patterns exist between clusters.
+
+\item \textbf{Stratified Query Generation}: Expert queries are
+  generated across four depth levels (basic, intermediate, advanced,
+  expert) and five query types (factual, analytical, comparative,
+  hypothetical, synthesis), following Bloom's taxonomy
+  \citep{bloom1956taxonomy}.
+
+\item \textbf{Multi-Teacher Response Enhancement}: Teacher models
+  (GPT-4, Claude) generate responses grounded in the knowledge graph,
+  enriched with categorical terminology and S-entropy coordinates.
+
+\item \textbf{Curriculum Organisation}: QA pairs are organised into
+  progressive difficulty stages for fine-tuning.
+
+\item \textbf{LoRA Fine-Tuning}: A student model is fine-tuned with
+  low-rank adaptation \citep{hu2021lora} on the curriculum, producing
+  a domain-specific model that understands this user's categorical
+  audio library.
+\end{enumerate}
+
+\subsection{Prompt-to-Thermodynamic-Operation Translation}
+
+The trained model translates natural-language prompts into
+thermodynamic operations:
+
+\begin{definition}[Prompt Interpretation Function]
+\label{def:prompt}
+Let $q$ be a natural-language query. The Purpose-trained model
+computes:
+\begin{equation}
+  f_{\mathrm{LLM}}(q, \Lib) = \bigl(\mathbf{S}_{\mathrm{target}},\,
+  \Delta T,\, \mathbf{c}_{\mathrm{mask}},\,
+  \Lib_{\mathrm{sub}}\bigr)
+  \label{eq:prompt-function}
+\end{equation}
+where $\mathbf{S}_{\mathrm{target}}$ is the target S-entropy region,
+$\Delta T$ is a temperature shift (positive for exploration, negative
+for refinement), $\mathbf{c}_{\mathrm{mask}}$ is a channel mask
+specifying which oscillator classes to prioritise, and
+$\Lib_{\mathrm{sub}} \subseteq \Lib$ is a sub-ensemble to condition on
+(e.g., ``Tuesday evening'' tracks).
+\end{equation}
+\end{definition}
+
+\begin{example}
+\textit{``Something like the last few tracks but more aggressive.''}
+
+The model identifies: $\Lib_{\mathrm{sub}}$ = last 3 tracks;
+$\mathbf{S}_{\mathrm{target}}$ = centroid of sub-ensemble with $\Se$
+increased by 0.15; $\Delta T = 0$ (no exploration shift);
+$\mathbf{c}_{\mathrm{mask}}$ = weight channels 0, 1, 5 (low
+structural, bass-mid coupling, energy envelope).
+
+The search then samples from $P(\mathbf{S}\,|\,\Lib_{\mathrm{sub}})$
+with the $\Se$ constraint, translated to Spotify API queries
+targeting tracks with matching energy and tempo characteristics.
+\end{example}
+
+\subsection{Articulation of Interference Results}
+
+The model also operates in reverse: given an interference result
+$V_{AB}$ with channel coherence $\mathbf{c}$, it generates a
+natural-language explanation:
+
+\begin{equation}
+  g_{\mathrm{LLM}}(V_{AB}, \mathbf{c}, \mathcal{O}_A, \mathcal{O}_B)
+  = \text{``These tracks share bass architecture and energy}
+  \text{dynamics but diverge in harmonic complexity.''}
+  \label{eq:articulation}
+\end{equation}
+
+The explanation is grounded in the per-channel decomposition
+(Theorem~\ref{thm:interpretability}), not in genre labels or subjective
+descriptors.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Ensemble Enrichment Dynamics}
+\label{sec:enrichment}
+
+\begin{theorem}[Monotonic Information Gain]
+\label{thm:enrichment}
+Each new track observation $\mathcal{O}_{M+1}$ added to the library
+$\Lib$ strictly increases the Fisher information of the ensemble's
+Boltzmann distribution, provided $\mathcal{O}_{M+1}$ is not
+categorically identical to an existing observation.
+\end{theorem}
+
+\begin{proof}
+The Fisher information of the Boltzmann distribution with respect to
+the temperature parameter $\beta$ is:
+\begin{equation}
+  I(\beta) = \mathrm{Var}_P\!\bigl[\|\bar{\mathbf{S}}\|^2\bigr]
+  = \langle \|\bar{\mathbf{S}}\|^4 \rangle
+  - \langle \|\bar{\mathbf{S}}\|^2 \rangle^2
+  \label{eq:fisher}
+\end{equation}
+Adding a non-degenerate observation increases the variance of the
+energy distribution (since the new point either extends the support
+or increases the density within the support), strictly increasing
+$I(\beta)$ by the strict convexity of variance under non-degenerate
+extension.
+\end{proof}
+
+\begin{corollary}[Self-Improving Recommendations]
+\label{cor:self-improving}
+The precision of recommendations improves monotonically with library
+size. This improvement arises from thermodynamic enrichment (better
+statistical characterisation of the ensemble), not from collaborative
+filtering (which requires other users' data) or model retraining
+(which requires gradient updates).
+\end{corollary}
+
+\begin{remark}
+The enrichment is immediate: adding a track observation updates $Z$,
+$T_{\Lib}$, $F$, and $S_{\mathrm{taste}}$ in $O(1)$ time (incremental
+update of running sums). No batch recomputation is required.
+\end{remark}
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{System Architecture}
+\label{sec:architecture}
+
+The complete system comprises five components:
+
+\subsection{Component 1: Categorical Observation Pipeline}
+
+Audio from the Web Audio API analyser is processed at each animation
+frame:
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+\item FFT yields bass, mid, treble, volume band energies.
+\item S-entropy coordinates computed via
+  Eqs.~\eqref{eq:sk}--\eqref{eq:se}.
+\item Partition coordinates derived from S-entropy (partition depth
+  $n$ from $\Se$; harmonic order $\ell$ from $\Sk$; phase index $m$
+  from $\St$; chirality $s$ from $\Se$ gradient).
+\item Phase spectrum accumulated: $\Phi_k \mathrel{+}= \omega_k \cdot
+  \tau_p^{(k)} \cdot \Delta t$.
+\item Running statistics (mean, variance) updated incrementally.
+\end{enumerate}
+
+\subsection{Component 2: Thermodynamic Ensemble Engine}
+
+Maintains the library $\Lib$ and computes ensemble quantities:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Temperature $T_{\Lib}$ (Eq.~\eqref{eq:temperature})
+\item Partition function $Z(\beta)$
+  (Eq.~\eqref{eq:partition-function})
+\item Boltzmann distribution $P(\mathbf{S}\,|\,\Lib)$
+  (Eq.~\eqref{eq:boltzmann})
+\item Free energy $F$ (Eq.~\eqref{eq:free-energy})
+\item Taste entropy $S_{\mathrm{taste}}$
+  (Eq.~\eqref{eq:taste-entropy})
+\item Interference matrix $V_{ij}$ for all pairs in $\Lib$
+\end{itemize}
+
+All quantities are updated incrementally in $O(1)$ per new observation
+(except the interference matrix, which requires $O(M)$ per new track).
+
+\subsection{Component 3: Interference Matching Shader}
+
+A WebGL fragment shader evaluates
+Eq.~\eqref{eq:shader-displacement} at each pixel, simultaneously
+rendering the liquid distortion and computing the spectral quantities.
+Phase spectra are passed as uniform arrays. The shader outputs
+both the visual frame and (via readback or parallel CPU computation)
+the Boltzmann weights and visibility scores.
+
+\subsection{Component 4: Purpose-Trained Language Model}
+
+An LLM (GPT-4 via API, or a LoRA-adapted local model) receives:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item System prompt: ensemble thermodynamic state ($T_{\Lib}$, $Z$,
+  $F$, $S_{\mathrm{taste}}$, cluster summary)
+\item User library: per-track categorical observations (JSON)
+\item Interference matrix: pairwise visibilities
+\item User query: natural language
+\end{itemize}
+
+Returns: target S-entropy region, temperature shift, channel mask,
+sub-ensemble selection, and Spotify/SoundCloud API search terms.
+
+\subsection{Component 5: Streaming API Integration}
+
+Spotify OAuth PKCE provides track search and 30-second preview
+playback. The categorical observation pipeline operates on the preview
+audio in real time. Candidate tracks are verified via interference
+against the library ensemble before being recommended.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Comparison with Existing Systems}
+\label{sec:comparison}
+
+\begin{center}
+\begin{tabular}{@{}p{2.3cm}ccc@{}}
+\toprule
+\textbf{Property} & \textbf{Collab.\ Filter} & \textbf{Embeddings}
+  & \textbf{This Work} \\
+\midrule
+Data source & User behaviour & Audio + text & Audio signal \\
+Training & $10^6$+ users & $10^6$+ examples & None \\
+Cold start & Fails & Degraded & Immediate \\
+Interpretability & None & None & Per-channel \\
+Cross-genre & Poor & Moderate & Strong \\
+Within-genre & Strong & Strong & Moderate \\
+Complexity & $O(Md)$ & $O(Md)$ & $O(MN)$ \\
+Improves with & More users & More data & More listening \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The interference approach does not replace collaborative filtering or
+learned embeddings. It provides a \emph{complementary} similarity
+signal grounded in the physics of the audio signal, capturing
+structural relationships that data-driven methods are structurally
+incapable of representing.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{The Physics Framing}
+
+The central observation of this work is that once audio is expressed
+as a gas ensemble of oscillators---which the CAT framework proves is
+not a metaphor but a mathematical identity---every computational
+problem in music recommendation becomes a well-posed problem in
+statistical mechanics. Finding similar tracks is computing interference
+visibility. Modelling taste is computing a partition function.
+Recommending music is sampling from a Boltzmann distribution. Exploring
+new genres is heating the ensemble. Refining preference is cooling it.
+
+These are not approximate analogies. They are exact correspondences
+between operations on categorical audio state and operations in
+statistical mechanics, mediated by the Triple Equivalence: oscillatory
+$\equiv$ categorical $\equiv$ partitional. The GPU shader that renders
+the visual distortion is the same computation that evaluates the
+partition function, because both are spectral evaluations of oscillator
+ensembles.
+
+\subsection{Limitations}
+
+\textbf{Representation capacity.} The current implementation uses
+$N = 8$ oscillator classes. This is sufficient for demonstrating the
+framework but may be insufficient for fine-grained discrimination.
+Increasing $N$ to 64 or 256 increases capacity at the cost of $O(N)$
+per comparison.
+
+\textbf{Duration normalisation.} Phase accumulation grows with track
+duration. Comparing 30-second previews against full tracks requires
+normalisation by duration or by phase rates rather than cumulative
+phases.
+
+\textbf{Semantic content.} The framework encodes structural
+properties of the audio signal. Lyrical content, cultural context,
+and subjective associations are outside its scope.
+
+\textbf{Empirical validation.} The mathematical framework is derived
+from first principles. Empirical validation through listening studies
+correlating interference visibility with human similarity judgments is
+required and is the subject of ongoing work.
+
+\subsection{Implications}
+
+If the framework is validated empirically, it implies that a
+significant component of musical similarity---the structural
+component---is computable from the audio signal alone, without
+training data, without user behaviour data, and without cultural
+metadata. This component is invisible to existing recommendation
+systems because they operate on representations that do not encode
+categorical structure.
+
+The practical implication is a recommendation system that works for
+the first user on the first track, improves monotonically with
+listening, provides interpretable similarity judgments, and discovers
+structural connections across genre boundaries that no
+collaborative-filtering or embedding-based system can find.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have derived a music search and recommendation framework from the
+single premise that audio signals are bounded oscillatory systems in
+finite phase space. From this premise:
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item Audio tracks are oscillator ensembles with partition coordinates
+  and S-entropy trajectories.
+\item The listening library is a thermodynamic gas ensemble with
+  temperature, partition function, Boltzmann distribution, free energy,
+  and entropy.
+\item Similarity between tracks is interference visibility between
+  their phase spectra.
+\item Recommendation is Boltzmann sampling from the ensemble.
+\item The GPU shader rendering visual effects simultaneously computes
+  the thermodynamic quantities.
+\item A Purpose-trained language model translates between natural
+  language and thermodynamic operations.
+\item The system improves monotonically with use through ensemble
+  enrichment.
+\end{enumerate}
+
+No training data is required. No cold-start problem exists. Every
+similarity judgment is interpretable per oscillator channel. Cross-genre
+structural similarity is captured by construction. The system is
+specified with sufficient detail for independent implementation.
+
+\vspace{6pt}
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

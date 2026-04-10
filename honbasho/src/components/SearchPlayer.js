@@ -4,6 +4,7 @@ import { PlayerAudioProvider, usePlayerAudio } from './PlayerAudioProvider'
 import { LiquidDistortion, LiquidSlider } from './LiquidDistortion'
 import { useSpotify } from '../hooks/useSpotify'
 import { useTrackObserver } from '../hooks/useTrackObserver'
+import { ThermodynamicEnsemble } from '../lib/ensemble'
 
 const LOCAL_PLAYLIST = [
     { id: 'local-1', name: 'Feed the Machine', artist: 'Black Sun Empire & Noisia', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3', albumArt: '/albums/bse-feed-the-machine.png' },
@@ -21,10 +22,12 @@ function SearchPlayerUI() {
 
     const spotify = useSpotify()
     const observer = useTrackObserver()
+    const ensembleRef = useRef(new ThermodynamicEnsemble())
 
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState([])
     const [searching, setSearching] = useState(false)
+    const [aiExplanation, setAiExplanation] = useState('')
     const [playlist, setPlaylist] = useState(LOCAL_PLAYLIST)
     const [currentIndex, setCurrentIndex] = useState(-1)
     const [started, setStarted] = useState(false)
@@ -36,31 +39,73 @@ function SearchPlayerUI() {
         if (audioData.isPlaying) observer.observe(audioData)
     }, [audioData, observer])
 
-    // Search handler
+    // Enrich ensemble when a track finishes observation
+    const enrichEnsemble = useCallback(() => {
+        const spectrum = observer.getCurrentSpectrum()
+        if (spectrum && spectrum.observationCount > 10) {
+            ensembleRef.current.addObservation(spectrum)
+        }
+    }, [observer])
+
+    // Search handler — AI-powered when ensemble has data
     const handleSearch = useCallback(async (e) => {
         e?.preventDefault()
         if (!searchQuery.trim()) return
 
         setSearching(true)
+        setAiExplanation('')
         try {
+            let searchTerms = [searchQuery]
+
+            // If we have an ensemble, ask the LLM to translate the prompt
+            const ensemble = ensembleRef.current
+            if (ensemble.size > 0) {
+                try {
+                    const chatRes = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            prompt: searchQuery,
+                            ensembleState: ensemble.toJSON(),
+                        }),
+                    })
+                    if (chatRes.ok) {
+                        const aiResult = await chatRes.json()
+                        if (aiResult.searchTerms?.length) searchTerms = aiResult.searchTerms
+                        if (aiResult.explanation) setAiExplanation(aiResult.explanation)
+                    }
+                } catch (aiErr) {
+                    // Fall back to raw search if AI unavailable
+                    console.warn('AI search unavailable, using raw query:', aiErr)
+                }
+            }
+
+            // Search Spotify with the (possibly AI-translated) terms
             if (spotify.authenticated) {
-                const { getValidToken } = await import('../lib/spotify')
+                const { getValidToken, search } = await import('../lib/spotify')
                 const token = await getValidToken()
                 if (token) {
-                    const { search } = await import('../lib/spotify')
-                    const data = await search(token.access_token, searchQuery, 'track', 20)
-                    const tracks = (data.tracks?.items || []).map(t => ({
-                        id: t.id,
-                        name: t.name,
-                        artist: t.artists?.map(a => a.name).join(', ') || '',
-                        album: t.album?.name || '',
-                        albumArt: t.album?.images?.[0]?.url || '',
-                        duration: t.duration_ms,
-                        previewUrl: t.preview_url,
-                        uri: t.uri,
-                        src: t.preview_url, // 30s preview
-                    }))
-                    setSearchResults(tracks)
+                    // Search with all terms, deduplicate
+                    const allTracks = new Map()
+                    for (const term of searchTerms.slice(0, 3)) {
+                        const data = await search(token.access_token, term, 'track', 10)
+                        for (const t of (data.tracks?.items || [])) {
+                            if (!allTracks.has(t.id)) {
+                                allTracks.set(t.id, {
+                                    id: t.id,
+                                    name: t.name,
+                                    artist: t.artists?.map(a => a.name).join(', ') || '',
+                                    album: t.album?.name || '',
+                                    albumArt: t.album?.images?.[0]?.url || '',
+                                    duration: t.duration_ms,
+                                    previewUrl: t.preview_url,
+                                    uri: t.uri,
+                                    src: t.preview_url,
+                                })
+                            }
+                        }
+                    }
+                    setSearchResults(Array.from(allTracks.values()))
                 }
             }
         } catch (err) {
@@ -95,12 +140,13 @@ function SearchPlayerUI() {
         setSearchResults([]) // Close search results
     }, [searchResults, playTrack])
 
-    // Skip to next
+    // Skip to next — enriches ensemble with finished track
     const handleSkip = useCallback(async () => {
         observer.finishTrack()
+        enrichEnsemble()
         const next = (indexRef.current + 1) % playlist.length
         await playTrack(playlist[next], next)
-    }, [playlist, playTrack, observer])
+    }, [playlist, playTrack, observer, enrichEnsemble])
 
     // Auto-advance
     useEffect(() => {
@@ -166,7 +212,7 @@ function SearchPlayerUI() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder={spotify.authenticated ? 'Search Spotify...' : 'Connect Spotify to search'}
+                            placeholder={spotify.authenticated ? 'Describe what you want to hear...' : 'Connect Spotify to search'}
                             disabled={!spotify.authenticated}
                             className="flex-1 px-4 py-2.5 rounded-full bg-white/10 border border-white/20
                                 text-white text-sm placeholder:text-white/30 outline-none
@@ -211,6 +257,24 @@ function SearchPlayerUI() {
                         </div>
                     )}
                 </div>
+
+                {/* AI explanation */}
+                {aiExplanation && (
+                    <div className="max-w-2xl mx-auto mt-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                        <p className="text-emerald-300/80 text-xs italic">{aiExplanation}</p>
+                    </div>
+                )}
+
+                {/* Ensemble indicator */}
+                {ensembleRef.current.size > 0 && (
+                    <div className="max-w-2xl mx-auto mt-1 flex items-center gap-3 px-2">
+                        <span className="text-white/20 text-[10px]">
+                            T={ensembleRef.current.temperature.toFixed(2)} |
+                            S={ensembleRef.current.tasteEntropy.toFixed(2)} |
+                            {ensembleRef.current.size} tracks observed
+                        </span>
+                    </div>
+                )}
 
                 {/* Search results dropdown */}
                 {searchResults.length > 0 && (
