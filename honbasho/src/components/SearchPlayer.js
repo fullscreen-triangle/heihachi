@@ -4,7 +4,7 @@ import { PlayerAudioProvider, usePlayerAudio } from './PlayerAudioProvider'
 import { LiquidDistortion, LiquidSlider } from './LiquidDistortion'
 import { useSpotify } from '../hooks/useSpotify'
 import { useTrackObserver } from '../hooks/useTrackObserver'
-import { ThermodynamicEnsemble } from '../lib/ensemble'
+import { useLibrary } from '../lib/LibraryProvider'
 
 const LOCAL_PLAYLIST = [
     { id: 'local-1', name: 'Feed the Machine', artist: 'Black Sun Empire & Noisia', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3', albumArt: '/albums/bse-feed-the-machine.png' },
@@ -22,7 +22,7 @@ function SearchPlayerUI() {
 
     const spotify = useSpotify()
     const observer = useTrackObserver()
-    const ensembleRef = useRef(new ThermodynamicEnsemble())
+    const library = useLibrary()
 
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState([])
@@ -43,7 +43,7 @@ function SearchPlayerUI() {
     const enrichEnsemble = useCallback(() => {
         const spectrum = observer.getCurrentSpectrum()
         if (spectrum && spectrum.observationCount > 10) {
-            ensembleRef.current.addObservation(spectrum)
+            library.addObservation(spectrum)
         }
     }, [observer])
 
@@ -58,7 +58,7 @@ function SearchPlayerUI() {
             let searchTerms = [searchQuery]
 
             // If we have an ensemble, ask the LLM to translate the prompt
-            const ensemble = ensembleRef.current
+            const ensemble = library.getEnsemble()
             if (ensemble.size > 0) {
                 try {
                     const chatRes = await fetch('/api/chat', {
@@ -266,15 +266,18 @@ function SearchPlayerUI() {
                 )}
 
                 {/* Ensemble indicator */}
-                {ensembleRef.current.size > 0 && (
-                    <div className="max-w-2xl mx-auto mt-1 flex items-center gap-3 px-2">
-                        <span className="text-white/20 text-[10px]">
-                            T={ensembleRef.current.temperature.toFixed(2)} |
-                            S={ensembleRef.current.tasteEntropy.toFixed(2)} |
-                            {ensembleRef.current.size} tracks observed
-                        </span>
-                    </div>
-                )}
+                {library.librarySize > 0 && (() => {
+                    const ens = library.getEnsemble()
+                    return (
+                        <div className="max-w-2xl mx-auto mt-1 flex items-center gap-3 px-2">
+                            <span className="text-white/20 text-[10px]">
+                                T={ens.temperature.toFixed(2)} |
+                                S={ens.tasteEntropy.toFixed(2)} |
+                                {ens.size} tracks observed
+                            </span>
+                        </div>
+                    )
+                })()}
 
                 {/* Search results dropdown */}
                 {searchResults.length > 0 && (

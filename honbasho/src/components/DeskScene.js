@@ -1,9 +1,11 @@
 'use client'
-import { Suspense, Component } from 'react'
+import { Suspense, Component, useEffect, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { BakeShadows, Environment } from '@react-three/drei'
 import { Instances, Computers, AudioControls } from './Desk'
-import { AudioProvider } from './Desk'
+import { AudioProvider, useAudioData } from './Desk'
+import { useLibrary } from '../lib/LibraryProvider'
+import { TrackSpectrum } from '../lib/categoricalAudio'
 
 class ErrorBoundary extends Component {
     constructor(props) {
@@ -33,10 +35,41 @@ class ErrorBoundary extends Component {
     }
 }
 
+// Observes the homepage jukebox audio and feeds the global library
+function HomeAudioObserver() {
+    const { audioData, trackName, trackIndex } = useAudioData()
+    const library = useLibrary()
+    const spectrumRef = useRef(null)
+    const lastTrackIndex = useRef(-1)
+
+    useEffect(() => {
+        // Track changed — save previous, start new
+        if (trackIndex !== lastTrackIndex.current) {
+            if (spectrumRef.current && spectrumRef.current.count > 10) {
+                library.addObservation(spectrumRef.current.toJSON())
+            }
+            spectrumRef.current = new TrackSpectrum(
+                `home-${trackIndex}`,
+                trackName || `Track ${trackIndex + 1}`
+            )
+            lastTrackIndex.current = trackIndex
+        }
+    }, [trackIndex, trackName, library])
+
+    useEffect(() => {
+        if (audioData.isPlaying && spectrumRef.current) {
+            spectrumRef.current.addObservation(audioData)
+        }
+    }, [audioData])
+
+    return null // Invisible — just observes
+}
+
 const DeskScene = () => {
     return (
         <ErrorBoundary>
             <AudioProvider>
+                <HomeAudioObserver />
                 <div className="absolute inset-0 z-0">
                     <Canvas
                         shadows
