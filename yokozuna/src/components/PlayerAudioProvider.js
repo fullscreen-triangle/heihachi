@@ -9,6 +9,7 @@ export function PlayerAudioProvider({ children }) {
     })
     const [trackInfo, setTrackInfo] = useState({ name: '', duration: 0, currentTime: 0 })
     const [ambientCompensation, setAmbientCompensation] = useState(false)
+    const [ambientProfile, setAmbientProfile] = useState(null) // Environmental spectrum
 
     const analyserRef = useRef(null)
     const dataArrayRef = useRef(null)
@@ -155,10 +156,19 @@ export function PlayerAudioProvider({ children }) {
 
         setAudioData({ frequency: d[0] / 255, bass, mid, treble, volume, isPlaying: true })
 
-        // Ambient compensation: adjust EQ based on mic input
+        // Ambient integration: shape music to blend with environment
         if (ambientCompensation && micAnalyserRef.current && micDataRef.current) {
             micAnalyserRef.current.getByteFrequencyData(micDataRef.current)
             updateCompensationFilters(micDataRef.current)
+
+            // Expose ambient profile for observation/library
+            const md = micDataRef.current
+            const mLen = md.length
+            const aBass = md.slice(0, mLen / 4).reduce((a, b) => a + b, 0) / (mLen / 4) / 255
+            const aMid = md.slice(mLen / 4, mLen / 2).reduce((a, b) => a + b, 0) / (mLen / 4) / 255
+            const aTreble = md.slice(mLen / 2).reduce((a, b) => a + b, 0) / (mLen / 2) / 255
+            const aVol = md.reduce((a, b) => a + b, 0) / mLen / 255
+            setAmbientProfile({ bass: aBass, mid: aMid, treble: aTreble, volume: aVol })
         }
 
         animFrameRef.current = requestAnimationFrame(analyzeLoop)
@@ -168,20 +178,42 @@ export function PlayerAudioProvider({ children }) {
         const binCount = micData.length
         const sampleRate = audioCtxRef.current?.sampleRate || 44100
 
+        // Get the music's current spectrum for comparison
+        const musicData = dataArrayRef.current
+        if (!musicData) return
+
         filtersRef.current.forEach((filter, i) => {
             const freq = FILTER_BANDS[i]
-            // Map filter frequency to FFT bin
             const bin = Math.round(freq / (sampleRate / 2) * binCount)
-            // Average a few bins around the center
             const start = Math.max(0, bin - 2)
             const end = Math.min(binCount - 1, bin + 2)
-            let sum = 0
-            for (let j = start; j <= end; j++) sum += micData[j]
-            const ambientLevel = sum / (end - start + 1) / 255
 
-            // Boost where ambient noise is high (inverse EQ), max +8dB
-            const boostDb = ambientLevel * 8
-            filter.gain.value = boostDb
+            // Measure ambient energy at this band
+            let ambientSum = 0
+            for (let j = start; j <= end; j++) ambientSum += micData[j]
+            const ambientLevel = ambientSum / (end - start + 1) / 255
+
+            // Measure music energy at this band
+            const musicBin = Math.round(freq / (sampleRate / 2) * musicData.length)
+            const mStart = Math.max(0, musicBin - 2)
+            const mEnd = Math.min(musicData.length - 1, musicBin + 2)
+            let musicSum = 0
+            for (let j = mStart; j <= mEnd; j++) musicSum += musicData[j]
+            const musicLevel = musicSum / (mEnd - mStart + 1) / 255
+
+            // Environmental audio integration:
+            // Where ambient is loud AND music is also loud → slight cut (avoid masking)
+            // Where ambient is loud AND music is quiet → leave alone (environment fills)
+            // Where ambient is quiet AND music present → slight boost (music fills the gap)
+            // The result: music and environment form a coherent acoustic image
+
+            const overlap = ambientLevel * musicLevel  // Both present = masking risk
+            const gap = Math.max(0, musicLevel - ambientLevel) // Music in quiet band = can boost
+            const fill = Math.max(0, ambientLevel - musicLevel) // Ambient fills, don't fight it
+
+            // Cut where both overlap (reduce masking), boost where music fills gaps
+            const adjustDb = -overlap * 4 + gap * 3 - fill * 1
+            filter.gain.value = Math.max(-6, Math.min(6, adjustDb))
         })
     }, [])
 
@@ -229,7 +261,7 @@ export function PlayerAudioProvider({ children }) {
 
     return (
         <PlayerAudioCtx.Provider value={{
-            audioData, trackInfo, ambientCompensation,
+            audioData, trackInfo, ambientCompensation, ambientProfile,
             loadTrack, loadFile, play, pause, seek, setVolume,
             toggleAmbientCompensation, getFrequencyData
         }}>
