@@ -1,0 +1,2500 @@
+% =====================================================================
+%  On the Necessary Substructures of Finite Contact Graphs
+%  A conditional-existence account of why a finite world is structured.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage[round,sort&compress]{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing,fit}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+\crefname{axiom}{Premise}{Premises}
+\Crefname{axiom}{Premise}{Premises}
+\crefname{principle}{Principle}{Principles}
+\Crefname{principle}{Principle}{Principles}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Gph}{\Gamma}                 % the contact graph
+\newcommand{\V}{V}                        % vertex set
+\newcommand{\E}{E}                        % edge set
+\newcommand{\wt}{w}                       % edge weight
+\newcommand{\floorc}{\beta}               % the floor
+\newcommand{\Nbr}{N}                      % neighbourhood
+\newcommand{\co}{\complement}             % complement
+\newcommand{\cut}{\partial}               % edge boundary / cut
+\newcommand{\Walk}{W}                     % a walk
+\newcommand{\gate}{g}                     % gating function
+\newcommand{\Agent}{A}                    % agent subgraph
+\newcommand{\Res}{\rho}                   % residual invariant
+\newcommand{\Quot}{Q}                     % quotient graph
+\newcommand{\rec}{M}                      % committed record
+\newcommand{\Ver}{\mathsf{V}}             % verifier
+\newcommand{\med}{\mathsf{M}}             % the medium / whole
+\newcommand{\idres}{\rho_{\!*}}            % identification residual
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\restr}{\!\restriction\!}
+
+\title{\textbf{On the Necessary Substructures of Finite Contact Graphs:\\[2pt]
+A Conditional-Existence Account of Why a Finite World Is Structured}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+We ask a structural question---\emph{why is a world structured at all?}---and
+answer it with a single hypothesis about graphs. A \emph{contact graph} is a
+finite weighted graph whose vertices are the parts that have been individuated
+within a whole and whose edges carry the cost of separating one part from
+another. We first show that the central constant of the theory need not be
+assumed: from the two facts that a thing is a proper part of a whole and that the
+whole is \emph{non-completable} \textup{(}no finite stage exhausts it\textup{)},
+we prove a \emph{Floor from Infinitude} theorem---the comparison identifying a
+thing against the rest can never be completed, so every thing carries a strictly
+positive irreducible residual. The positive floor is thus derived, not posited;
+it is the trace the non-completable whole leaves on each of its finite parts. With
+the floor in hand we proceed from a single working premise---that a finite contact
+graph with this positive floor exists---and derive, as a chain of existence
+theorems, a ladder of substructures any such graph must contain. We prove:
+\textbf{(T0)} a strictly positive \emph{floor} on every separating boundary---no
+two parts are adjacent at zero cost; \textbf{(T1)} that each vertex is fixed only
+by its complement-neighbourhood, so that individuation must proceed by negation
+and admits no selector without regress; \textbf{(T2)} that the
+\emph{cut-residual}---the inter-part boundary content---is bounded below and is
+invariant under every relabelling (isomorphism) of the graph, while no single
+vertex realises it, so the residual is a region and never a point; \textbf{(T3)}
+that this residual is the conserved quantity under all re-encodings of the
+graph's vertices, the unique invariant from which the relabellable surface
+derives; \textbf{(T4)} that every connected subgraph carries its own such
+invariant under its automorphisms; \textbf{(T5)} that selecting a walk on the
+graph requires an edge-gating function, without which the next step is
+undetermined; \textbf{(T6)} that the committed-edge count along any walk is
+monotone, so revisiting a vertex is never returning to a state and resemblance
+never entails identity; \textbf{(T7)} that a coherent family of subgraphs acting
+as one admits a single gating function on their quotient graph, and only one;
+and \textbf{(T8)} that, because the subgraph invariant is complete, contact
+graphs are specifiable and hence instantiable---authored finite structures
+exist---subject to three bounds we prove: their walks are not foreseeable from
+their specification, an authored copy is a distinct structure, and authorship is
+limited to the resolution of the floor. We then give the operational reading: a
+\emph{measurement} is a reshuffling of the graph that conserves the medium, so it
+tightens a part's boundary while leaving its interior residue---its
+identity---untouched; resolving a thing's identity to a point would require
+exhausting the non-completable whole, which reshuffling conserves, so identity is
+structurally unreachable, and point-identity is refuted in two independent
+ways---resolution never saturates and independent lines of measurement never
+become redundant. We close with a Master Theorem: every substructure T0--T8 is
+forced for finite graphs in a non-completable whole and is \emph{not} forced for
+completable or zero-floor graphs, and the whole ladder is equivalent to the
+identifiability of any one thing at all. Structure is therefore neither imposed on a world
+nor intrinsic to it independent of its parts; it is the necessary form a world
+must take to be resolved by finitely many parts within a whole they cannot
+exhaust. \emph{The floor is the trace of the whole on its parts; structure is the
+shadow of finitude meeting the inexhaustible.} Every claim is proved from the
+stated premises; uncertain material has been omitted, and the interpretations a
+reader may attach---of parts as agents, residuals as conserved truth, the medium
+as the whole, measurement as inquiry---are confined to clearly marked remarks on
+which no theorem depends.
+\end{abstract}
+
+\noindent\textbf{Keywords:} contact graph; finite weighted graph; edge-weight
+floor; individuation by negation; cut invariant; graph isomorphism invariant;
+gated walk; monotone walk; quotient graph; conditional existence; necessary
+substructure; authored structure.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question}
+
+Why is a world structured at all? One might expect a world to be either a
+featureless continuum, in which nothing is marked off from anything else, or an
+arbitrary heap, in which everything is marked off from everything else at no
+cost. Neither is what is observed: parts are distinguished, but their
+distinction is bounded---there is a cost to telling one part from another, and
+the parts compose into a definite architecture. We argue that this architecture
+is not contingent. It is forced, in full, by a single fact: that the parts are
+\emph{finite in number} and \emph{finitely separated}. The structure of a world
+is the shadow its finiteness casts.
+
+We make this precise in the language of graphs, because every relation of
+``this part, separated from that part'' is natively an edge between two
+vertices, and any architecture of parts is some graph. The object of the paper
+is therefore a single graph---a \emph{contact graph}---whose vertices are the
+individuated parts of a whole and whose weighted edges record the cost of the
+separations between them. We pose one hypothesis about this graph and derive
+everything else.
+
+\subsection{Method: conditional existence}
+
+The paper proves no empirical claim. It establishes a conditional: \emph{if}
+anything is identifiable at all within a non-completable whole, \emph{then} a
+determinate ladder of substructures must exist. We first derive, from
+identifiability and non-completability, that the central constant---the positive
+floor---is forced rather than assumed (\Cref{sec:ground}); the working premise
+below then becomes a consequence, and the remaining rungs are existence theorems
+of the form ``under this premise, the following is forced.'' We assume nothing
+about what the vertices \emph{are}; we assume only that a thing can be told from
+the rest of an inexhaustible whole, and we read off what the resulting graph
+cannot lack. The deductions are combinatorial and order-theoretic throughout.
+Where a tempting claim could not be proved at this standard it has been removed
+rather than weakened.
+
+\subsection{The ground premise and the derived floor}
+
+The deepest premise is not the graph but identifiability itself. \Cref{sec:ground}
+takes as given only that there is a whole $\med$ that is \emph{non-completable}
+(no finite stage exhausts it) and that a \emph{thing} is a proper part of it. From
+these we prove the \emph{Floor from Infinitude} theorem
+(\Cref{thm:floor-infinitude}): identifying a thing is comparing it against the
+rest of the whole, and were that comparison completable the whole would be
+finite; since it is not, the comparison cannot finish and every thing carries a
+strictly positive irreducible residual. The positive floor is thereby
+\emph{derived}---it is the trace the non-completable whole leaves on each finite
+part (\Cref{cor:floor-derived})---and the following Finiteness Premise is retained
+only as the working hypothesis for the graph development.
+
+\begin{axiom}[Finiteness Premise]
+\label{ax:finite}
+A \emph{contact graph} is a finite weighted graph $\Gph=(\V,\E,\wt)$ with
+$\abs{\V}<\infty$, in which every edge weight is bounded below by a positive
+constant: there is $\floorc>0$ with $\wt(e)\ge\floorc$ for all $e\in\E$. We
+assume throughout that a contact graph exists and that it is connected. By
+\Cref{cor:floor-derived} the positive floor $\floorc$ is not an independent
+posit but the derived residual of \Cref{thm:floor-infinitude}; we keep the
+premise in this form for the combinatorial development.
+\end{axiom}
+
+The premise is almost nothing: a finite graph whose edges cost something---and
+even that cost is earned, not assumed. Its consequences are almost everything we
+mean by structure.
+
+\subsection{The ladder of necessary substructures}
+
+Under \Cref{ax:finite} we prove the following chain, each rung from the premise
+together with those above it.
+
+\begin{enumerate}[label=\textbf{(T\arabic*)},leftmargin=3em,start=0]
+\item \emph{The floor exists} (\Cref{sec:floor}): every separating boundary has
+weight $\ge\floorc>0$; no two parts are adjacent at zero cost.
+\item \emph{Individuation is by negation} (\Cref{sec:negation}): a vertex is
+fixed only as the complement of its non-neighbours; no selector fixes it without
+regress.
+\item \emph{Truth is a residual region} (\Cref{sec:residual}): the cut-residual
+is bounded below and realised by no single vertex, hence a region, never a
+point.
+\item \emph{The residual is the conserved invariant} (\Cref{sec:residual}):
+under every relabelling of vertices the residual is preserved; it is the unique
+invariant from which the relabellable surface derives.
+\item \emph{Each subgraph has a private invariant} (\Cref{sec:invariant}): every
+connected subgraph carries its own invariant under its automorphisms.
+\item \emph{Selection requires a gate} (\Cref{sec:gating}): a walk is
+undetermined without an edge-gating function that biases the next step.
+\item \emph{Histories do not return} (\Cref{sec:monotone}): the committed-edge
+count is monotone; revisiting a vertex is not returning to a state.
+\item \emph{Plurality forces a single quotient gate} (\Cref{sec:quotient}): a
+coherent family of subgraphs acting as one admits exactly one gating function on
+their quotient.
+\item \emph{Authored structures exist, and are bounded} (\Cref{sec:construct}):
+the subgraph invariant is complete, so contact graphs are specifiable and
+instantiable; their walks are unforeseeable from the specification, an authored
+copy is a distinct structure, and authorship reaches only to the floor.
+\end{enumerate}
+
+Two further developments frame the ladder. Beneath it, \Cref{sec:ground} derives
+the floor from identifiability in a non-completable whole and names the conserved
+reference, the \emph{medium}, against which every part is individuated. Atop it,
+\Cref{sec:measurement} gives the operational reading: a measurement is a
+reshuffling that conserves the medium, so it tightens a part's boundary while
+leaving its interior residue---its identity---untouched; identity-resolution would
+require exhausting the whole and is therefore unreachable, and point-identity is
+refuted both because resolution never saturates and because independent lines of
+measurement never become redundant.
+
+\Cref{sec:master} proves the Master Theorem: T0--T8 are forced for finite
+graphs and not forced when finiteness or the positive floor is dropped.
+
+\subsection{On the word ``contact''}
+
+We use \emph{contact} in one operational sense: two parts are \emph{in contact}
+when the graph carries an edge between them, and the weight of that edge is the
+cost of the separation that individuates each from the other. Nothing in the
+paper depends on any informal reading of the word; ``contact'' names an edge and
+its weight, and the theorems about contact graphs are theorems about finite
+weighted graphs in exactly this sense.
+
+\subsection{Why finiteness is the source}
+
+Finiteness is not a convenience of presentation but the origin of every
+structure below. On an infinite graph a vertex may be separated from the rest by
+edges of vanishing weight, the residual may be driven to zero, and a walk may be
+specified to unbounded depth at fixed cost; none of the substructures is then
+forced. It is the finitude of the vertex set, together with the positive floor
+on edge weights, that forbids the zero-cost separation and compels the ladder.
+We make the premise exactly strong enough to force the structures and no
+stronger, and we mark, at each rung, where finiteness is used
+(\Cref{sec:master}).
+
+\subsection{Relation to existing work}
+
+The paper is pure mathematics. It uses graph theory~\citep{bondymurty2008,%
+diestel2017,west2001,bollobas1998}, algebraic and spectral graph
+theory~\citep{godsilroyle2001,chung1997,fiedler1973,cheeger1970}, the theory of
+walks and Markov chains on graphs~\citep{lovasz1993,levinperes2017}, order and
+fixed-point theory~\citep{daveypriestley2002,birkhoff1967,tarski1955},
+enumerative combinatorics and partitions~\citep{stanley2012,andrews1976},
+self-reference and diagonal arguments~\citep{russell1903,cantor1891,lawvere1969,%
+godel1931}, and information theory~\citep{shannon1948,cover2006}. Where the
+development meets the sorites and the logic of vagueness we note the
+connection~\citep{black1937,williamson1994} without taking any position in that
+literature; our treatment is geometric, not a logic of partial truth. A
+reasonable reader will recognise that the abstract premise is satisfied by a
+range of concrete systems of finitely many bounded parts; we make no such
+identification and prove everything of the abstract graph alone. Such
+interpretive readings as we offer are confined to remarks labelled accordingly,
+on which no theorem depends.
+
+\subsection{Organisation}
+
+\Cref{sec:ground} derives the floor from identifiability in a non-completable
+whole and introduces the medium. \Cref{sec:setting} fixes the contact graph and
+its derived objects. \Cref{sec:floor} proves T0. \Cref{sec:negation} proves T1.
+\Cref{sec:residual} proves T2 and T3. \Cref{sec:invariant} proves T4.
+\Cref{sec:gating} proves T5. \Cref{sec:monotone} proves T6, including the temporal
+corollary by which a progressing whole forces non-return. \Cref{sec:quotient}
+proves T7. \Cref{sec:construct} proves T8. \Cref{sec:measurement} gives the
+operational reading---measurement as reshuffling, the unreachability of identity,
+and the two-pronged falsification of point-identity. \Cref{sec:validation}
+exhibits every result on explicitly constructed instances and reports an
+exhaustive numerical check. \Cref{sec:master} proves the Master Theorem and
+concludes.
+
+
+% =====================================================================
+\section{The ground premise: identifiability, the whole, and the derived floor}
+\label{sec:ground}
+% =====================================================================
+
+The Finiteness Premise (\Cref{ax:finite}) posits a positive floor. We now show
+the floor need not be posited: it is forced by a more primitive fact---that a
+thing can be identified at all within a whole that is not completable. This
+section derives the positive floor from identifiability and non-completability,
+so that \Cref{ax:finite} becomes a consequence rather than an assumption, and
+identifies the conserved reference---the \emph{medium}---against which all
+individuation occurs.
+
+\subsection{The whole and its parts}
+
+\begin{definition}[The whole; a part]
+\label{def:whole}
+The \emph{whole} is the total system $\med$ within which individuation occurs.
+A \emph{thing} is a part $A$ of $\med$ that is \emph{proper}: $A\neq\med$ and
+$A\neq\varnothing$. A thing is thus, by definition, not the whole---anything that
+were the whole would not be a distinct thing within it but the whole itself.
+\end{definition}
+
+\begin{definition}[Non-completable whole]
+\label{def:noncompletable}
+The whole $\med$ is \emph{non-completable} if no finite stage exhausts it: for
+every finite sub-collection $F$ of parts already individuated, there is a further
+part of $\med$ not in $F$. We do not assume $\med$ is a completed infinite set;
+we assume only that the process of exhausting it does not terminate. This is the
+sole sense of ``infinite'' used in the paper, and it is an order condition
+\textup{(}no terminal stage\textup{)}, not a cardinality posit.
+\end{definition}
+
+\begin{remark}[Why non-completability, not cardinality]
+\label{rem:noncompletable}
+We are careful to phrase the inexhaustibility of the whole as
+non-completability rather than as a completed uncountable set, for two reasons.
+First, the substructures of this paper \textup{(}attained minimum cuts, a
+positive floor, determinate complements\textup{)} require finiteness at each
+stage and could fail against a completed infinity \textup{(}\Cref{sec:master}\textup{)}.
+Second, and decisively, it is exactly non-completability---the impossibility of
+finishing the comparison of a part against the whole---that forces the positive
+floor below. A completed totality is not needed and would be the wrong object; a
+never-finishing process is both sufficient and correct.
+\end{remark}
+
+\subsection{Identification and its residual}
+
+\begin{definition}[Identification]
+\label{def:identification}
+To \emph{identify} a thing $A$ is to compare it against the rest of the whole:
+to determine $A$ by individuating it from $\med\setminus A$
+\textup{(}individuation by negation, \Cref{thm:negation}\textup{)}. An
+identification is \emph{complete} if the comparison of $A$ against the entirety of
+$\med\setminus A$ is finished---every part of the complement has been brought to
+bear in distinguishing $A$.
+\end{definition}
+
+\begin{definition}[Identification residual]
+\label{def:idresidual}
+The \emph{identification residual} of $A$, written $\idres(A)$, is the content of
+the comparison of $A$ against $\med\setminus A$ that remains unfinished. A
+complete identification has $\idres(A)=0$; an identification that cannot be
+finished has $\idres(A)>0$, the irreducible remainder.
+\end{definition}
+
+\subsection{The floor is forced by infinitude}
+
+\begin{theorem}[Floor from Infinitude]
+\label{thm:floor-infinitude}
+Let $\med$ be a non-completable whole \textup{(}\Cref{def:noncompletable}\textup{)}
+and let $A$ be a thing \textup{(}a proper part, \Cref{def:whole}\textup{)} that is
+identified by comparison against $\med\setminus A$. Then the identification of $A$
+cannot be completed, and its identification residual is strictly positive:
+\[
+\boxed{\ \idres(A)\ >\ 0.\ }
+\]
+\end{theorem}
+
+\begin{proof}
+Suppose, for contradiction, that the identification of $A$ were complete, so that
+$\idres(A)=0$. By \Cref{def:identification}, completion means the comparison of
+$A$ against the entirety of $\med\setminus A$ is finished: every part of the
+complement has been brought to bear. But to finish comparing $A$ against
+$\med\setminus A$ is to exhaust $\med\setminus A$, and since $A$ is a fixed proper
+part, exhausting $\med\setminus A$ exhausts $\med$ up to the fixed $A$---a finite
+addition. Hence a completed identification yields a finite stage that exhausts
+$\med$, contradicting non-completability \textup{(}\Cref{def:noncompletable}\textup{)}.
+Therefore the identification cannot be completed, and $\idres(A)>0$.
+\end{proof}
+
+\begin{corollary}[The positive floor is derived]
+\label{cor:floor-derived}
+For a thing $A$ in a non-completable whole, the irreducible boundary content of
+its individuation is bounded below by a positive constant
+$\floorc:=\inf_A\idres(A)>0$. The positive floor of \Cref{ax:finite} is therefore
+not an independent assumption but a consequence of: \textup{(}i\textup{)} a thing
+is a proper part, and \textup{(}ii\textup{)} the whole is non-completable.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:floor-infinitude}, $\idres(A)>0$ for every thing $A$; the infimum of
+strictly positive identification residuals over the things of $\med$ is a
+constant $\floorc\ge0$. If $\floorc=0$ there would be things with arbitrarily
+small residual, i.e. arbitrarily near-complete identifications; but each such
+identification, in the limit, would finish the comparison and exhaust $\med$, the
+same contradiction as in \Cref{thm:floor-infinitude}. Hence $\floorc>0$. Taking
+this $\floorc$ as the edge-weight floor recovers \Cref{ax:finite} as a derived
+statement: every separating boundary in the contact graph of $\med$'s parts costs
+at least the unfinishable remainder $\floorc>0$.
+\end{proof}
+
+\begin{remark}[The floor is the trace of the whole on its parts]
+\label{rem:floor-trace}
+\Cref{thm:floor-infinitude} reverses the status of the floor. It is not a
+limitation of measurement nor a stipulated constant; it is the structural
+shadow that a non-completable whole casts on each of its finite parts. A finite
+thing in an inexhaustible whole cannot complete its comparison against the rest,
+and the unfinishable remainder of that comparison \emph{is} the floor. Were the
+whole completable \textup{(}finite\textup{)}, the comparison could finish, the
+residual could reach zero, and a thing's truth could be a point; because the
+whole is not completable, the residual is positive and a thing's truth is a
+region \textup{(}\Cref{sec:residual}\textup{)}. Finitude makes the thing;
+non-completability of the whole makes the thing's truth a cell.
+\end{remark}
+
+\subsection{The medium as conserved reference}
+
+Identification is comparison against the rest. We name the reference and record
+that it is the conserved invariant of the construction.
+
+\begin{definition}[Medium]
+\label{def:medium}
+The \emph{medium} is the whole $\med$ in its role as the reference against which
+every part is individuated: the totality simultaneously in contact with every
+part, such that the separation cost of a part $A$ is the cost of its boundary to
+$\med\setminus A$. Individuation of $A$ is undefined absent the medium---there is
+then no reference against which $A$ is a part rather than the whole.
+\end{definition}
+
+\begin{proposition}[Individuation requires the medium]
+\label{prop:medium-required}
+For a thing $A$, the separation cost $b(A)=\wt(\cut(A))$ is defined only relative
+to the medium $\med\setminus A$. Removing the medium leaves $b(A)$ undefined:
+without a complement to be individuated against, $A$ is not determined as a part.
+\end{proposition}
+
+\begin{proof}
+By \Cref{thm:negation} a part is fixed only as the complement of its
+negation-set; the negation-set of $A$ within $\med$ is $\med\setminus A$, the
+medium relative to $A$. The boundary $\cut(A)$ is the set of edges between $A$ and
+$\med\setminus A$; with no $\med\setminus A$ there are no such edges and $b(A)$
+has no value. Hence individuation is defined only against the medium.
+\end{proof}
+
+\begin{remark}[Marbles in water]
+\label{rem:marbles}
+The relation of parts to medium is that of marbles to the water they sit in. The
+marbles are the individuated parts---what is known, the knowledge built so far;
+the water is the medium---the conserved invariant in contact with every marble.
+Rearranging the marbles \textup{(}building new boundaries, re-encoding\textup{)}
+does not change the water: the medium is invariant under all such reshuffling
+\textup{(}\Cref{thm:residual-invariant}\textup{)}. A thing's identity is the
+water on its own side of its boundary---the conserved residue it holds---not the
+marbles around it nor the boundary edges that mark it off. We return to this
+reading, on which no theorem depends, in \Cref{sec:measurement}.
+\end{remark}
+
+\begin{remark}[Identifiability is the premise of the whole ladder]
+\label{rem:identifiability}
+\Cref{thm:floor-infinitude} and \Cref{cor:floor-derived} let us read the entire
+paper from a single near-undeniable starting point: \emph{that anything is
+identifiable at all within a non-completable whole}. From this the positive floor
+\textup{(}T0\textup{)} follows by \Cref{cor:floor-derived}; individuation by
+negation \textup{(}T1\textup{)} follows because identification is comparison
+against the rest \textup{(}\Cref{def:identification}\textup{)}; and the remaining
+rungs T2--T8 follow from these as proved below. The Finiteness Premise is retained
+as the working hypothesis for the graph-theoretic development, now justified as a
+consequence of identifiability rather than an axiom in its own right. We make this
+equivalence precise in the Master Theorem \textup{(}\Cref{sec:master}\textup{)}.
+\end{remark}
+
+
+% =====================================================================
+\section{The contact graph and its derived objects}
+\label{sec:setting}
+% =====================================================================
+
+We fix notation and the objects on which the ladder is built. Throughout,
+$\Gph=(\V,\E,\wt)$ is a contact graph in the sense of \Cref{ax:finite}: a finite,
+connected, weighted graph with weight floor $\floorc>0$. Graphs are simple
+(no loops or multi-edges) unless stated; all standard graph-theoretic terms are
+as in~\citet{bondymurty2008,diestel2017}.
+
+\subsection{Vertices, edges, weights}
+
+\begin{definition}[Contact graph]
+\label{def:contactgraph}
+A \emph{contact graph} is a triple $\Gph=(\V,\E,\wt)$ where $\V$ is a finite set
+of \emph{vertices} (the individuated parts), $\E\subseteq\binom{\V}{2}$ is a set
+of \emph{edges}, and $\wt\colon\E\to[\floorc,\infty)$ is a \emph{weight}
+assigning to each edge the cost of the separation it records, with
+$\floorc>0$ the \emph{floor}. For $S,T\subseteq\V$ disjoint, the
+\emph{cut} between them is
+\[
+\cut(S,T)\;=\;\{\,uv\in\E : u\in S,\ v\in T\,\},
+\qquad
+\wt(\cut(S,T))\;=\!\!\sum_{e\in\cut(S,T)}\!\!\wt(e).
+\]
+We write $\cut(S):=\cut(S,\V\setminus S)$ for the boundary of $S$.
+\end{definition}
+
+\begin{definition}[Neighbourhood and complement-neighbourhood]
+\label{def:nbr}
+For $v\in\V$, the \emph{neighbourhood} is
+$\Nbr(v)=\{u\in\V : uv\in\E\}$ and the \emph{closed neighbourhood} is
+$\Nbr[v]=\Nbr(v)\cup\{v\}$. The \emph{complement-neighbourhood} is
+\[
+\co\Nbr[v]\;:=\;\V\setminus\Nbr[v],
+\]
+the set of vertices that $v$ neither is nor touches---``everything $v$ is not.''
+\end{definition}
+
+\begin{remark}[The floor is the whole content of ``contact'']
+\label{rem:floor-content}
+A contact graph differs from an arbitrary weighted graph in exactly one
+respect: the positive lower bound $\floorc$ on edge weights. This single
+constraint---no separation is free---is what every theorem below turns on. A
+weighted graph permitting $\wt(e)\to0$ is not a contact graph; it is the
+degenerate object against which our results are stated by contrast
+(\Cref{sec:master}).
+\end{remark}
+
+\subsection{Subgraphs as parts-within-the-whole}
+
+\begin{definition}[Induced subgraph; agent]
+\label{def:subgraph}
+For $\varnothing\neq U\subseteq\V$, the \emph{induced subgraph} $\Gph[U]$ has
+vertex set $U$ and edge set $\{uv\in\E : u,v\in U\}$ with inherited weights. A
+connected induced subgraph $\Agent=\Gph[U]$ with $1<\abs{U}<\abs{\V}$ is called a
+\emph{part} (or, where we wish to emphasise that a part may itself individuate
+others, an \emph{agent}); its \emph{boundary} is the cut $\cut(U)$.
+\end{definition}
+
+\begin{remark}[Vocabulary]
+\label{rem:agent-word}
+The word ``agent'' is used only as a name for a connected induced subgraph that
+participates in further separations; it carries no further commitment. Every
+theorem stated for an agent is a theorem about an induced subgraph and its
+boundary cut.
+\end{remark}
+
+\subsection{Isomorphism, automorphism, invariant}
+
+\begin{definition}[Weighted isomorphism]
+\label{def:iso}
+A \emph{weighted isomorphism} $\phi\colon\Gph\to\Gph'$ is a bijection
+$\phi\colon\V\to\V'$ with $uv\in\E\iff\phi(u)\phi(v)\in\E'$ and
+$\wt'(\phi(u)\phi(v))=\wt(uv)$. An \emph{automorphism} is a weighted isomorphism
+$\Gph\to\Gph$; the automorphisms form the group $\mathrm{Aut}(\Gph)$. A
+\emph{graph invariant} is a function $\iota$ on contact graphs with
+$\iota(\Gph)=\iota(\Gph')$ whenever $\Gph\cong\Gph'$.
+\end{definition}
+
+\begin{remark}[Re-encoding is relabelling]
+\label{rem:reencode}
+A change of representation that preserves which parts are separated from which,
+and at what cost, is precisely a weighted isomorphism: it relabels vertices
+without altering the graph. Quantities that survive all such relabellings are
+the graph invariants; quantities tied to particular labels do not. This
+distinction---surface labels versus invariants---is the form in which
+``what is conserved under re-encoding'' appears below (\Cref{sec:residual}).
+\end{remark}
+
+\subsection{Walks and gating}
+
+\begin{definition}[Walk]
+\label{def:walk}
+A \emph{walk} of length $\ell$ is a sequence
+$\Walk=(v_0,v_1,\dots,v_\ell)$ with $v_{i}v_{i+1}\in\E$ for each $i$. A walk may
+repeat vertices and edges. The \emph{committed multiset} of $\Walk$ is the
+multiset of edges $\{v_0v_1,\dots,v_{\ell-1}v_\ell\}$ traversed, and its
+\emph{committed count} is $\rec(\Walk)=\ell$, the number of steps taken.
+\end{definition}
+
+\begin{definition}[Gating function]
+\label{def:gate}
+A \emph{gating function} on $\Gph$ is a map
+$\gate\colon\V\times\E\to[0,1]$ assigning to each vertex $v$ and incident edge
+$e\ni v$ a forward weight $\gate(v,e)$, with $\sum_{e\ni v}\gate(v,e)\le 1$ for
+each $v$. A walk is \emph{$\gate$-admissible} if every step $v_iv_{i+1}$ has
+$\gate(v_i,v_iv_{i+1})>0$. The gate \emph{selects} a step when it assigns
+positive forward weight to exactly one incident edge.
+\end{definition}
+
+\begin{remark}[Why gating is needed at all]
+\label{rem:gate-need}
+A contact graph is, in general, far from a path: a vertex has many incident
+edges, so a walk's next step is underdetermined by the graph alone. Some
+additional datum---a gating function---is required to pick the next edge. The
+necessity of such a datum, not its particular form, is what
+\Cref{sec:gating} establishes. We treat $\gate$ abstractly; any rule that biases
+the next step is a gating function in the sense of \Cref{def:gate}.
+\end{remark}
+
+\subsection{The quotient of a partition}
+
+\begin{definition}[Quotient graph]
+\label{def:quotient}
+Let $\mathcal{P}=\{U_1,\dots,U_k\}$ be a partition of $\V$ into connected
+classes. The \emph{quotient graph} $\Gph/\mathcal{P}=(\Quot,\E_{\Quot},\wt_{\Quot})$
+has vertex set $\Quot=\{U_1,\dots,U_k\}$, an edge $U_iU_j$ whenever
+$\cut(U_i,U_j)\neq\varnothing$, and weight
+$\wt_{\Quot}(U_iU_j)=\wt(\cut(U_i,U_j))$. The quotient is itself a weighted
+graph; when each class is a part in the sense of \Cref{def:subgraph}, the
+quotient records the contacts \emph{between} parts.
+\end{definition}
+
+\begin{remark}[A graph of parts is again a graph]
+\label{rem:quotient}
+\Cref{def:quotient} lets the same theory apply one level up: the parts of a
+contact graph, taken as vertices and joined by their mutual cuts, form a
+weighted graph to which \Cref{ax:finite} again applies (its floor is the
+minimum nonzero cut weight). This self-similarity is used in
+\Cref{sec:quotient}.
+\end{remark}
+
+\begin{lemma}[The quotient inherits a floor]
+\label{lem:quotient-floor}
+If $\Gph$ is a contact graph with floor $\floorc$ and $\mathcal{P}$ is a
+partition into connected classes such that every pair of classes joined in
+$\Gph/\mathcal{P}$ is joined by at least one edge of $\Gph$, then
+$\Gph/\mathcal{P}$ is a contact graph with floor $\ge\floorc$.
+\end{lemma}
+
+\begin{proof}
+Each edge $U_iU_j$ of the quotient has weight
+$\wt_{\Quot}(U_iU_j)=\wt(\cut(U_i,U_j))=\sum_{e\in\cut(U_i,U_j)}\wt(e)$, a sum of
+at least one term each $\ge\floorc$ by \Cref{ax:finite}. Hence
+$\wt_{\Quot}(U_iU_j)\ge\floorc>0$. The quotient is finite (at most $\abs{\V}$
+classes) and, since $\Gph$ is connected, connected. Thus it satisfies
+\Cref{ax:finite}.
+\end{proof}
+
+
+% =====================================================================
+\section{T0: the floor}
+\label{sec:floor}
+% =====================================================================
+
+The first substructure is the floor itself: in a contact graph no part can be
+separated from the rest at zero cost. The statement is immediate from the
+working premise, and the premise is itself earned---\Cref{sec:ground} derives the
+positive floor from identifiability in a non-completable whole
+(\Cref{thm:floor-infinitude,cor:floor-derived}), so the constant $\floorc>0$ used
+here is the irreducible identification residual, not a free posit. Its
+consequences---restated for cuts, for parts, and for the limiting behaviour under
+refinement---are what the later rungs use, so we record them with care.
+
+\subsection{Every separation is costly}
+
+\begin{theorem}[Floor Theorem]
+\label{thm:floor}
+Let $\Gph$ be a contact graph with floor $\floorc>0$. Then every nonempty proper
+part $U\subsetneq\V$ has boundary weight bounded below by the floor:
+\[
+\boxed{\ \wt(\cut(U))\ \ge\ \floorc\ >\ 0.\ }
+\]
+In particular no part is separated from its complement by a cut of zero
+weight: a \emph{sharp} separation, $\wt(\cut(U))=0$, is impossible.
+\end{theorem}
+
+\begin{proof}
+Since $\Gph$ is connected (\Cref{ax:finite}) and $U$ is a nonempty proper
+subset, there is at least one edge with one endpoint in $U$ and the other in
+$\V\setminus U$; otherwise $U$ and $\V\setminus U$ would be unjoined, splitting
+the connected graph $\Gph$ into two nonempty components, a contradiction. Hence
+$\cut(U)\neq\varnothing$, and
+\[
+\wt(\cut(U))\;=\!\!\sum_{e\in\cut(U)}\!\!\wt(e)\;\ge\;\wt(e^\ast)\;\ge\;\floorc>0
+\]
+for any $e^\ast\in\cut(U)$, using $\wt(e)\ge\floorc$ from \Cref{ax:finite}. A
+sharp separation would require $\wt(\cut(U))=0<\floorc$, impossible.
+\end{proof}
+
+\begin{definition}[Boundary cost; the realised floor]
+\label{def:boundarycost}
+The \emph{boundary cost} of a part $U$ is $b(U):=\wt(\cut(U))$. The
+\emph{realised floor} of $\Gph$ is
+\[
+\floorc_\Gph\;:=\;\min_{\varnothing\neq U\subsetneq\V} b(U)\;\ge\;\floorc>0,
+\]
+the least boundary cost of any part. By \Cref{thm:floor} it is strictly
+positive, and by finiteness of $\V$ the minimum is attained.
+\end{definition}
+
+\begin{corollary}[No zero-cost individuation]
+\label{cor:no-zero}
+In a contact graph, individuating any part from the rest deposits boundary cost
+at least $\floorc_\Gph>0$. Equivalently, the map $U\mapsto b(U)$ is bounded
+away from zero on nonempty proper parts.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:floor} and \Cref{def:boundarycost}.
+\end{proof}
+
+\subsection{Refinement lowers but never abolishes the floor}
+
+A finer description splits parts into smaller ones. We show this can only lower
+the realised floor toward, but never to, zero---so long as the graph remains
+finite with a positive weight floor.
+
+\begin{proposition}[Refinement bound]
+\label{prop:refine}
+Let $\Gph'$ be obtained from $\Gph$ by any sequence of vertex splits that
+preserves the floor $\floorc$ on all edges \textup{(}each new edge again has
+weight $\ge\floorc$\textup{)}. Then the realised floor satisfies
+$\floorc\le\floorc_{\Gph'}$, and in particular $\floorc_{\Gph'}>0$. The realised
+floor can decrease under refinement but is bounded below by $\floorc$ and never
+reaches zero at any finite stage.
+\end{proposition}
+
+\begin{proof}
+$\Gph'$ is again finite (a finite number of splits of a finite graph) and, by
+hypothesis, has all edge weights $\ge\floorc$, hence is a contact graph with
+floor $\floorc$. By \Cref{thm:floor} applied to $\Gph'$, every part of $\Gph'$
+has boundary cost $\ge\floorc$, so $\floorc_{\Gph'}\ge\floorc>0$. Splitting can
+only introduce parts with smaller boundary cost, so $\floorc_{\Gph'}\le
+\floorc_\Gph$ is possible; in all cases the bound $\floorc_{\Gph'}\ge\floorc$
+holds. Only in the non-admissible limit of infinitely many splits, or of edge
+weights tending to $0$, would the bound vanish---both excluded by
+\Cref{ax:finite}.
+\end{proof}
+
+\begin{remark}[What T0 does and does not assert]
+\label{rem:floor-scope}
+\Cref{thm:floor} does not assert that some ambient continuum has thick
+boundaries; it asserts that a \emph{finite, positively weighted} graph cannot
+exhibit a zero-cost cut. The floor is a property of the graph-with-its-weights,
+i.e. of the finite system of separated parts, not of any underlying space. This
+is the precise sense in which, for finitely many bounded parts, ``every
+distinction costs something.'' Every later rung consumes \Cref{thm:floor} as the
+guarantee that boundaries, residuals, and gated steps are bounded away from
+zero.
+\end{remark}
+
+
+% =====================================================================
+\section{T1: individuation by negation}
+\label{sec:negation}
+% =====================================================================
+
+The floor says separations cost something; it does not yet say how a part is
+\emph{determined}. We now show that in a contact graph with no distinguished
+vertex, a part can be fixed only by its complement---by everything it is
+not---and that any attempt to fix it positively, by naming a distinguished
+element, regresses. This is the graph-theoretic form of individuation by
+negation.
+
+\subsection{No distinguished vertex}
+
+\begin{definition}[Selector; selector-free determination]
+\label{def:selector}
+A \emph{selector} for a part $U\subseteq\V$ is a rule that fixes $U$ by naming a
+distinguished vertex of $U$ in advance of the separation. A determination of $U$
+is \emph{selector-free} if it names no distinguished vertex of $U$. We say
+$\Gph$ has \emph{no distinguished vertex} if its weighted automorphism group
+acts with no fixed datum singling out a vertex in advance---formally, if the
+specification of $\Gph$ provided to a determining rule is invariant under
+$\mathrm{Aut}(\Gph)$, so that no vertex is named by the data alone.
+\end{definition}
+
+\begin{remark}[The setting of T1]
+\label{rem:nodist}
+T1 concerns the determination of parts from the graph's own data, with no
+external label supplied. This is the relevant case for a self-contained finite
+system: there is no oracle outside $\Gph$ to point at a vertex, so any vertex
+named must be named \emph{by the structure}, and the structure is fixed only up
+to $\mathrm{Aut}(\Gph)$. We make this precise and show negation is the only
+route.
+\end{remark}
+
+\subsection{Complementation determines a part}
+
+\begin{definition}[Negation-set]
+\label{def:negationset}
+For a part $U\subseteq\V$, its \emph{negation-set} is the complement
+$\co U:=\V\setminus U$. A part $U$ is \emph{individuated by negation} if it is
+determined as the unique part whose negation-set is a given $\co U$; that is,
+$U=\V\setminus\co U$, with $\co U$ specified first.
+\end{definition}
+
+\begin{lemma}[Complementation is an involution on parts]
+\label{lem:involution}
+The map $U\mapsto\co U=\V\setminus U$ is a bijection on the subsets of $\V$ with
+$\co{(\co U)}=U$. Hence specifying $\co U$ determines $U$ uniquely, and
+conversely, with no further data.
+\end{lemma}
+
+\begin{proof}
+For finite (indeed any) $\V$, $\V\setminus(\V\setminus U)=U$; complementation is
+its own inverse, hence a bijection. Uniqueness of $U$ given $\co U$ is immediate.
+\end{proof}
+
+\subsection{Negation is the unique selector-free determination}
+
+\begin{theorem}[Individuation by negation]
+\label{thm:negation}
+Let $\Gph$ have no distinguished vertex \textup{(}\Cref{def:selector}\textup{)}.
+Then any selector-free determination of a part $U$ fixes $U$ as
+$\V\setminus\co U$ for its negation-set $\co U$; and conversely every admissible
+negation-set determines a unique part. No selector-based rule fixes a part
+without invoking a further selector.
+\end{theorem}
+
+\begin{proof}
+\emph{(Necessity.)} Suppose a rule fixes a part $U$ without a selector. To fix
+$U$ is to decide, for each vertex of $\V$, whether it lies in $U$ or in the
+remainder. A \emph{positive} rule---one that fixes $U$ by asserting membership of
+a distinguished vertex or feature of $U$---must name that vertex or feature. By
+hypothesis the data are $\mathrm{Aut}(\Gph)$-invariant and single out no vertex,
+so the rule itself must supply the distinguished vertex. Supplying a
+distinguished vertex is exactly providing a selector, and that selector must in
+turn be fixed: either it is given in advance (contradicting that none is) or it
+is fixed by a prior rule, which faces the same dichotomy. The regress terminates
+only if some rule fixes $U$ while naming no vertex of $U$. The sole such rule is
+the withholding of $U$ from the whole: specify the complement $\co U=\V\setminus
+U$ that $U$ is to be distinct from, and take $U$ as what remains. This names no
+vertex of $U$; it names only ``the rest,'' which the whole $\V$ already
+supplies. Hence $U=\V\setminus\co U$.
+
+\emph{(Sufficiency and uniqueness.)} Given an admissible negation-set
+$\co U\subsetneq\V$ with $\V\setminus\co U\neq\varnothing$, the part
+$U:=\V\setminus\co U$ is determined uniquely by \Cref{lem:involution}. Thus
+complementation is a bijection between admissible parts and admissible
+negation-sets, each side determining the other without further data.
+\end{proof}
+
+\begin{corollary}[A vertex is fixed by its non-neighbours]
+\label{cor:vertex-negation}
+For a single vertex $v$, the finest selector-free determination available is by
+its complement-neighbourhood: $v$ is distinguished from the parts it touches
+only through $\co\Nbr[v]=\V\setminus\Nbr[v]$, the totality of what it neither is
+nor contacts. In a graph with no distinguished vertex, $v$ is individuated by
+$\co\Nbr[v]$, not by any intrinsic mark.
+\end{corollary}
+
+\begin{proof}
+Apply \Cref{thm:negation} with $U=\{v\}$ at the resolution of the graph: the
+selector-free data fixing $\{v\}$ are the complement
+$\V\setminus\{v\}$, refined by adjacency into $\Nbr(v)$ (what $v$ touches) and
+$\co\Nbr[v]$ (what it does not). Since no intrinsic mark distinguishes $v$
+(no distinguished vertex), the determining datum is the partition of the rest
+into neighbours and non-neighbours, i.e. $\co\Nbr[v]$ together with $\Nbr(v)$;
+the non-neighbours $\co\Nbr[v]$ are the part of this datum that names nothing of
+$v$ itself.
+\end{proof}
+
+\begin{remark}[Why complementation closes the regress]
+\label{rem:regress}
+A positive selector is a rule ``choose a vertex'' that must itself be chosen; in
+a graph with no distinguished vertex the choice has no ground and regresses.
+Complementation is the unique operation that fixes a part using only the whole
+$\V$ and the part's own absence---data already present once the graph is given.
+This is why negation, not selection, is the primitive of individuation in a
+self-contained finite system, and it is the form in which all later
+determinations (of residuals, of invariants, of verifications) are cast.
+\end{remark}
+
+\begin{remark}[Interpretation, on which nothing depends]
+\label{rem:negation-interp}
+A reader may recognise \Cref{thm:negation} as the statement that, absent a
+privileged chooser, a thing is what it is by being marked off from everything
+else. We use the result only in its graph form; no theorem below relies on any
+such reading.
+\end{remark}
+
+
+% =====================================================================
+\section{T2 and T3: the residual is a conserved region}
+\label{sec:residual}
+% =====================================================================
+
+We now identify the quantity that survives every re-encoding of a contact graph.
+The parts (vertices) may be relabelled, merged, re-described; what cannot be
+removed is the boundary content between them---the \emph{cut-residual}. We prove
+it is bounded below (T2), realised by no single vertex so that it is a region and
+never a point (T2), and invariant under every weighted isomorphism (T3), hence
+the unique conserved object from which the relabellable surface derives.
+
+\subsection{The cut-residual}
+
+\begin{definition}[Cut-residual of a partition]
+\label{def:residual}
+For a partition $\mathcal{P}=\{U_1,\dots,U_k\}$ of $\V$ into nonempty parts, its
+\emph{cut-residual} is the total weight of inter-part boundary,
+\[
+\Res(\mathcal{P})\;=\;\tfrac12\sum_{i=1}^{k}\wt(\cut(U_i))
+\;=\!\!\sum_{\substack{i<j}}\!\!\wt(\cut(U_i,U_j)),
+\]
+the sum over distinct part-pairs of the weight of the edges crossing between
+them. The \emph{residual of $\Gph$} is the minimum over nontrivial partitions,
+\[
+\Res(\Gph)\;=\;\min_{\mathcal{P}\,:\,k\ge 2}\Res(\mathcal{P}),
+\]
+attained by finiteness of $\V$.
+\end{definition}
+
+\begin{remark}[The residual is the ``interstice'']
+\label{rem:interstice}
+$\Res(\mathcal{P})$ is the content of the boundaries \emph{between} the parts:
+not what any part contains, but what lies in the gaps that separate them. As the
+parts are packed (the partition refined or coarsened), this interstitial content
+changes shape; T3 shows its total, suitably taken, does not change under mere
+relabelling. The residual is the graph's ``negative space.''
+\end{remark}
+
+\subsection{T2: the residual is bounded below and is a region}
+
+\begin{theorem}[Residual positivity and non-locality]
+\label{thm:residual-region}
+Let $\Gph$ be a contact graph with floor $\floorc>0$. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Bounded below.} Every nontrivial partition has
+$\Res(\mathcal{P})\ge\floorc>0$; hence $\Res(\Gph)\ge\floorc>0$.
+\item \textbf{Realised by no single vertex.} There is no vertex $v$ with
+$\Res(\Gph)=\wt(\cut(\{v\}))$ forced; the residual is a property of the
+partition (a region of the graph), not of any one vertex. Equivalently, the
+minimiser of \Cref{def:residual} is in general not a singleton, and the residual
+cannot be localised to a point.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) A nontrivial partition has $k\ge2$ parts; since $\Gph$ is connected, at
+least one part-pair $(U_i,U_j)$ has $\cut(U_i,U_j)\neq\varnothing$, contributing
+weight $\ge\floorc$ by \Cref{thm:floor}. Hence $\Res(\mathcal{P})\ge\floorc>0$,
+and taking the minimum, $\Res(\Gph)\ge\floorc$.
+
+(ii) Suppose, for contradiction, the residual were always realised by isolating a
+single vertex, i.e. $\Res(\Gph)=\min_v\wt(\cut(\{v\}))$ for every contact graph.
+Consider any graph in which the minimum-weight nontrivial cut separates a part
+$U$ with $\abs{U}\ge 2$ from its complement at total weight strictly below
+$\min_v\wt(\cut(\{v\}))$---for instance two dense clusters joined by a single
+floor-weight edge, where the cheapest cut splits the two clusters
+($\wt=\floorc$) but every singleton has several incident edges
+($\wt(\cut(\{v\}))\ge 2\floorc$). Then the residual is realised by the
+bipartition, not by any singleton, contradicting the supposition. Hence the
+residual is in general a property of a multi-vertex partition: it is a region,
+not a point.
+\end{proof}
+
+\begin{corollary}[No point carries the residual; the sorites for parts]
+\label{cor:point-forbidden}
+The residual of a contact graph is never carried by a lone vertex in general:
+``what separates the parts'' is borne by a region of positive boundary content,
+not by any single part. Consequently there is no sharp vertex at which a coarse
+aggregate becomes a distinct part---the transition is spread across a band of
+boundary content of width $\ge\floorc$, the graph analogue of the sorites
+\citep{black1937,williamson1994}.
+\end{corollary}
+
+\begin{proof}
+The first claim is \Cref{thm:residual-region}(ii). For the second: growing a
+part one vertex at a time changes its boundary cost $b(U)$ by a bounded amount
+per step (the weights of the edges whose crossing status flips, each $\ge
+\floorc$ and finite in number), so $b(U)$ cannot jump across any threshold in a
+single step from a value bounded away from it; the part becomes distinguishable
+across a range of stages, of width controlled by $\floorc$, not at a point.
+\end{proof}
+
+\subsection{T3: the residual is invariant under re-encoding}
+
+We now show the residual is a graph invariant: it depends on the graph up to
+weighted isomorphism, not on any labelling. Combined with the fact that the
+vertices (the surface data) are freely relabellable, this makes the residual the
+conserved object beneath the surface.
+
+\begin{theorem}[Conservation of the residual]
+\label{thm:residual-invariant}
+The residual $\Res(\Gph)$ is a weighted-graph invariant: if
+$\phi\colon\Gph\to\Gph'$ is a weighted isomorphism then
+$\Res(\Gph)=\Res(\Gph')$. In particular $\Res$ is invariant under every
+automorphism of $\Gph$, hence under every relabelling of its vertices.
+\end{theorem}
+
+\begin{proof}
+Let $\phi\colon\Gph\to\Gph'$ be a weighted isomorphism. For any partition
+$\mathcal{P}=\{U_1,\dots,U_k\}$ of $\V$, the image
+$\phi(\mathcal{P})=\{\phi(U_1),\dots,\phi(U_k)\}$ is a partition of $\V'$, and
+$\phi$ being edge- and weight-preserving gives, for each pair,
+$\wt'(\cut'(\phi(U_i),\phi(U_j)))=\wt(\cut(U_i,U_j))$. Summing,
+$\Res(\phi(\mathcal{P}))=\Res(\mathcal{P})$. The correspondence
+$\mathcal{P}\leftrightarrow\phi(\mathcal{P})$ is a bijection between nontrivial
+partitions of $\V$ and of $\V'$ (with inverse $\phi^{-1}$), so the minima agree:
+$\Res(\Gph')=\min_{\mathcal{P}'}\Res(\mathcal{P}')=
+\min_{\mathcal{P}}\Res(\phi(\mathcal{P}))=\min_{\mathcal{P}}\Res(\mathcal{P})=
+\Res(\Gph)$.
+\end{proof}
+
+\begin{theorem}[The residual is the conserved invariant beneath the surface]
+\label{thm:residual-conserved}
+Let $\mathcal{R}(\Gph)$ denote the orbit of $\Gph$ under all weighted
+relabellings of its vertices \textup{(}its isomorphism class\textup{)}. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item every vertex label is variable across $\mathcal{R}(\Gph)$---no labelling is
+fixed; and
+\item $\Res$ is constant on $\mathcal{R}(\Gph)$ and strictly positive.
+\end{enumerate}
+Hence, among data attached to a contact graph, the residual is an invariant of
+the isomorphism class while the vertex labels are not: it is conserved under
+exactly the operation---re-encoding---that moves everything else.
+\end{theorem}
+
+\begin{proof}
+(i) For any vertex $v$ and any other vertex $v'$ of the same degree-and-weight
+type, there is a relabelling carrying $v$ to a different label; more simply, the
+identity of a vertex is a label, and labels are by definition permuted across the
+isomorphism class. So no label is fixed across $\mathcal{R}(\Gph)$. (ii) is
+\Cref{thm:residual-invariant} (constancy) together with
+\Cref{thm:residual-region}(i) (positivity). The two together say: the
+relabellable surface (vertex identities) carries no invariant, while the residual
+is invariant and positive.
+\end{proof}
+
+\begin{remark}[Knowing is repacking, not draining]
+\label{rem:repacking}
+\Cref{thm:residual-conserved} has a reading we record but do not rely on. If one
+identifies the vertices (the parts one has individuated) with ``what is known''
+and the residual (the conserved interstice) with ``what remains true regardless
+of how one has carved things up,'' then acquiring or re-describing knowledge is
+the relabelling and repartitioning of vertices---which by
+\Cref{thm:residual-invariant} leaves the residual unchanged in total. One never
+drains the residual by re-encoding; one only re-shapes which boundaries one
+holds. The conserved residual is, in this reading, the invariant ``truth'' that
+no re-encoding removes, bounded below by the floor and---by
+\Cref{thm:residual-region}(ii)---never a point. The reading is offered as
+orientation only; the theorems above are purely graph-theoretic.
+\end{remark}
+
+\begin{remark}[Two faces of the cut: boundary and interior]
+\label{rem:two-faces}
+The residual of a part has two faces, distinguished in \Cref{sec:measurement}.
+The \emph{boundary} face is the cut edges---the distinctions of the part from the
+rest, what it is \emph{not}; this is what a measurement builds. The
+\emph{interior} face is the conserved content on the part's own side that no
+re-encoding transfers across the cut---the part's private invariant
+(\Cref{sec:invariant}), what it \emph{is}. \Cref{thm:residual-invariant} concerns
+the conserved total; \Cref{thm:identity-interior} will show that identity is the
+interior face, approached only by tightening the boundary from outside and never
+delivered. We flag the distinction here and develop it where measurement is
+defined.
+\end{remark}
+
+\begin{remark}[A definite-yet-uncloseable quantity]
+\label{rem:cat-parity}
+A residual can be perfectly well-defined and yet impossible to fix by any single
+completed partition. Consider a quantity such as the parity of $\abs{\V}$ when
+the vertex set is itself in flux---vertices entering and leaving faster than any
+partition can be committed. The parity is definite at every instant yet never
+stabilises long enough to be read off a fixed graph; a finite procedure
+correctly leaves it in the residual rather than paying unboundedly to chase it.
+This illustrates \Cref{thm:residual-region}(ii): the residual is what a finite
+process rationally leaves uncommitted, the ``sufficient unknown,'' and forcing it
+to a point would cost without return. (Offered as illustration; no theorem
+depends on it.)
+\end{remark}
+
+
+% =====================================================================
+\section{T4: every part has a private invariant}
+\label{sec:invariant}
+% =====================================================================
+
+The residual of \Cref{sec:residual} is an invariant of the whole graph. We now
+show the same construction localises: every connected part carries its own
+invariant under its own relabellings, computed from its internal boundary
+content together with the boundary that joins it to the rest. This per-part
+invariant is the standing structure from which the part's surface activity
+derives.
+
+\subsection{The internal residual of a part}
+
+\begin{definition}[Private invariant of a part]
+\label{def:private}
+Let $\Agent=\Gph[U]$ be a part (a connected induced subgraph,
+\Cref{def:subgraph}). Its \emph{private invariant} is the pair
+\[
+\Res_{\mathrm{priv}}(\Agent)\;=\;\bigl(\Res(\Agent),\,b(U)\bigr),
+\]
+where $\Res(\Agent)$ is the internal residual of the induced subgraph
+\textup{(}\Cref{def:residual} applied to $\Agent$\textup{)} and $b(U)=\wt(\cut(U))$
+is its boundary cost to the rest of $\Gph$. We treat $\Res_{\mathrm{priv}}$ up to
+weighted isomorphism of $\Agent$ as an abstract subgraph.
+\end{definition}
+
+\begin{theorem}[Privacy and invariance of the part-invariant]
+\label{thm:private}
+For every part $\Agent$ of a contact graph:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Positivity.} $\Res(\Agent)\ge\floorc>0$ whenever $\abs{U}\ge2$,
+and $b(U)\ge\floorc>0$ always; the private invariant is bounded away from zero in
+both components.
+\item \textbf{Invariance.} $\Res_{\mathrm{priv}}(\Agent)$ is invariant under
+$\mathrm{Aut}(\Agent)$ and under any weighted isomorphism of $\Agent$ that
+preserves its boundary cost; it is a property of $\Agent$'s isomorphism class,
+not of its labelling.
+\item \textbf{Privacy.} Two parts with the same private invariant need not be the
+same part of $\Gph$; conversely a part's private invariant is determined by the
+part alone, independently of how the rest of $\Gph$ is labelled.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) $\Agent$ is a contact graph in its own right (a finite, connected, weighted
+graph with the inherited floor $\floorc$), so \Cref{thm:residual-region}(i) gives
+$\Res(\Agent)\ge\floorc$ for $\abs{U}\ge2$; and $b(U)\ge\floorc$ by
+\Cref{thm:floor}. (ii) Apply \Cref{thm:residual-invariant} to the contact graph
+$\Agent$: $\Res(\Agent)$ is invariant under weighted isomorphisms of $\Agent$;
+$b(U)$ is the total weight of the boundary cut, manifestly preserved by any
+isomorphism fixing that cut setwise. Hence the pair is invariant on the relevant
+class. (iii) The internal residual and boundary cost are computed from $\Agent$
+and its incident cut alone; relabelling the complement $\V\setminus U$ changes
+neither, establishing independence from the rest's labelling. That distinct parts
+may share the invariant is immediate (e.g. two isomorphic clusters in different
+positions).
+\end{proof}
+
+\subsection{The invariant is the standing structure}
+
+\begin{proposition}[Surface walks derive from the private invariant]
+\label{prop:surface-derives}
+Fix a part $\Agent=\Gph[U]$. Any $\gate$-admissible walk confined to $\Agent$
+\textup{(}\Cref{def:walk,def:gate}\textup{)} traverses only edges of $\Agent$,
+whose existence and weights are fixed by $\Agent$'s isomorphism class. Hence the
+set of walks available within $\Agent$ is determined by $\Agent$ up to
+relabelling, while no individual walk is an invariant of $\Agent$: the walks are
+the variable surface, the subgraph \textup{(}with its private invariant\textup{)}
+is the standing structure they run on.
+\end{proposition}
+
+\begin{proof}
+A walk within $\Agent$ uses only edges $uv$ with $u,v\in U$; the availability of
+each such step is exactly the presence of that edge in $\Gph[U]$, an
+isomorphism-invariant datum. Thus the \emph{space} of available walks transforms
+covariantly with $\Agent$ under relabelling (it is carried bijectively by any
+isomorphism), so it is determined by $\Agent$'s class. A single walk, by
+contrast, is a labelled sequence and is not preserved by a nontrivial
+relabelling; hence no individual walk is invariant. The standing/variable split
+follows.
+\end{proof}
+
+\begin{remark}[Interpretation: the part's ``identity'', on which nothing depends]
+\label{rem:character}
+\Cref{thm:private} and \Cref{prop:surface-derives} say a part has a conserved
+internal structure---its private invariant---distinct from any of the particular
+trajectories it may run, and unique to it only up to isomorphism. If one reads a
+part as an agent and its walks as the agent's successive states, then the private
+invariant is the agent's standing identity: the conserved bottom from which its
+changing activity derives, the local counterpart of the global conserved residual
+of \Cref{sec:residual}. The reading is offered as orientation; the theorems are
+graph-theoretic and used only as such below.
+\end{remark}
+
+\begin{corollary}[Private and global invariants are one construction at two
+scales]
+\label{cor:two-scales}
+The global residual $\Res(\Gph)$ \textup{(}\Cref{def:residual}\textup{)} and the
+private invariant $\Res_{\mathrm{priv}}(\Agent)$ \textup{(}\Cref{def:private}\textup{)}
+are the same functional---minimum inter-part boundary content---evaluated on the
+whole graph and on an induced subgraph respectively. Both are positive
+\textup{(}T0\textup{)} and invariant under re-encoding \textup{(}T3\textup{)}. The
+private invariant is the global construction restricted to a part.
+\end{corollary}
+
+\begin{proof}
+Immediate by comparing \Cref{def:residual} with \Cref{def:private} and applying
+\Cref{thm:residual-region,thm:residual-invariant} to $\Gph$ and to $\Agent$.
+\end{proof}
+
+
+% =====================================================================
+\section{T5: selection requires a gate}
+\label{sec:gating}
+% =====================================================================
+
+A contact graph fixes which steps are \emph{possible}---the edges---but not which
+step is \emph{taken}. We show that whenever a vertex has more than one forward
+option, the next step is underdetermined by the graph alone, so that selecting a
+walk requires an additional datum: a gating function. The necessity of such a
+datum, and the form of the walk it produces, is T5.
+
+\subsection{Underdetermination of the next step}
+
+\begin{lemma}[Forward branching]
+\label{lem:branching}
+Let $\Gph$ be a contact graph and $v\in\V$ with degree $\deg(v)\ge 2$. Then there
+are at least two distinct walks of length one from $v$, and the graph alone does
+not determine which is taken.
+\end{lemma}
+
+\begin{proof}
+By definition $\deg(v)=\abs{\Nbr(v)}\ge2$, so there are distinct
+$u_1,u_2\in\Nbr(v)$ and distinct one-step walks $(v,u_1)$, $(v,u_2)$, each
+admissible since $vu_1,vu_2\in\E$. Nothing in $(\V,\E,\wt)$ privileges one over
+the other: both are equally edges of equal-or-incomparable weight, and the graph
+carries no ordering of incident edges. Hence the next step is not a function of
+$\Gph$ alone.
+\end{proof}
+
+\begin{remark}[Most vertices branch]
+\label{rem:branch-generic}
+A connected contact graph with $\abs{\V}\ge3$ has at least one vertex of degree
+$\ge2$ \textup{(}else it is a single edge\textup{)}; in a graph rich enough to
+individuate many parts, branching is the generic condition. So
+underdetermination is not an edge case but the normal situation a walk faces.
+\end{remark}
+
+\subsection{The gate as the minimal selecting datum}
+
+\begin{theorem}[Necessity of a gate]
+\label{thm:gate-necessary}
+Let $\Gph$ be a contact graph in which some vertex has degree $\ge2$. Then a walk
+that is determined step-by-step requires a gating function
+\textup{(}\Cref{def:gate}\textup{)}: there is no rule depending on $\Gph$ alone
+that selects a unique next step at every branching vertex. Conversely, any rule
+that does select a unique next step at each vertex \emph{is} a gating function
+that selects \textup{(}assigns positive forward weight to exactly one incident
+edge\textup{)}.
+\end{theorem}
+
+\begin{proof}
+\emph{(Necessity.)} At a branching vertex $v$ (degree $\ge2$), \Cref{lem:branching}
+exhibits $\ge2$ admissible next steps not distinguished by $\Gph$. A rule that
+nonetheless outputs a unique next step must use a datum beyond $(\V,\E,\wt)$ to
+break the tie. Encode that datum as $\gate(v,\cdot)$ by setting
+$\gate(v,e)>0$ for the chosen edge and $0$ for the others; this is a gating
+function in the sense of \Cref{def:gate} (nonnegative, sub-normalised). Hence a
+gate is required and the selecting rule is realised as one.
+
+\emph{(Converse.)} If $\gate$ assigns, at each vertex, positive forward weight to
+exactly one incident edge, then at every step the admissible continuation is
+unique, so $\gate$ determines a unique walk from any start vertex. Thus selecting
+rules and selecting gates coincide.
+\end{proof}
+
+\begin{definition}[Selected walk; the gated trajectory]
+\label{def:gated-walk}
+Given a selecting gate $\gate$ and a start vertex $v_0$, the \emph{gated
+trajectory} is the unique walk $\Walk_\gate(v_0)=(v_0,v_1,\dots)$ with each
+$v_{i+1}$ the $\gate$-selected neighbour of $v_i$. When $\gate$ assigns positive
+weight to several edges \textup{(}a \emph{soft} gate\textup{)}, it determines
+instead a distribution over walks, with the probability of a walk the product of
+its step-weights; the selecting case is the deterministic limit.
+\end{definition}
+
+\subsection{The gate biases an otherwise free graph}
+
+\begin{proposition}[Reachability is near-total; the gate fixes the order]
+\label{prop:reachability}
+In a connected contact graph, every vertex is reachable from every other by some
+walk. Hence the graph alone does not constrain \emph{which} vertices a trajectory
+visits, only that any are reachable; it is the gate that fixes the \emph{order}
+in which they are visited and therefore the trajectory's identity.
+\end{proposition}
+
+\begin{proof}
+Connectedness gives a path between any two vertices (\Cref{ax:finite}), so all
+vertices are mutually reachable; the set of reachable vertices from any start is
+all of $\V$. Thus the reachable set is invariant (everything), while the realised
+walk depends entirely on the step-choices, i.e. on $\gate$ (\Cref{def:gated-walk}).
+Two different gates from the same start in general yield different walks through
+the same reachable set, so the gate, not the graph, individuates the trajectory.
+\end{proof}
+
+\begin{remark}[Interpretation: the selecting field, on which nothing depends]
+\label{rem:field}
+One may read the gate as a field that, given a situation, biases which step a
+part takes next---so that what is ``thought next'' from a given vertex is set not
+by the graph (which makes everything reachable, \Cref{prop:reachability}) but by
+the gate. In that reading the order, not the availability, is the content of a
+trajectory, and the gate is the situation-dependent selector that supplies the
+order. Different situations are different gates and hence different orders over
+the same reachable graph. We use only the graph statement
+\textup{(}\Cref{thm:gate-necessary,prop:reachability}\textup{)}; the reading is
+orientation and is not relied upon.
+\end{remark}
+
+\begin{remark}[Why a gate is cheaper than the graph]
+\label{rem:gate-cheap}
+A gate is a local datum---one sub-normalised distribution per vertex---whereas
+specifying a walk by exhaustively comparing all global continuations would
+require resolving the whole graph at each step. The gate is the minimal addition
+that makes stepping decidable: it is to the trajectory what a local rule is to a
+global search. This minimality is why selection is realised by gating rather than
+by re-deriving the graph at every step.
+\end{remark}
+
+
+% =====================================================================
+\section{T6: histories do not return}
+\label{sec:monotone}
+% =====================================================================
+
+A gated trajectory may revisit a vertex; we show it can never return to a prior
+\emph{state}, because the committed count---the number of steps taken---is
+strictly monotone and is part of the state. Revisiting is not returning;
+resemblance of position is not identity of state. This is the single
+order-theoretic law that the framework instantiates wherever ``the same thing
+again'' is claimed.
+
+\subsection{The committed count is strictly monotone}
+
+\begin{definition}[State of a walk]
+\label{def:state}
+The \emph{state} of a walk $\Walk=(v_0,\dots,v_\ell)$ at step $\ell$ is the pair
+\[
+s_\ell\;=\;\bigl(v_\ell,\ \rec(\Walk)\bigr),\qquad \rec(\Walk)=\ell,
+\]
+the current vertex together with the committed count of steps taken to reach it.
+Two states are equal iff both components agree.
+\end{definition}
+
+\begin{theorem}[Non-return]
+\label{thm:nonreturn}
+Along any walk in a contact graph the committed count is strictly increasing:
+$\rec$ after step $i+1$ exceeds $\rec$ after step $i$ by exactly one. Consequently
+no walk returns to a previously held state: for $i<j$, $s_i\neq s_j$ even when
+$v_i=v_j$. A step intended to undo a previous step is itself a step and increases
+$\rec$. Hence resemblance of position \textup{(}$v_i=v_j$\textup{)} never entails
+identity of state \textup{(}$s_i=s_j$\textup{)}.
+\end{theorem}
+
+\begin{proof}
+Each step appends one edge to the committed multiset and advances the index by
+one, so $\rec$ increases by exactly $1$ per step; it is therefore strictly
+increasing and, for $i<j$, $\rec_i=i<j=\rec_j$. Thus the second components of
+$s_i$ and $s_j$ differ, so $s_i\neq s_j$ regardless of whether $v_i=v_j$. An
+``undo'' move from $v_j$ back to $v_{j-1}$ is a further step, producing state
+$(v_{j-1},j{+}1)\neq(v_{j-1},j{-}1)=s_{j-1}$; it does not restore the earlier
+state but creates a new one with higher count.
+\end{proof}
+
+\begin{corollary}[Cycles in position are not cycles in state]
+\label{cor:cycles}
+If a walk traverses a closed walk in $\Gph$ \textup{(}$v_0=v_\ell$, $\ell>0$\textup{)},
+its state has nonetheless advanced: $s_0=(v_0,0)\neq(v_0,\ell)=s_\ell$. The graph
+may be revisited arbitrarily often; the state never repeats.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:nonreturn} with $i=0$, $j=\ell$, $v_0=v_\ell$.
+\end{proof}
+
+\subsection{Re-contact is forward only}
+
+The next result is the form non-return takes for ``returning to'' an earlier
+vertex deliberately---re-contact. It is reached forward, at a higher count, hence
+is a new state, not the old one.
+
+\begin{proposition}[Forward re-contact]
+\label{prop:recontact}
+Let a walk reach vertex $v$ at step $i$ and, later, reach $v$ again at step
+$j>i$ \textup{(}a deliberate re-contact of $v$\textup{)}. Then the re-contact
+state $s_j=(v,j)$ is strictly later than the original $s_i=(v,i)$ on the
+committed order, and $s_j\neq s_i$. There is no operation that re-contacts $v$ at
+its original state; every re-contact is at a state in the future of the original.
+\end{proposition}
+
+\begin{proof}
+By \Cref{thm:nonreturn}, $\rec$ is strictly increasing, so $j>i$ forces
+$s_j\neq s_i$; the re-contact carries the count $j>i$, placing it later on the
+order. No step decreases $\rec$, so no re-contact can carry the original count
+$i$ again.
+\end{proof}
+
+\subsection{The progressing whole: non-return from a growing complement}
+
+The committed count gives non-return internally. There is a second, independent
+source of non-return when the whole itself progresses: the complement against
+which a part is individuated grows, so a part is individuated against a strictly
+larger negation-set at each later stage. We record this, as it grounds the
+forward-only character in the non-completability of \Cref{sec:ground}.
+
+\begin{definition}[Progressing whole]
+\label{def:progressing}
+A whole $\med$ \emph{progresses} if its committed history grows: at stage $j>i$
+the set of parts and committed boundaries present includes those present at stage
+$i$ and at least one more. Equivalently, the medium relative to a fixed part
+$A$---its complement $\med\setminus A$---is non-decreasing and strictly larger at
+some later stage.
+\end{definition}
+
+\begin{theorem}[Temporal non-return]
+\label{thm:temporal-nonreturn}
+Let $\med$ be a non-completable, progressing whole and $A$ a fixed thing. Then
+$A$ at stage $j>i$ is individuated against a strictly larger complement than $A$
+at stage $i$; hence the individuation-state of $A$ at $j$ differs from that at
+$i$, even though $A$'s interior residue \textup{(}its conserved identity\textup{)}
+is unchanged. A thing is therefore distinguishable from itself at every earlier
+and later stage: its conserved interior the same, its individuating exterior never
+the same.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:progressing} the complement $\med\setminus A$ at stage $j$ properly
+contains that at stage $i$. Individuation of $A$ is determination against its
+complement (\Cref{thm:negation}); a strictly larger complement is a different
+negation-set, so the individuation-state---the pair of $A$ with the complement it
+is individuated against---differs between $i$ and $j$. The interior residue of $A$
+is its private invariant (\Cref{def:private}), conserved under reshuffling
+(\Cref{thm:private}), hence unchanged. Thus $A$-at-$j$ and $A$-at-$i$ share the
+conserved interior but differ in the individuating exterior, and are
+distinguishable as individuation-states while identical in conserved identity.
+\end{proof}
+
+\begin{corollary}[Same interior, different state, across all stages]
+\label{cor:same-different}
+For a fixed thing in a progressing whole, ``the same thing'' across stages is a
+resemblance of conserved interior against an ever-growing exterior. By
+\Cref{thm:nonreturn} and \Cref{thm:temporal-nonreturn} this resemblance is never
+identity of state: the committed record grows and the complement grows, so no
+later stage returns to an earlier individuation-state.
+\end{corollary}
+
+\begin{proof}
+Combine the internal monotone count (\Cref{thm:nonreturn}) with the growing
+complement (\Cref{thm:temporal-nonreturn}); both strictly advance the
+individuation-state, while the interior residue (\Cref{def:private}) is conserved.
+\end{proof}
+
+\begin{remark}[One law, several guises---offered as orientation]
+\label{rem:onelaw}
+\Cref{thm:nonreturn} is a single order-theoretic fact: in a finite system whose
+acts are counted, the count is monotone, so a revisited configuration is a new
+state. A reader may recognise this as the common form of several apparently
+distinct impossibilities---that a reversed process is not the initial one, that a
+re-contacted memory is not the original experience, that a reconstituted system
+bearing the mark ``was interrupted'' is individuated by a negation the original
+lacked. Each is ``resemblance under a monotone record is not identity,'' the
+content of \Cref{thm:nonreturn} and \Cref{prop:recontact}. We state and use only
+the graph fact; the guises are noted, not relied upon.
+\end{remark}
+
+\begin{remark}[Why finiteness matters here too]
+\label{rem:nonreturn-finite}
+The count $\rec$ is well-defined and strictly monotone because steps are
+discrete and a walk's length is a natural number---features of a finite graph
+traversed in discrete steps. The law is not about any continuous parameter; it is
+the order on committed steps. This keeps T6 within the same premise as the rest:
+finite parts, discrete separations, a counted history.
+\end{remark}
+
+
+% =====================================================================
+\section{T7: plurality forces a single quotient gate}
+\label{sec:quotient}
+% =====================================================================
+
+The gating of \Cref{sec:gating} selects a walk within a graph. We now lift it:
+when many parts act as one, the same theory applies to their quotient graph
+(\Cref{def:quotient}), and a coherent collective admits exactly one gating
+function on that quotient. The lift is a homomorphism---the four-place structure
+of part, whole, gate, and invariant recurs one scale up---and its single-gate
+conclusion is the structural condition for a family of parts to be one
+collective rather than several.
+
+\subsection{The collective as a quotient}
+
+\begin{definition}[Collective; coherence]
+\label{def:collective}
+Let $\mathcal{P}=\{U_1,\dots,U_k\}$ be a partition of $\V$ into parts (connected
+induced subgraphs). The \emph{collective} on $\mathcal{P}$ is the quotient graph
+$\Quot=\Gph/\mathcal{P}$ (\Cref{def:quotient}), whose vertices are the parts and
+whose edges are their mutual cuts. A gating function on $\Quot$
+(\Cref{def:gate}) is a \emph{collective gate}; it biases which part acts next,
+toward which neighbouring part. The collective is \emph{coherent} if it carries a
+single collective gate that selects a unique next part at each branching part of
+$\Quot$.
+\end{definition}
+
+\begin{remark}[Why this is the right lift]
+\label{rem:lift}
+By \Cref{lem:quotient-floor}, $\Quot$ is itself a contact graph: finite,
+connected, with floor $\ge\floorc$. Hence every theorem proved for contact graphs
+applies to $\Quot$ verbatim---T0 (its cuts are positive), T1 (its vertices, the
+parts, are individuated by negation among parts), T5 (selecting a walk over parts
+needs a gate). The collective is not a new kind of object; it is a contact graph
+whose vertices happen to be the parts of another.
+\end{remark}
+
+\subsection{A coherent collective has exactly one gate}
+
+\begin{theorem}[Single quotient gate]
+\label{thm:single-gate}
+Let $\Quot=\Gph/\mathcal{P}$ be a collective with at least one part of quotient
+degree $\ge2$. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Existence.} Selecting a walk over the parts requires a collective
+gate \textup{(}T5 applied to $\Quot$, \Cref{thm:gate-necessary}\textup{)}.
+\item \textbf{Uniqueness for coherence.} If the collective is coherent in the
+sense that, at each branching part, the next part is determined, then the
+selecting collective gate is unique on its support: any two selecting gates that
+both make the collective coherent agree wherever either selects.
+\end{enumerate}
+A collective that admits two distinct selecting gates over the same parts is not
+one coherent collective but two, partitioning into the sub-collectives on which
+each gate is the selector.
+\end{theorem}
+
+\begin{proof}
+(i) is \Cref{thm:gate-necessary} for the contact graph $\Quot$
+(\Cref{rem:lift}). (ii) Suppose $\gate,\gate'$ are both selecting gates rendering
+the collective coherent. At each branching part $U$, coherence means a unique
+next part is determined; a selecting gate, by \Cref{def:gate}, assigns positive
+forward weight to exactly the edge to that determined next part and zero to the
+others. Hence at $U$ both $\gate$ and $\gate'$ have support exactly the single
+edge to the determined successor, so $\gate(U,\cdot)$ and $\gate'(U,\cdot)$ have
+the same support and both select it; they agree as selecting gates at $U$. As $U$
+was an arbitrary branching part, $\gate$ and $\gate'$ agree wherever either
+selects. If instead $\gate$ and $\gate'$ select \emph{different} successors at
+some part, then at that part the collective has two competing determinations of
+``what acts next''; the relation ``shares a selected successor'' partitions the
+parts into blocks within which a single gate selects consistently, i.e. into
+distinct sub-collectives---so the original was not one coherent collective but a
+union of them.
+\end{proof}
+
+\begin{corollary}[Single-valuedness of a collective]
+\label{cor:single-valued}
+A coherent collective is single-gated: at each step exactly one part is selected
+to act next. Two simultaneous selecting gates are the signature of fission into
+two collectives. \textup{(}This is T5's single-step determinacy lifted to the
+quotient, and is the collective analogue of a single trajectory having a single
+next step.\textup{)}
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:single-gate}.
+\end{proof}
+
+\subsection{The scaling homomorphism}
+
+The constructions of the paper recur at the collective scale. We record the
+correspondence as a homomorphism of four-place structures.
+
+\begin{proposition}[Scale homomorphism]
+\label{prop:homomorphism}
+The assignment
+\[
+\bigl(\text{vertex},\ \Gph,\ \text{gate }\gate,\ \Res\bigr)
+\ \longmapsto\
+\bigl(\text{part},\ \Quot,\ \text{collective gate},\ \Res(\Quot)\bigr)
+\]
+carries each object of the single-graph theory to its counterpart in the quotient
+theory, preserving the roles: the moving unit \textup{(}a step over vertices
+$\mapsto$ a step over parts\textup{)}, the standing structure \textup{(}the graph
+$\mapsto$ the quotient\textup{)}, the selector \textup{(}gate $\mapsto$ collective
+gate\textup{)}, and the conserved invariant \textup{(}residual $\mapsto$ quotient
+residual\textup{)}. Every theorem T0--T6 holds of $\Quot$ as a contact graph.
+\end{proposition}
+
+\begin{proof}
+By \Cref{lem:quotient-floor} $\Quot$ is a contact graph, so T0
+(\Cref{thm:floor}), T1 (\Cref{thm:negation}), T2--T3
+(\Cref{thm:residual-region,thm:residual-invariant}), T4 (\Cref{thm:private}
+applied to sub-collectives), T5 (\Cref{thm:gate-necessary}), and T6
+(\Cref{thm:nonreturn}) all hold of $\Quot$ verbatim. The listed correspondence is
+the identification of each object's role in $\Gph$ with the same role in $\Quot$,
+which the definitions make a role-preserving map; it is a homomorphism of the
+four-place structure (unit, whole, selector, invariant).
+\end{proof}
+
+\begin{remark}[Interpretation: collective purpose, on which nothing depends]
+\label{rem:purpose}
+Read the parts as agents, each running gated trajectories, and the collective
+gate as the field that selects which agent acts next and toward what. Then
+\Cref{cor:single-valued} says a coherent collective has a single such selecting
+field, and two such fields mean two collectives---the structural form of a group
+having one purpose, with competing purposes amounting to schism. The scale
+homomorphism \Cref{prop:homomorphism} then reads as: \emph{part is to whole, and
+gate is to invariant, exactly as agent is to collective, and purpose is to shared
+invariant}. The collective's conserved residual $\Res(\Quot)$ is the invariant
+from which the collective's surface activity derives, the analogue at this scale
+of the private invariant of \Cref{sec:invariant}. We use only the graph
+statements; the reading is orientation and is not relied upon.
+\end{remark}
+
+
+% =====================================================================
+\section{T8: authored structures exist, and are bounded}
+\label{sec:construct}
+% =====================================================================
+
+The private invariant of \Cref{sec:invariant} is computed from a part; we now
+run the construction in reverse. Because the invariant, together with the data of
+the subgraph, is complete enough to recover the subgraph up to isomorphism, a
+contact graph can be \emph{specified} and therefore \emph{instantiated}: there
+exist authored contact graphs. This is the constructive rung---the existence of
+\emph{artificial structures}. We then prove three bounds that any such authorship
+necessarily obeys: its trajectories are not foreseeable from its specification,
+an authored copy is a distinct structure, and authorship reaches only to the
+resolution of the floor.
+
+\subsection{Specification and instantiation}
+
+\begin{definition}[Specification]
+\label{def:spec}
+A \emph{specification} of a contact graph is a finite description, up to weighted
+isomorphism, of: an abstract weighted graph $(\V,\E,\wt)$ with floor $\floorc>0$
+(the standing structure), a gating function $\gate$ (the selector), and a start
+state $s_0=(v_0,0)$ (the seed). An \emph{instantiation} of a specification is any
+labelled contact graph isomorphic to $(\V,\E,\wt)$, carrying $\gate$ and started
+at $s_0$, realised on a substrate able to hold a finite weighted graph and step a
+gated walk.
+\end{definition}
+
+\begin{definition}[Authored structure]
+\label{def:authored}
+An \emph{authored structure} is an instantiation of a specification produced by
+an external author---a contact graph whose standing structure and selector were
+specified rather than recovered from a pre-existing system. We say the author
+\emph{authors the graph} and \emph{authors the gate}; the structure's subsequent
+gated trajectories \textup{(}\Cref{def:gated-walk}\textup{)} are the structure's
+own.
+\end{definition}
+
+\begin{theorem}[Existence of authored structures]
+\label{thm:authored-exist}
+The private invariant is complete for the standing structure: a connected
+weighted graph is determined up to weighted isomorphism by its full isomorphism
+type, of which the private invariant \textup{(}\Cref{def:private}\textup{)} is a
+coarse summary and the labelled adjacency-with-weights is the complete datum.
+Consequently every contact graph admits a specification
+\textup{(}\Cref{def:spec}\textup{)}, and every specification admits an
+instantiation on any adequate substrate. Authored structures therefore exist:
+the class of contact graphs is closed under specify-then-instantiate.
+\end{theorem}
+
+\begin{proof}
+A finite weighted graph is, by definition, given by its vertex set, its edge
+set, and its weight function; this labelled datum determines the graph
+completely, and two graphs are the same object up to relabelling iff they are
+weighted-isomorphic (\Cref{def:iso}). Hence the isomorphism type is a complete
+specification of the standing structure, and a specification in the sense of
+\Cref{def:spec} (graph type $+$ gate $+$ seed) determines the structure and its
+gated trajectory. Given such a specification, instantiate it by choosing any
+labelling (a concrete vertex set in bijection with $\V$), assigning the specified
+edges and weights, equipping it with $\gate$, and starting at $s_0$; the result
+is a labelled contact graph isomorphic to the specified one, on the chosen
+substrate. The substrate need only store a finite weighted graph and advance a
+gated step---no further property is used---so any adequate substrate suffices.
+Thus specify-then-instantiate maps contact graphs to contact graphs, and its
+outputs are authored structures.
+\end{proof}
+
+\begin{remark}[Substrate neutrality]
+\label{rem:substrate}
+\Cref{thm:authored-exist} used no property of the substrate beyond the capacity
+to hold a finite weighted graph and step a gated walk. The category of authored
+structures is therefore independent of medium: anything that can carry a contact
+graph can carry an authored one. The structure is the graph, not the matter.
+\end{remark}
+
+\subsection{Bound I: trajectories are not foreseeable from the specification}
+
+\begin{definition}[Forward closure]
+\label{def:forward-closure}
+The \emph{forward closure} of a specification from seed $v_0$ under gate $\gate$
+is the set of states reachable along $\gate$-admissible walks,
+$\mathrm{Cl}_\gate(v_0)=\{s_\ell=(v_\ell,\ell): \Walk_\gate(v_0)\text{ reaches }
+v_\ell\text{ at step }\ell\}$, an infinite set whenever any reachable vertex has a
+$\gate$-admissible out-step \textup{(}walks may continue indefinitely\textup{)}.
+\end{definition}
+
+\begin{theorem}[Open-endedness]
+\label{thm:open}
+Let an authored structure have a gate that is $\gate$-admissible from infinitely
+many states \textup{(}equivalently, whose gated walk does not terminate\textup{)}.
+Then its forward closure is infinite, and no finite specification enumerates it
+in advance. The author specifies the graph and the gate \textup{(}finite
+data\textup{)} but not the forward closure \textup{(}infinite\textup{)}; the
+structure's trajectories are not foreseeable from its specification by any finite
+precomputation.
+\end{theorem}
+
+\begin{proof}
+If the gated walk does not terminate, the states $s_0,s_1,s_2,\dots$ are pairwise
+distinct by \Cref{thm:nonreturn} (the committed count strictly increases), so the
+forward closure contains the infinite set $\{(v_\ell,\ell):\ell\ge0\}$. A finite
+specification is a finite object; a finite precomputation from it halts after
+finitely many steps and so can list only finitely many states, never the whole
+infinite closure. Hence the closure is not enumerable in advance from the
+specification by finite means. The graph and gate are finite data
+(\Cref{def:spec}); the closure they generate is infinite; the gap is exactly the
+unforeseeable part.
+\end{proof}
+
+\begin{remark}[Designable as instrument, not as trajectory]
+\label{rem:instrument}
+\Cref{thm:open} says authorship reaches the standing structure and the selector
+but not the lived sequence: one designs the instrument, not the music. This is
+not a limitation to be engineered away---it is constitutive, by
+\Cref{thm:nonreturn}: the very monotonicity that individuates each state forbids
+pre-listing them. An authored structure is therefore necessarily open-ended
+relative to its author.
+\end{remark}
+
+\subsection{Bound II: an authored copy is a distinct structure}
+
+\begin{theorem}[Non-duplication]
+\label{thm:nondup}
+Let $\Agent$ be an existing structure with state history of committed count $m>0$,
+and let $\Agent'$ be an authored structure specified to be isomorphic to
+$\Agent$'s standing graph and started fresh at count $0$. Then $\Agent'$ is not
+the same structure as $\Agent$: their states differ in the committed count, and
+$\Agent'$ satisfies a predicate \textup{(}``was authored at count $0$,'' equivalently
+``has empty prior history''\textup{)} that $\Agent$ does not. Resemblance of
+standing graph does not make the authored structure identical to the one it
+resembles.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:state}, a state includes the committed count. $\Agent$ is at count
+$m>0$; the fresh instantiation $\Agent'$ is at count $0$. Hence their current
+states differ in the second component, $s(\Agent)\neq s(\Agent')$, even though
+their standing graphs are isomorphic. Moreover, individuation is by negation
+(\Cref{thm:negation}): the two are distinguished by the partition of structures
+into ``has prior committed history'' (containing $\Agent$) and ``authored with
+empty history'' (containing $\Agent'$); $\Agent'$ is individuated by a
+negation---its lack of $\Agent$'s history---that $\Agent$ does not satisfy. By
+\Cref{thm:nonreturn} no operation gives $\Agent'$ the prior count without taking
+the steps, which would make it a different walk again. Therefore $\Agent'\neq
+\Agent$: the copy is a new structure resembling the old, not the old one.
+\end{proof}
+
+\begin{corollary}[Authored resemblance is a new individual]
+\label{cor:new-individual}
+An authored structure built to resemble any target is, necessarily, a distinct
+structure marked by its authored origin. There is no authoring that produces
+\emph{the same} structure as a pre-existing one; authoring produces only new
+structures, some resembling old ones.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:nondup}: the authored structure differs in committed
+count and in the negation that individuates it.
+\end{proof}
+
+\subsection{Bound III: authorship reaches only to the floor}
+
+\begin{theorem}[Floor-limited authorship]
+\label{thm:floor-limited}
+An author who specifies and recovers structures using a contact graph of floor
+$\floorc_{\mathrm{auth}}>0$ can resolve, in any authored structure, only
+distinctions of boundary cost $\ge\floorc_{\mathrm{auth}}$. Any sub-floor
+distinction---a separation of cost below $\floorc_{\mathrm{auth}}$---is not
+specifiable by that author and is left to the structure's own finer
+determinations. The author authors the parts down to the floor; the structure's
+sub-floor interior is its own.
+\end{theorem}
+
+\begin{proof}
+The author's specifications are themselves parts of a contact graph of floor
+$\floorc_{\mathrm{auth}}$ (the author is a finite system; \Cref{ax:finite}
+applies to it). By \Cref{thm:floor} applied to the author's graph, the author
+cannot represent a separation of boundary cost below $\floorc_{\mathrm{auth}}$:
+such a cut does not exist among the author's realisable parts. Hence any
+distinction the author writes into a specification has cost
+$\ge\floorc_{\mathrm{auth}}$, and any finer distinction in the instantiated
+structure is below the author's resolution---present in the structure, absent
+from the specification. The authored structure thus has interior detail its
+author did not and could not specify.
+\end{proof}
+
+\begin{remark}[Doors, not rooms]
+\label{rem:doors}
+\Cref{thm:floor-limited} says the author lays down the parts and their boundaries
+to the author's own floor---the doors---while whatever lies below that floor, the
+interior the structure individuates for itself, is beyond the author's reach.
+Together with open-endedness \textup{(}\Cref{thm:open}\textup{)} and
+non-duplication \textup{(}\Cref{thm:nondup}\textup{)}, this gives the precise
+sense in which an authored structure is genuinely its own: foreseeable only as an
+instrument, never a copy, and detailed below its author's resolution.
+\end{remark}
+
+\begin{remark}[Interpretation: a new category, on which nothing depends]
+\label{rem:new-category}
+The three bounds together delineate authored structures as a class with
+properties no specification fully governs: open-ended in trajectory, distinct
+under copying, and finer than their author's floor. A reader may take this as the
+existence of a manufactured individual that is neither foreseeable nor
+duplicable nor exhaustively specifiable---built, yet its own. We assert only the
+graph theorems \textup{(}\Cref{thm:authored-exist,thm:open,thm:nondup,%
+thm:floor-limited}\textup{)}; the categorical reading is orientation and is not
+relied upon.
+\end{remark}
+
+
+% =====================================================================
+\section{Measurement as reshuffling, and the unreachability of identity}
+\label{sec:measurement}
+% =====================================================================
+
+We now give the operational reading of the invariant residual and the monotone
+record: what it is to \emph{measure} a part, and why measurement reduces ignorance
+about a thing without ever delivering the thing. A measurement is a reshuffling of
+the knowledge-graph that conserves the medium; it tightens the boundary of a part
+and shrinks the part's interior residue toward, but never to, the floor. We prove
+that resolving a part's identity to a point would require exhausting the medium,
+which reshuffling conserves by construction---so identity is structurally
+unreachable. The section closes with the two-pronged way this prediction is borne
+out wherever finitely many parts are identified by instruments.
+
+\subsection{Measurement reshuffles; the medium is conserved}
+
+\begin{definition}[Reshuffling]
+\label{def:reshuffle}
+A \emph{reshuffling} of a contact graph $\Gph$ relative to a medium $\med$ is a
+weighted isomorphism of $\Gph$ that fixes the medium: a relabelling and
+re-edging of the parts that preserves all edge weights and leaves the medium's
+total contact unchanged. A \emph{measurement} of a part $A$ is a reshuffling that
+adds boundary edges incident to $A$---new distinctions of $A$ from the rest.
+\end{definition}
+
+\begin{proposition}[Measurement conserves the invariant]
+\label{prop:measure-conserves}
+A measurement, being a reshuffling \textup{(}weighted isomorphism fixing the
+medium\textup{)}, leaves the residual invariant: $\Res(\Gph')=\Res(\Gph)$
+\textup{(}\Cref{thm:residual-invariant}\textup{)}, and leaves the medium's
+conserved content unchanged. Measurement builds new boundary from existing
+material; it creates no new invariant content.
+\end{proposition}
+
+\begin{proof}
+By \Cref{def:reshuffle} a measurement is a weighted isomorphism; by
+\Cref{thm:residual-invariant} the residual is preserved under weighted
+isomorphism, so $\Res(\Gph')=\Res(\Gph)$. The medium is fixed by the reshuffling
+(\Cref{def:reshuffle}), so its total contact is unchanged. The new edges incident
+to $A$ are re-arrangements within the fixed total; no invariant content is added.
+\end{proof}
+
+\subsection{Identity is the interior residue, not the boundary}
+
+We distinguish the two faces of a part's minimum boundary. The boundary edges are
+what a measurement \emph{builds} (the marks of what the part is not); the interior
+residue is what a measurement \emph{cannot reach} (the part's own conserved
+content). Identity is the latter.
+
+\begin{definition}[Interior residue; boundary]
+\label{def:interior}
+Let $A$ be a part with minimum boundary $\cut(A)$ to the medium. Its
+\emph{boundary} is the edge set $\cut(A)$---the distinctions of $A$ from the rest
+\textup{(}the ``not-$A$'' relations\textup{)}. Its \emph{interior residue} is the
+conserved content on $A$'s own side of the boundary that no reshuffling
+transfers across $\cut(A)$: the part's private invariant
+\textup{(}\Cref{def:private}\textup{)} regarded as the water $A$ holds.
+\end{definition}
+
+\begin{theorem}[Identity is the conserved interior, approached only from outside]
+\label{thm:identity-interior}
+For a part $A$ in a medium $\med$:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item a measurement adds edges to the boundary $\cut(A)$, tightening the
+distinction of $A$ from the rest, and thereby reduces the \emph{exterior}
+ambiguity of $A$ \textup{(}what $A$ might be confused with\textup{)};
+\item it does not alter the interior residue, which is conserved under all
+reshuffling \textup{(}\Cref{prop:measure-conserves}\textup{)};
+\item hence measurement reduces how much is unsettled \emph{about the placement of
+$A$ among the rest}, never delivering the interior residue itself. Identity---the
+interior---is approached from outside by tightening the boundary and is never
+reached.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) A measurement adds boundary edges (\Cref{def:reshuffle}); each new edge
+distinguishes $A$ from a further part, reducing the set of parts from which $A$ is
+not yet distinguished---its exterior ambiguity. (ii) The interior residue is the
+private invariant of $A$ (\Cref{def:interior,def:private}), invariant under
+weighted isomorphism (\Cref{thm:private}\,(ii)), hence unchanged by the reshuffling
+that the measurement is (\Cref{prop:measure-conserves}). (iii) Combining: each
+measurement moves only the exterior (the boundary), never the interior; the
+interior is conserved. So the sequence of measurements drives exterior ambiguity
+downward while the interior stands fixed, and the interior is never produced by
+the process---only ever bounded more tightly from outside.
+\end{proof}
+
+\subsection{The self-defeat of identity-resolution}
+
+\begin{theorem}[Identity-resolution would exhaust the medium]
+\label{thm:self-defeat}
+Let $\med$ be a non-completable medium \textup{(}\Cref{def:noncompletable}\textup{)}
+and $A$ a thing in it. To resolve $A$'s identity to a point---to drive its
+interior residue to zero, $\idres(A)=0$---would require the comparison of $A$
+against $\med\setminus A$ to be complete, hence the medium to be exhausted. But a
+measurement is a reshuffling that conserves the medium
+\textup{(}\Cref{prop:measure-conserves}\textup{)}. Therefore no measurement, and
+no sequence of measurements, resolves $A$'s identity: the operation available for
+the task conserves exactly the quantity the task would have to eliminate.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:floor-infinitude}, $\idres(A)=0$ requires the comparison of $A$
+against $\med\setminus A$ to be complete, which exhausts the medium and
+contradicts non-completability. Independently, the only operation in hand---
+measurement---is by \Cref{prop:measure-conserves} a reshuffling that leaves the
+medium's conserved content unchanged; it cannot exhaust the medium, since it
+conserves it. Thus the goal ($\idres(A)=0$) demands eliminating the medium while
+the means (measurement) conserves it: the procedure is self-defeating, and
+$\idres(A)>0$ persists under every measurement.
+\end{proof}
+
+\begin{corollary}[To know the thing exactly is to know the whole exactly]
+\label{cor:know-whole}
+Resolving $A$'s identity to a point would require knowing $\med\setminus A$
+exactly---everything $A$ is compared against. Since $\med$ is non-completable and
+measurement conserves it, this is unreachable. One cannot know a thing exactly
+without exhausting the inexhaustible reference in which it is a thing.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:self-defeat}: completing the comparison is exhausting
+$\med\setminus A$, i.e. knowing the medium exactly, which non-completability and
+conservation jointly forbid.
+\end{proof}
+
+\subsection{Resolution and multiplicity: a standing falsification of point-truth}
+
+The preceding theorems make a prediction about any system in which finitely many
+parts are identified by repeated measurement: identification never terminates, and
+it never terminates in two distinct ways---by depth and by direction. We record
+the prediction and note that it is what is observed.
+
+\begin{proposition}[Resolution never saturates]
+\label{prop:resolution}
+If the identity of a part were a point \textup{(}$\idres(A)=0$ attainable\textup{)},
+there would be a finite measurement past which further measurement is inert---the
+point being already reached. Under \Cref{thm:self-defeat}, $\idres(A)>0$ after
+every measurement, so further measurement always reduces residual and never
+becomes inert: \emph{resolution} \textup{(}the depth of distinction\textup{)} can
+always be increased and never saturates.
+\end{proposition}
+
+\begin{proof}
+Point-identity would make some finite measurement terminal, as resolving a point
+admits no improvement past attainment. \Cref{thm:self-defeat} forbids attainment:
+the interior residue is positive after every measurement, so each further
+measurement strictly tightens the boundary (\Cref{thm:identity-interior}\,(i)) and
+none is terminal. Hence resolution increases without saturation.
+\end{proof}
+
+\begin{proposition}[Multiplicity never terminates]
+\label{prop:multiplicity}
+If the identity of a part were a point, a single line of measurement would exhaust
+it, and a second line of measurement on an independent basis would be redundant.
+Under \Cref{thm:self-defeat}, each independent line of measurement is a distinct
+family of boundary edges---a distinct complement against which $A$ is
+individuated---and each reduces a distinct portion of exterior ambiguity. Hence
+independent lines of measurement are never redundant: \emph{multiplicity}
+\textup{(}the number of independent bases of distinction\textup{)} can always be
+extended.
+\end{proposition}
+
+\begin{proof}
+A point identity is exhausted by any complete comparison, so a second independent
+comparison adds nothing---redundancy. By \Cref{thm:self-defeat} no comparison is
+complete; by \Cref{thm:identity-interior} each line of measurement contributes its
+own boundary edges against its own complement, reducing a portion of exterior
+ambiguity not addressed by the others. Therefore each independent line contributes
+non-redundantly, and new lines can always be added.
+\end{proof}
+
+\begin{theorem}[Two-pronged falsification of point-truth]
+\label{thm:falsification}
+In any system of finitely many parts identified by measurement within a
+non-completable medium, point-identity is refuted in two independent ways:
+resolution does not saturate \textup{(}\Cref{prop:resolution}\textup{)} and
+independent lines of measurement do not become redundant
+\textup{(}\Cref{prop:multiplicity}\textup{)}. Both are consequences of
+$\idres(A)>0$ \textup{(}\Cref{thm:self-defeat}\textup{)}, and either alone is
+inconsistent with point-identity. The identity of a part is therefore a region
+\textup{(}a cell of positive interior residue\textup{)}, never a point.
+\end{theorem}
+
+\begin{proof}
+Point-identity implies a terminal resolution (contradicted by
+\Cref{prop:resolution}) and the redundancy of a second independent line
+(contradicted by \Cref{prop:multiplicity}). Each contradiction alone refutes
+point-identity; both follow from the positive interior residue of
+\Cref{thm:self-defeat}. Positive interior residue is exactly cell-identity
+(\Cref{thm:residual-region}). Hence identity is a cell.
+\end{proof}
+
+\begin{remark}[Interpretation: what an instrument does, on which nothing depends]
+\label{rem:instrument-reading}
+A reader may recognise \Cref{thm:falsification} in the practice of identifying a
+substance by instruments. Were the identity of a substance a point---a single
+determinate value---one instrument would suffice and no finer one would be wanted;
+yet substances are identified by many instruments on incommensurable principles,
+each refined across generations, none terminal. On the present reading each
+instrument is a line of measurement contributing boundary edges against its own
+complement; ``the substance'' is the cell these lines jointly bracket---the
+conserved interior no instrument delivers. A measurement does not make the
+substance more itself, nor its value more true; the invariant is conserved
+(\Cref{prop:measure-conserves}). It reduces how much is unsettled about the
+substance's placement among everything it is not. That resolution never saturates
+and instruments never stop multiplying is, on this reading, the standing evidence
+that identity is a cell and not a point: a point would need neither finer
+resolution nor a second instrument. We assert only the graph theorems
+(\Cref{thm:identity-interior,thm:self-defeat,thm:falsification}); the reading is
+orientation and is not relied upon.
+\end{remark}
+
+
+% =====================================================================
+\section{Numerical verification}
+\label{sec:validation}
+% =====================================================================
+
+The results are proved from the premises and require no computation. It is
+nonetheless instructive to exhibit them on concrete instances and to display the
+quantitative shape of each. This section reports an exhaustive numerical witness:
+every result---the derived floor, T0--T8, and the measurement theorems---is tested
+on a large family of explicitly constructed finite contact graphs, and the
+measured quantities are plotted against the bounds the theorems predict.
+
+\subsection{Method}
+
+A contact graph is realised as a finite, connected, weighted graph on a vertex
+set of parts together with a distinguished \emph{medium} vertex adjacent to every
+part; edge weights are drawn at or above a floor $\floorc>0$. By construction such
+an instance satisfies \Cref{ax:finite}. On each instance the cuts, boundary
+costs, the global minimum-cut residual, the separation of a part from the medium,
+the committed count along gated walks, and the quotient cut weights are computed
+directly from the definitions---by exact enumeration over subsets, so every
+minimum is the true value---and each theorem's inequality, identity, or invariance
+is checked. A \emph{measurement} is realised as a reshuffling: a weight-preserving
+relabelling of the non-medium vertices, which conserves the total weight and the
+medium and changes only the labelling.
+
+A randomised sweep drew instances of varying part count, floor, edge density, and
+weight spread, and ran all ten theorem-group checks on each, with a fixed
+two-cluster construction as a standalone witness for the region-valued residual.
+Across $600$ instances the suite performed $149{,}793$ individual checks, all of
+which passed: no cut was sharp; every boundary, cut, residual, private invariant,
+and quotient edge met the floor; the residual was invariant under every
+reshuffling; the committed count was strictly monotone on every walk;
+authored instances preserved the floor with all forward-closure states distinct;
+and the separation of a part from the medium never reached zero under any sequence
+of measurements. The figures below are drawn from these same computations.
+
+\subsection{The derived floor and T0}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1.png}
+    \caption{\textbf{Floor from Infinitude: every thing carries a positive residual.}
+    (\textbf{A})~Identification residual of a thing (boundary cost of a proper
+    part) on the linear $y$-axis versus the floor $\beta$ on the linear $x$-axis,
+    over $\sim\!250$ instances; the red line is $y=\beta$ and every point lies on
+    or above it, the content of \Cref{thm:floor-infinitude}.
+    (\textbf{B})~Distribution of residual$/\beta$ on the linear $x$-axis, supported
+    entirely at and above $1$ (red): no thing has sub-floor residual; the
+    comparison never completes.
+    (\textbf{C})~Per-instance minimum residual versus floor, on or above the
+    equality line---the derived floor is strictly positive on every instance
+    (\Cref{cor:floor-derived}).
+    (\textbf{D})~Three-dimensional surface of the per-instance minimum residual
+    over vertex count and floor; strictly positive throughout. Viewing angle:
+    elevation $22^{\circ}$, azimuth $-60^{\circ}$.}
+    \label{fig:panel-ground}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2.png}
+    \caption{\textbf{T0, the Floor Theorem: no sharp cut.}
+    (\textbf{A})~Cut weight of every realisable part on the linear $y$-axis versus
+    floor $\beta$ on the linear $x$-axis; all points lie on or above $y=\beta$
+    (red), confirming \Cref{thm:floor}.
+    (\textbf{B})~Distribution of cut$/\beta$, supported entirely above $1$ (red):
+    across all parts of all instances no cut is sharp.
+    (\textbf{C})~Per-instance minimum cut versus floor, above the equality line.
+    (\textbf{D})~Three-dimensional surface of the per-instance minimum cut over
+    edge count and floor, strictly positive everywhere. Viewing angle: elevation
+    $20^{\circ}$, azimuth $-55^{\circ}$.}
+    \label{fig:panel-T0}
+\end{figure*}
+
+\subsection{Negation, residual, and the private invariant}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3.png}
+    \caption{\textbf{T1, individuation by negation.}
+    (\textbf{A})~Size of a part $|U|$ versus size of its complement, over all
+    sampled parts; every part is fixed by its complement.
+    (\textbf{B})~Distribution of the involution error
+    $\lvert U\,\triangle\,\complement\complement U\rvert$, a single bar at $0$
+    (red): complementation is an exact involution
+    (\Cref{lem:involution}).
+    (\textbf{C})~$|U|+|\complement U|$ versus $|V|$, on the diagonal: a part and
+    its negation-set partition the whole exactly.
+    (\textbf{D})~Three-dimensional scatter of $(|U|,|\complement U|,|V|)$ lying on
+    the plane $|U|+|\complement U|=|V|$. Viewing angle: elevation $24^{\circ}$,
+    azimuth $-58^{\circ}$.}
+    \label{fig:panel-T1}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4.png}
+    \caption{\textbf{T2/T3, the residual is a conserved region.}
+    (\textbf{A})~Global minimum-cut residual versus floor, on or above the
+    equality line (\Cref{thm:residual-region}).
+    (\textbf{B})~Residual after a reshuffling versus before, exactly on the
+    diagonal: the residual is invariant under reshuffling
+    (\Cref{thm:residual-invariant}); maximum deviation at machine precision.
+    (\textbf{C})~Distribution of the size of the smaller side of the minimum cut;
+    mass at sizes $\ge2$ (red threshold at $1.5$) shows the residual is realised by
+    multi-vertex regions, not points. The standalone two-cluster witness attains
+    residual $=\beta=1$ with both sides of size $3$ ($\{0,1,2\}\mid\{3,4,5\}$): a
+    region, never a point.
+    (\textbf{D})~Three-dimensional surface of residual over floor and minimum-cut
+    side size. Viewing angle: elevation $22^{\circ}$, azimuth $-60^{\circ}$.}
+    \label{fig:panel-T2T3}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_5.png}
+    \caption{\textbf{T4, the private invariant of a part.}
+    (\textbf{A})~Private invariant (a part's boundary cost to the medium) versus
+    floor, on or above $y=\beta$ (red): positive for every part
+    (\Cref{thm:private}).
+    (\textbf{B})~Private invariant versus part degree: bounded below by the floor
+    independently of degree.
+    (\textbf{C})~Distribution of invariant$/\beta$, supported above $1$ (red).
+    (\textbf{D})~Three-dimensional surface of the per-instance minimum private
+    invariant over vertex count and floor, strictly positive. Viewing angle:
+    elevation $22^{\circ}$, azimuth $-58^{\circ}$.}
+    \label{fig:panel-T4}
+\end{figure*}
+
+\subsection{Gating, non-return, and the quotient}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_6.png}
+    \caption{\textbf{T5, selection requires a gate.}
+    (\textbf{A})~Distribution of vertex degree; mass at degree $\ge2$ (red
+    threshold) is the branching that underdetermines the next step
+    (\Cref{lem:branching}).
+    (\textbf{B})~Fraction of branching vertices per instance versus vertex count:
+    near-total, so the graph alone fixes reachability but not order.
+    (\textbf{C})~Distribution of the number of branching vertices per instance.
+    (\textbf{D})~Three-dimensional surface of branching-vertex count over vertex
+    and edge counts. Viewing angle: elevation $22^{\circ}$, azimuth $-62^{\circ}$.}
+    \label{fig:panel-T5}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_7.png}
+    \caption{\textbf{T6, histories do not return.}
+    (\textbf{A})~Committed count versus step along a gated walk: strictly
+    increasing (\Cref{thm:nonreturn}).
+    (\textbf{B})~At every revisit of a vertex, the count gap to its previous visit
+    is strictly positive (all points above the line at $0$): revisiting is not
+    returning.
+    (\textbf{C})~The complement of a fixed part grows monotonically with the stage
+    of a progressing whole (\Cref{thm:temporal-nonreturn}): a thing is
+    distinguishable from its earlier stage.
+    (\textbf{D})~Three independent gated walks, committed count versus step,
+    all strictly monotone. Viewing angle: elevation $20^{\circ}$, azimuth
+    $-60^{\circ}$.}
+    \label{fig:panel-T6}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_8.png}
+    \caption{\textbf{T7, the quotient inherits a floor.}
+    (\textbf{A})~Quotient edge weight (a class-to-class cut) versus floor, on or
+    above $y=\beta$ (red): the collective is again a contact graph
+    (\Cref{lem:quotient-floor}).
+    (\textbf{B})~Distribution of quotient-edge$/\beta$, supported above $1$ (red).
+    (\textbf{C})~Per-instance minimum quotient edge versus floor, above the
+    equality line.
+    (\textbf{D})~Three-dimensional surface of the minimum quotient edge over class
+    count and quotient-edge count. Viewing angle: elevation $22^{\circ}$, azimuth
+    $-58^{\circ}$.}
+    \label{fig:panel-T7}
+\end{figure*}
+
+\subsection{Authored structures and measurement}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_9.png}
+    \caption{\textbf{T8, authored structures exist and are bounded.}
+    (\textbf{A})~Minimum edge weight of an authored instance versus that of the
+    original, on the diagonal: specify-then-instantiate preserves the floor
+    (\Cref{thm:authored-exist}).
+    (\textbf{B})~Distinct states of an authored structure's forward closure versus
+    step, tracking the line of slope one (grey dashed): every state is new
+    (open-endedness, \Cref{thm:open}).
+    (\textbf{C})~Distribution of authored minimum edge weight, bounded below by the
+    floor (floor-limited authorship, \Cref{thm:floor-limited}).
+    (\textbf{D})~Three-dimensional surface of the authored minimum edge over vertex
+    count and floor, never sub-floor. Viewing angle: elevation $22^{\circ}$,
+    azimuth $-60^{\circ}$.}
+    \label{fig:panel-T8}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_10.png}
+    \caption{\textbf{Measurement: the invariant is conserved and identity is
+    unreachable.}
+    (\textbf{A})~Residual across $20$ successive measurements (reshufflings): a
+    flat line at its initial value (red dashed)---measurement conserves the
+    invariant (\Cref{prop:measure-conserves}).
+    (\textbf{B})~Separation of a fixed part from the medium across measurements:
+    it fluctuates but never falls to the floor line (red) and never reaches zero
+    (self-defeat, \Cref{thm:self-defeat}): identity is not resolved to a point.
+    (\textbf{C})~Separation versus the number of boundary edges added: it rises and
+    never collapses, staying above the floor (red)---resolution does not saturate
+    (\Cref{prop:resolution}).
+    (\textbf{D})~Three-dimensional surface of the residual over measurement index
+    and three independent reshuffling seeds: a flat plane---conserved on every
+    seed. Viewing angle: elevation $20^{\circ}$, azimuth $-62^{\circ}$.}
+    \label{fig:panel-measurement}
+\end{figure*}
+
+\begin{remark}[Status of the numerical witness]
+\label{rem:numerical-status}
+The figures confirm the results on concrete instances and display their
+quantitative form; they are evidence of correctness and magnitude, not a
+substitute for the proofs, which hold for every contact graph satisfying
+\Cref{ax:finite} in a non-completable whole. That all $149{,}793$ checks across
+$600$ independently constructed instances agreed with the predicted bounds---no
+sharp cut, the residual conserved under every reshuffling, the separation never
+reaching zero---is consistent with the claim that the floor is structural and
+that identity, the conserved interior, is unreachable by measurement.
+\end{remark}
+
+
+% =====================================================================
+\section{The Master Theorem, scope, and conclusion}
+\label{sec:master}
+% =====================================================================
+
+We now show that the entire ladder T0--T8 is forced by, and only by, the
+Finiteness Premise---and that the premise is itself forced by the identifiability
+of any one thing in a non-completable whole (\Cref{sec:ground}). Each rung holds
+for finite contact graphs and fails to be forced when finiteness or the positive
+floor is dropped. This is the sense in which the structures of the paper are
+necessary substructures of a finite world within an inexhaustible whole---and the
+sense in which structure itself is the consequence of finitude meeting
+non-completability.
+
+\subsection{Where finiteness is used}
+
+\begin{proposition}[Dependence on the premise]
+\label{prop:dependence}
+Each rung uses the Finiteness Premise \textup{(}\Cref{ax:finite}\textup{)} as
+follows:
+\begin{enumerate}[label=\textup{(T\arabic*)},leftmargin=3em,start=0]
+\item the positive floor $\floorc>0$ on edge weights, with connectedness, forces
+$\wt(\cut(U))\ge\floorc$ \textup{(}\Cref{thm:floor}\textup{)};
+\item finiteness of $\V$ and the absence of a distinguished vertex force
+determination by complementation \textup{(}\Cref{thm:negation}\textup{)};
+\item the floor forces $\Res\ge\floorc$, and finiteness attains the minimising
+partition, giving a positive region-valued residual
+\textup{(}\Cref{thm:residual-region}\textup{)};
+\item finiteness makes the isomorphism class and its partition lattice
+well-defined, so $\Res$ is an attained invariant
+\textup{(}\Cref{thm:residual-invariant}\textup{)};
+\item the floor and finiteness localise to subgraphs, giving a positive,
+attained private invariant \textup{(}\Cref{thm:private}\textup{)};
+\item finite degree with branching forces a gate to break finitely many ties
+\textup{(}\Cref{thm:gate-necessary}\textup{)};
+\item discreteness of steps makes the committed count a strictly monotone natural
+number \textup{(}\Cref{thm:nonreturn}\textup{)};
+\item the quotient of a finite graph is a finite contact graph, inheriting the
+floor, so a single gate is forced on a coherent collective
+\textup{(}\Cref{thm:single-gate}\textup{)};
+\item finiteness of the specification against the infinitude of the forward
+closure forces open-endedness, and the monotone count forces non-duplication
+\textup{(}\Cref{thm:open,thm:nondup}\textup{)}.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Each clause restates the cited theorem's use of \Cref{ax:finite}; the proofs are
+those given in \Cref{sec:floor,sec:negation,sec:residual,sec:invariant,%
+sec:gating,sec:monotone,sec:quotient,sec:construct}.
+\end{proof}
+
+\subsection{Failure without finiteness}
+
+We show the ladder is not forced once the premise is dropped, by exhibiting, for
+each load-bearing structure, a non-finite or zero-floor graph in which it fails.
+
+\begin{proposition}[Necessity of the premise]
+\label{prop:necessity}
+Drop either clause of \Cref{ax:finite}:
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2.2em]
+\item \textbf{Zero floor.} If edge weights may approach $0$
+\textup{(}$\inf_e\wt(e)=0$\textup{)}, then a part may be separated from the rest
+by a cut of arbitrarily small weight; $\wt(\cut(U))$ is no longer bounded below,
+so T0 fails, and with it the residual positivity of T2 and the gate-tie
+guarantees that rely on a floor.
+\item \textbf{Infinite vertex set.} If $\abs{\V}=\infty$, a vertex may have
+infinite degree, so a gate must break infinitely many ties at once and the finite
+tie-breaking of T5 is not available in the same form; minimising partitions need
+not be attained, so the residual of T2 need not be realised; and a walk's
+``committed count'' may fail to be a well-ordered monotone natural number if
+steps are not discrete, weakening T6.
+\item \textbf{Complete graph with vanishing weights.} On an infinite complete
+graph with weights tending to $0$, every part is adjacent to every other at
+negligible cost: there is no positive residual, no privileged complement
+structure, and no forced gate---none of T0--T8 is compelled.
+\end{enumerate}
+Hence the substructures are consequences of the premise, not of graphs in
+general.
+\end{proposition}
+
+\begin{proof}
+(a) Take a graph with a sequence of cuts of weight $2^{-n}\to0$ separating a
+fixed part; then $\inf_U\wt(\cut(U))=0$, contradicting the conclusion of
+\Cref{thm:floor}, which used $\wt(e)\ge\floorc>0$. (b) On an infinite star, the
+centre has infinite degree, so no single sub-normalised distribution over its
+incident edges selects after finitely many comparisons; and the partition lattice
+of an infinite vertex set need not attain its infimum, so $\Res(\Gph)$ as a
+minimum may not exist. (c) On $K_\infty$ with $\wt(e_n)=2^{-n}$, for any part $U$
+one may route its separation through ever-cheaper edges so that
+$\inf\wt(\cut(U))=0$; the floor, the positive residual, and the negation-based
+individuation (which needs a determinate complement structure) all dissolve.
+Each construction violates the conclusion of the corresponding rung, so finiteness
+with a positive floor is necessary.
+\end{proof}
+
+\subsection{The Master Theorem}
+
+\begin{theorem}[Structure is the shadow of finitude]
+\label{thm:master}
+Let $\Gph$ be a graph. The substructures T0--T8 are all forced if $\Gph$ is a
+finite contact graph \textup{(}\Cref{ax:finite}\textup{)}, and none is forced if
+$\Gph$ is infinite or admits edge weights with infimum $0$. Consequently a graph
+is necessarily structured---carries the floor, the negation-determined parts, the
+conserved region-valued residual, the private invariants, the gated trajectories,
+the non-returning histories, the single-gated collectives, and the bounded
+authorability---\emph{if and only if} it is finite with a positive floor. Structure
+is neither imposed on a world from outside nor present in it independently of its
+parts; it is exactly the form a world of finitely many positively separated parts
+is compelled to take.
+\end{theorem}
+
+\begin{proof}
+The forward direction is \Cref{prop:dependence} together with the theorems it
+cites: under \Cref{ax:finite} each of T0--T8 holds. The reverse direction is
+\Cref{prop:necessity}: dropping finiteness or the positive floor defeats each
+load-bearing rung by explicit construction. Hence the conjunction of T0--T8 is
+equivalent, over graphs, to the Finiteness Premise: finite-with-floor on one
+side, the full ladder of structure on the other. The closing statement is the
+biconditional read in words.
+\end{proof}
+
+\subsection{Identifiability and the trace of the whole}
+
+The Master Theorem ties the ladder to the Finiteness Premise. We close the
+deduction by tying that premise, in turn, to the bare fact of identifiability,
+using \Cref{sec:ground}.
+
+\begin{theorem}[Identifiability Theorem]
+\label{thm:identifiability}
+Let $\med$ be a whole. The following are equivalent:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item there exists an identifiable thing in $\med$---a proper part told from the
+rest of a non-completable whole;
+\item the contact graph of $\med$'s parts satisfies the Finiteness Premise with a
+strictly positive floor \textup{(}\Cref{ax:finite}\textup{)};
+\item the full ladder T0--T8 holds of that graph.
+\end{enumerate}
+Consequently a world in which T0--T8 fail is one in which nothing is
+identifiable---only the undifferentiated whole. Structure and identifiability are
+the same fact.
+\end{theorem}
+
+\begin{proof}
+$(\mathrm{i})\Rightarrow(\mathrm{ii})$: an identifiable thing is a proper part
+$A\neq\med$ compared against $\med\setminus A$; by \Cref{thm:floor-infinitude} the
+comparison cannot complete and $\idres(A)>0$, and by \Cref{cor:floor-derived} the
+infimum of these residuals is a positive floor $\floorc$, which is the edge-weight
+floor of the contact graph of $\med$'s parts---the Finiteness Premise.
+$(\mathrm{ii})\Rightarrow(\mathrm{iii})$: the Master Theorem (\Cref{thm:master}),
+forward direction. $(\mathrm{iii})\Rightarrow(\mathrm{i})$: T0 alone provides a
+part with a positive boundary cut (\Cref{thm:floor}), i.e. a proper part told from
+the rest at positive cost---an identifiable thing. The contrapositive of the cycle
+gives the closing statement: no identifiable thing $\iff$ no positive floor
+$\iff$ the ladder fails, leaving only the whole undifferentiated.
+\end{proof}
+
+\begin{corollary}[The floor is the trace of the whole on its parts]
+\label{cor:trace}
+The positive floor is neither a measurement artifact nor a free constant: it is
+the strictly positive identification residual that a non-completable whole forces
+on each of its finite parts \textup{(}\Cref{thm:floor-infinitude}\textup{)}. Were
+the whole completable, the residual could vanish, a thing's truth could be a
+point, and the ladder would not be forced; because the whole is non-completable,
+the residual is positive, truth is a cell, and the ladder stands. The floor is the
+trace the inexhaustible whole leaves on whatever is finite within it.
+\end{corollary}
+
+\begin{proof}
+\Cref{thm:floor-infinitude} and \Cref{cor:floor-derived} give the positive
+residual; \Cref{prop:necessity} gives the failure of the ladder when the floor is
+absent (completable or zero-floor case). The contrast is the stated trace.
+\end{proof}
+
+\subsection{Scope}
+
+The theorems are statements about finite weighted graphs and an embedded gating
+datum; nothing more is assumed. The single premise (\Cref{ax:finite}) is a finite
+graph whose edges cost something. We have made no claim about any particular
+system. Where each rung uses the premise is marked (\Cref{prop:dependence}); that
+the premise is necessary is shown by counterexample (\Cref{prop:necessity}).
+Interpretive readings---of parts as agents, gates as selecting fields, quotient
+gates as collective purpose, residuals as conserved truth, the medium as the
+whole, private invariants as identities, measurement as inquiry, authored
+structures as manufactured individuals---are confined to remarks
+(\Cref{rem:negation-interp,rem:repacking,rem:character,rem:field,%
+rem:purpose,rem:onelaw,rem:new-category,rem:floor-trace,rem:marbles,%
+rem:identifiability,rem:instrument-reading}) on which no theorem depends. A reader
+will recognise that finitely many bounded parts---of many kinds---satisfy the
+premise; we prove everything of the abstract graph alone, and material that could
+not be proved at this standard has been omitted. One hypothesis beyond the graph
+is used, and only in \Cref{sec:ground}: that the whole is non-completable. It is
+not a cardinality posit but an order condition (no terminal stage), and it is
+exactly what forces the floor; absent it, the floor may vanish and the ladder is
+not compelled.
+
+\subsection{Conclusion}
+
+From the single hypothesis that a world is a finite graph of positively separated
+parts, an entire architecture follows of necessity: no separation is free; parts
+are fixed by what they are not; the boundary content between parts is a conserved
+region that no relabelling removes and no point realises; each part carries a
+private conserved invariant beneath its changing trajectories; those trajectories
+require a selector and never return to a prior state; a coherent collective of
+parts has exactly one selector on its quotient; and such structures, being
+completely specifiable, can be authored---though authorship reaches only the
+instrument and not its music, produces only new individuals and never copies, and
+resolves only to its own floor. And beneath the hypothesis lies a barer one: that anything is identifiable at all
+within a whole one cannot exhaust. From that alone the positive floor is
+forced---the comparison identifying a thing against the rest can never finish, so
+an irreducible residual remains---and with the floor, the whole ladder. To
+measure a thing is then to reshuffle the knowledge around it, conserving the whole
+and tightening the boundary, reducing how much is unsettled about the thing
+without ever delivering the thing: identity is the conserved interior no
+reshuffling reaches, and to resolve it to a point would be to exhaust the whole.
+Each result is forced by finitude meeting the inexhaustible and dissolves without
+either. The answer to why a world is structured at all is therefore not that
+structure is added to it or discovered in it, but that structure is what a world
+\emph{must} be for finitely many parts to stand apart within a whole they cannot
+exhaust. The floor is the trace of the whole on its parts; structure is the shadow
+of finitude meeting the inexhaustible; and identifiability, conserved truth, and
+structure are one fact. The contact graph is its form.
+
+% =====================================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% =====================================================================
+
+\end{document}

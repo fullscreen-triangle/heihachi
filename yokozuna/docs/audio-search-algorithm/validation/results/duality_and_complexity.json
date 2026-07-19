@@ -1,0 +1,102 @@
+{
+  "e10_duality": {
+    "claim": "Thm 7.3: analysis and synthesis share one symmetric alignment objective",
+    "consistent": 300,
+    "n_trials": 300,
+    "pass": true
+  },
+  "e11_economy": {
+    "claim": "Cor 8.5: whole-item cost n*c_sym+r*c_ac < per-track n*c_ac iff nameable frac > c_sym/c_ac",
+    "max_saving_factor": 20.0,
+    "mean_saving_factor": 3.128448125363627,
+    "n_trials": 300,
+    "pass": true,
+    "predicate_agreement": 300,
+    "sample": [
+      {
+        "agree": true,
+        "measured_cheaper": true,
+        "n": 18,
+        "nameable_frac": 0.25800241083460884,
+        "predicted_cheaper": true,
+        "r": 13,
+        "realised_nameable": 0.2777777777777778
+      },
+      {
+        "agree": true,
+        "measured_cheaper": true,
+        "n": 45,
+        "nameable_frac": 0.42471580523272445,
+        "predicted_cheaper": true,
+        "r": 26,
+        "realised_nameable": 0.4222222222222222
+      },
+      {
+        "agree": true,
+        "measured_cheaper": true,
+        "n": 23,
+        "nameable_frac": 0.4689581604635924,
+        "predicted_cheaper": true,
+        "r": 12,
+        "realised_nameable": 0.4782608695652174
+      },
+      {
+        "agree": true,
+        "measured_cheaper": true,
+        "n": 37,
+        "nameable_frac": 0.6233176908558522,
+        "predicted_cheaper": true,
+        "r": 14,
+        "realised_nameable": 0.6216216216216216
+      },
+      {
+        "agree": true,
+        "measured_cheaper": true,
+        "n": 40,
+        "nameable_frac": 0.7051313531157591,
+        "predicted_cheaper": true,
+        "r": 12,
+        "realised_nameable": 0.7
+      },
+      {
+        "agree": true,
+        "measured_cheaper": true,
+        "n": 54,
+        "nameable_frac": 0.06497859638927372,
+        "predicted_cheaper": true,
+        "r": 50,
+        "realised_nameable": 0.07407407407407407
+      }
+    ]
+  },
+  "e11b_alignment_complexity": {
+    "claim": "Thm 8.4: alignment DP scales ~O(n*N) (quadratic in length)",
+    "empirical_ratios": [
+      3.728121483534686,
+      4.355320783646362,
+      3.7182048456641037,
+      4.168168569480338
+    ],
+    "n2_ratios": [
+      4.0,
+      4.0,
+      4.0,
+      4.0
+    ],
+    "pass": true,
+    "sizes": [
+      20,
+      40,
+      80,
+      160,
+      320
+    ],
+    "times_sec": [
+      0.00034279999090358615,
+      0.0012780000106431544,
+      0.005566100007854402,
+      0.020695900020655245,
+      0.08626399998320267
+    ]
+  }
+}

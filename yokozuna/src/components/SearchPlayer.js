@@ -7,11 +7,17 @@ import { useTrackObserver } from '../hooks/useTrackObserver'
 import { useLibrary } from '../lib/LibraryProvider'
 
 const LOCAL_PLAYLIST = [
-    { id: 'local-1', name: 'Feed the Machine', artist: 'Black Sun Empire & Noisia', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3', albumArt: '/albums/bse-feed-the-machine.png' },
+    { id: 'local-1', name: 'Feed the Machine', artist: 'Black Sun Empire & Noisia', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3', albumArt: '/albums/black-sun-empire-feed-the-machine.jpg' },
     { id: 'local-2', name: 'Messiah (Magnetude Remix)', artist: 'Konflict', src: '/audio/Konflict-Messiah-Magnetude.mp3', albumArt: '/albums/konflikt-messiah-magnetude-remix.jpg' },
     { id: 'local-3', name: 'Stigma (Neosignal Remix)', artist: 'Noisia', src: '/audio/Noisia_Stigma(NeosignalRemix).mp3', albumArt: '/albums/noisia-stigma_neosignal-remix.jpg' },
     { id: 'local-4', name: 'Running Man', artist: 'Spor', src: '/audio/Spor_RunningMan.mp3', albumArt: '/albums/spor-the-running-man.jpg' },
     { id: 'local-5', name: 'Dark Steering', artist: 'Squarepusher', src: '/audio/Squarepusher_Dark_Steering.mp3', albumArt: '/albums/squarepusher-dark-steering.jpg' },
+    { id: 'local-6', name: 'Farce', artist: 'Phace', src: '/audio/PHACE_FARCE.mp3', albumArt: '/albums/phace_farce.jpg' },
+    { id: 'local-7', name: 'Mekaneck', artist: 'Task Horizon', src: '/audio/TaskHorizon_Mekaneck.mp3', albumArt: '/albums/task_horizon-mekaneck.jpg' },
+    { id: 'local-8', name: 'Jarhead', artist: 'Audio & Mindscape', src: '/audio/audio_mindscape_jarhead.mp3', albumArt: '/albums/audio-mindscape-jarhead.jpg' },
+    { id: 'local-9', name: 'Omega', artist: 'Audio', src: '/audio/audio_omega.mp3', albumArt: '/albums/audio-omega.jpg' },
+    { id: 'local-10', name: 'Electro West', artist: 'Benga', src: '/audio/benga_electro_west.mp3', albumArt: '/albums/benga-electro-west.jpg' },
+    { id: 'local-11', name: 'Preamble', artist: 'IMANU & Icicle', src: '/audio/imanu_icicle_preamble.mp3', albumArt: '/albums/icicle-preamble.jpg' },
 ]
 
 function SearchPlayerUI() {

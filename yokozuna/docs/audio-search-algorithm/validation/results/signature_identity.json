@@ -1,0 +1,31 @@
+{
+  "e5_signature_invariance": {
+    "claim": "Thm 5.4: signature pattern invariant under re-encoding; content set not individuating; pattern <=> re-encoding",
+    "content_shared_trials": 370,
+    "content_shared_witnessed": 370,
+    "invariance_under_reencoding": 400,
+    "n_trials": 400,
+    "pass": true,
+    "pattern_iff_reencode": 400
+  },
+  "e5b_content_cannot_separate": {
+    "claim": "Thm 5.4(ii): content set conflates items that the signature separates",
+    "content_matcher_says_same": 300,
+    "n_trials": 300,
+    "pass": true,
+    "signature_matcher_says_different": 290
+  },
+  "e6_context_narrowing": {
+    "claim": "Prop 5.7: ambiguity set shrinks (non-increasing) with context length",
+    "fraction_monotone_nonincreasing": 1.0,
+    "mean_ambiguity_by_context_length": [
+      69.005,
+      22.64265509689399,
+      1.5469345382130049,
+      1.0136090590185898,
+      1.000472976203241
+    ],
+    "n_trials": 200,
+    "pass": true
+  }
+}

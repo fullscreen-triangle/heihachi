@@ -1,0 +1,2394 @@
+% =====================================================================
+%  Semantic Causal Propagation:
+%  An Individuation-Theoretic Calculus of Boundary-Free Search,
+%  and a Domain-Specific Language for Accountable Research Projects
+%
+%  Self-contained. Every object is a finite weighted graph or a
+%  construction on one. No external framework or companion manuscript
+%  is assumed; all citations are to standard, externally published
+%  literature.
+% =====================================================================
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{rulename}[theorem]{Rule}
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+\crefname{axiom}{Axiom}{Axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+\crefname{rulename}{Rule}{Rules}
+\Crefname{rulename}{Rule}{Rules}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\V}{V}
+\newcommand{\E}{E}
+\newcommand{\wt}{w}
+\newcommand{\med}{\mathsf{m}}
+\newcommand{\flo}{\beta}
+\newcommand{\cut}{\partial}
+\newcommand{\co}{\complement}
+\newcommand{\Walk}{W}
+\newcommand{\rec}{M}
+\newcommand{\res}{\rho}
+\newcommand{\str}{\sigma}
+\newcommand{\acc}{\mathcal{A}}
+\newcommand{\Rep}{\mathsf{R}}
+\newcommand{\Proc}{\Pi}
+\newcommand{\pot}{\kappa}
+\newcommand{\Cell}{\mathcal{C}}
+\newcommand{\Cat}{\mathsf{Cat}}
+\newcommand{\Proj}{\Xi}
+\newcommand{\evalto}{\Downarrow}
+\newcommand{\stepto}{\longrightarrow}
+\newcommand{\bnfeq}{\;::=\;}
+\newcommand{\bnfor}{\;\mid\;}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\nt}[1]{\ensuremath{\langle\textsf{#1}\rangle}}
+\newcommand{\tm}[1]{\textbf{\texttt{#1}}}
+\newcommand{\opt}[1]{\ensuremath{[\,#1\,]}}
+\newcommand{\rep}[1]{\ensuremath{\{\,#1\,\}}}
+
+% ---- grf listing style ----
+\definecolor{grfkw}{RGB}{30,64,175}
+\definecolor{grfcom}{RGB}{22,101,52}
+\definecolor{grfnum}{RGB}{180,83,9}
+\definecolor{grfstr}{RGB}{159,18,57}
+\definecolor{grfbg}{RGB}{250,250,250}
+\lstdefinelanguage{grf}{
+  morekeywords={floor,project,seek,not,toward,via,until,converge,diverge,
+    decline,yield,goal,catalyst,namespace,input,output,claims,coherence,
+    let,if,then,else,import,module,export,assert,in,as,with},
+  morekeywords=[2]{Claim,Region,Catalyst,Chain,Residue},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]",
+  keywordstyle=\color{grfkw}\bfseries,
+  keywordstyle=[2]\color{grfnum},
+  commentstyle=\color{grfcom}\itshape,
+  stringstyle=\color{grfstr},
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{grfbg},
+  frame=single,framesep=4pt,xleftmargin=6pt,xrightmargin=4pt,
+  breaklines=true,showstringspaces=false,columns=fullflexible,tabsize=2
+}
+\lstset{language=grf}
+
+\title{\textbf{Semantic Causal Propagation:\\[3pt]
+An Individuation-Theoretic Calculus of Boundary-Free Search,\\
+and a Domain-Specific Language for Accountable Research Projects}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+We develop, entirely within the language of finite weighted graphs, a
+formal theory of \emph{search} as the individuation of a claim from an
+unbounded, non-completable medium, and a domain-specific orchestration
+language, \emph{Graffiti} (\texttt{.grf}), whose executable semantics is
+exactly this theory. The central observation is that a search query and
+the act of naming or recognising the thing sought are the same operation
+under two readings: both are the individuation of a region of claim-space
+by negation against a medium that is never fully specified. From this we
+derive, as theorems rather than assumptions: a strictly positive
+\emph{resolution floor} on every search, forcing every returned claim to
+be a bounded region rather than an exact point; a proof that natural-language
+paraphrases of one underlying claim are \emph{representations} of a single
+individuation and cost no additional search effort to substitute for one
+another; a \emph{path-opacity} theorem guaranteeing that the interior
+trajectory of a multi-step search is unconstrained provided the trajectory
+converges on its target, so that intermediate results may look arbitrarily
+unlike the sought claim without invalidating the search; a multiplicative
+law for the combination of independent search steps (\emph{catalysts}),
+together with a coherence theorem showing that no fewer than three mutually
+reinforcing, independently sourced catalysts can ground a claim against
+revision by a single dissenting source; and a \emph{closure} criterion for
+knowing when a search is finished that is strictly stronger than crossing a
+confidence threshold: a search is complete when every further catalyst
+available to it resolves to a claim-region already reached, so that no
+further inquiry can produce a materially different outcome. We then define
+Graffiti as a small orchestration language whose sole computational
+primitive, \texttt{seek}, is this individuation operation exposed to a
+script author: a mandatory exclusion clause, a target claim-region, an
+optional explicit catalyst chain, and a closure-based termination
+condition. We give the complete lexical grammar, context-free grammar,
+type system, and small-step operational semantics of Graffiti, prove
+progress and preservation for its type system, prove that its scheduler
+never revisits an already-closed claim-region and never starves a
+convergent catalyst chain, and specify its execution model as a directed
+acyclic graph of committed \texttt{seek} events over a heterogeneous
+catalyst registry that may include local search, remote retrieval, and
+machine-learned inference as computationally uniform operations. We
+validate the framework on a suite of constructed instances and prove a
+master equivalence tying the language's every guarantee to the single
+fact that the medium of search is never completable.
+\end{abstract}
+
+\noindent\textbf{Keywords:} search theory; individuation by negation;
+resolution floor; contact graphs; path opacity; representation mobility;
+catalytic composition; coherence; domain-specific languages; operational
+semantics; heterogeneous orchestration; accountable computation.
+
+\tableofcontents
+
+% =====================================================================
+\part{Foundations}
+% =====================================================================
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question}
+
+What is a search? The question sounds settled by long practice --- one
+supplies a query, a system returns candidates, and the practice of
+information retrieval has an extensive engineering literature on ranking,
+relevance, and recall~\citep{manning2008introduction,salton1983modern}.
+But the engineering literature is silent on a structural question that
+becomes acute the moment a search is not casual: when a user is not asking
+for the nearest plausible page but is constructing a research artefact ---
+a project, auditable and reproducible, whose steps matter as much as its
+answer --- what, precisely, does the system return, when is it entitled to
+stop, and what does it mean for two differently worded results to be
+\emph{the same} finding?
+
+We answer these questions from a single structural premise, argued rather
+than assumed: a search is conducted against a \emph{medium} --- the totality
+of what could bear on the query, without regard to whether it resides on
+the querying machine or elsewhere --- and this medium is never exhausted by
+any finite search process. From this one fact, formalised below as
+non-completability (\Cref{def:noncompletable}), an entire calculus follows
+by theorem: that no search can return an exact point rather than a bounded
+region; that paraphrase costs nothing because it is not new search but a
+change of coordinates on an already-found region; that a search's interior
+steps may look arbitrarily unlike its answer without invalidating it,
+provided the whole trajectory converges; that combining independent lines
+of inquiry is a multiplicative operation with a precise law of diminishing
+returns; and that a foundation-worthy claim requires no fewer than three
+independently sourced, mutually reinforcing findings, never a single
+authority nor even two.
+
+\subsection{The recognition/search identity}
+
+The premise that unifies the calculus is that \emph{recognising} a thing
+and \emph{searching} for it are the same operation read in two directions.
+To recognise an object is to place a percept into a region of meaning by
+ruling out everything the percept is not; to search for an object is to
+start from a description of what is wanted and to individuate, from the
+medium, a region satisfying that description. Both operations terminate at
+the same kind of object --- a bounded region of claim-space, never a single
+point --- and both are subject to the same lower bound on how precisely
+they can resolve their target. A query is not a degraded, lossy version of
+a perfect specification the searcher secretly possesses; it is itself an
+individuation, exactly as exact as recognition ever is. This identity,
+established rigorously in \Cref{sec:individuation}, is what licenses
+treating ``finding Peter,'' ``finding the founding date of an institution,''
+and ``recognising that the object in front of you is a cat'' as instances
+of one mathematical operation.
+
+\subsection{Contributions}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{The search medium and the resolution floor}
+  (\S\ref{sec:medium}--\ref{sec:floor}). We formalise the medium of search
+  as a non-completable expanding family of contact graphs and prove, from
+  non-completability alone, that every search carries a strictly positive
+  floor: no search returns a point, only a region.
+\item \textbf{Individuation by negation and the identity of recognition and
+  search} (\S\ref{sec:individuation}). We prove that in a medium with no
+  privileged claim, a claim can be fixed only as the complement of what it
+  is not, and that this is the same operation whether read as recognition
+  (decoding a percept) or as search (projecting a description).
+\item \textbf{Representation mobility} (\S\ref{sec:representation}). We
+  prove that paraphrases of a fixed claim are equivalent representations
+  under an averaging constraint, that switching between them commits no
+  new search cost, and that no representation is privileged over another.
+\item \textbf{Path opacity and convergence admissibility}
+  (\S\ref{sec:path}). We prove that a multi-step search trajectory is
+  admissible if and only if it converges on its target, with interior
+  steps entirely unconstrained; two trajectories sharing endpoints are
+  indistinguishable by any test of the output.
+\item \textbf{Catalytic composition and the coherence theorem}
+  (\S\ref{sec:catalysis}). We derive the multiplicative law for combining
+  independent search steps, a Borel--Cantelli-type saturation dichotomy,
+  and prove that a claim is robustly grounded if and only if its supporting
+  catalysts form a strongly connected structure of at least three members.
+\item \textbf{The closure criterion} (\S\ref{sec:closure}). We define
+  \emph{closure} of a search --- the state in which no further catalyst
+  resolves to a materially different claim-region --- and prove it is
+  strictly stronger than, and the correct replacement for, a simple
+  confidence threshold.
+\item \textbf{The Graffiti language} (\S\ref{sec:language}--%
+  \S\ref{sec:semantics}). We give the complete lexical grammar,
+  context-free grammar, static type system, and small-step operational
+  semantics of a language whose sole primitive, \texttt{seek}, is the
+  individuation operation of \S\ref{sec:individuation}--\S\ref{sec:closure}
+  exposed to a script author, and prove type soundness and scheduler
+  soundness.
+\item \textbf{The orchestration model} (\S\ref{sec:orchestration}). We
+  specify Graffiti's execution model as a directed acyclic graph of
+  committed \texttt{seek} events dispatched to a heterogeneous catalyst
+  registry --- local computation, remote retrieval, and machine-learned
+  inference treated as uniform operations --- and prove the scheduler is
+  livelock-free and never re-executes a closed claim.
+\end{enumerate}
+
+\subsection{Method}
+
+Every object in this paper is a finite weighted graph or a construction on
+one, exactly as in the classical theory of network flows and cuts
+\citep{fordfulkerson1956,mengertheorem,ahuja1993network}. We introduce no
+metric space, no measure, and no probability calculus beyond a derived
+normalisation on $[0,1]$. This is a discipline, not an aesthetic: every
+claim reduces to a statement about vertices, edges, and weights, and is
+therefore checkable by direct computation --- minimum cuts are exactly
+computable by maximum flow~\citep{fordfulkerson1956,goldberg1988new}. Where
+we use a word with an evocative reading --- ``claim,'' ``search,''
+``catalyst'' --- the word names a specific graph-theoretic object defined
+in the text, and no theorem depends on any reading beyond that definition.
+Interpretive remarks are marked as such and are never load-bearing.
+
+\subsection{Organisation}
+
+\Cref{sec:medium} fixes the contact graph and the medium.
+\Cref{sec:floor} derives the resolution floor from non-completability.
+\Cref{sec:individuation} proves individuation by negation and the
+recognition/search identity. \Cref{sec:representation} proves
+representation mobility. \Cref{sec:path} proves path opacity and
+convergence admissibility. \Cref{sec:catalysis} develops the catalytic
+algebra and the coherence theorem. \Cref{sec:closure} defines and
+characterises closure. \Cref{sec:language} gives the Graffiti lexical and
+context-free grammar. \Cref{sec:types} gives the static type system and
+proves soundness. \Cref{sec:semantics} gives the operational semantics and
+proves determinism, monotonicity, and scheduler soundness.
+\Cref{sec:orchestration} specifies the heterogeneous execution model.
+\Cref{sec:examples} gives worked programs. \Cref{sec:validation} reports a
+numerical validation suite. \Cref{sec:discussion} states scope and
+concludes.
+
+% =====================================================================
+\section{The Search Medium}
+\label{sec:medium}
+% =====================================================================
+
+\subsection{Contact graphs}
+
+\begin{definition}[Finite weighted graph]
+\label{def:graph}
+A \emph{finite weighted graph} is a triple $\Gph=(\V,\E,\wt)$ where $\V$ is
+a finite non-empty vertex set, $\E\subseteq\binom{\V}{2}$ is a set of
+undirected edges, and $\wt\colon\E\to\R_{>0}$ is a strictly positive edge
+weight. We assume $\Gph$ connected unless stated. Graphs are simple (no
+loops or multi-edges).
+\end{definition}
+
+\begin{definition}[Contact graph; medium vertex]
+\label{def:contact-graph}
+A \emph{contact graph} is a finite weighted graph $\Gph=(\V,\E,\wt)$
+together with a distinguished vertex $\med\in\V$, the \emph{medium},
+adjacent to every other vertex: $\{v,\med\}\in\E$ for all $v\neq\med$.
+Vertices $v\neq\med$ are \emph{claims}: candidate individuated units of
+information --- a fact, a document, an entity, a numeric value, or any
+other discrete thing a search may return. An edge $\{u,v\}$ between two
+claims is a \emph{contact}, and its weight $\wt(\{u,v\})$ is the cost of
+the distinction separating $u$ from $v$. The medium vertex $\med$ stands
+for the undifferentiated totality of everything not yet individuated ---
+every source, local or remote, that has not yet been resolved into a
+claim.
+\end{definition}
+
+\begin{remark}[Why a single medium vertex, and why no boundary between
+local and remote]
+\label{rem:no-boundary}
+The definition draws no distinction between a claim recoverable from a
+file on the querying machine and a claim recoverable from a remote server:
+both are, prior to being individuated, contents of the single vertex
+$\med$. This is a deliberate structural commitment, not an approximation:
+the theory that follows attaches no special status to physical locality,
+because locality is not what makes a claim distinguishable from the rest
+of the medium --- the cost of individuation (\Cref{def:sepcost}) is. Two
+facts equally costly to establish are equally individuated regardless of
+where the bytes that established them are stored. This licenses the design
+principle of \Cref{sec:orchestration}: a script's catalysts may draw on
+local files, remote APIs, or machine-learned models as computationally
+uniform sources, because the graph never encodes a location, only a cost.
+\end{remark}
+
+\subsection{Separation cost}
+
+\begin{definition}[Separation cost]
+\label{def:sepcost}
+The \emph{separation cost} of a claim $v$ is the minimum weight of a cut
+placing $v$ on one side and the medium on the other,
+\[
+\str(v)\;=\;\min_{\substack{S\ni v\\ \med\notin S}}\wt(\cut(S)),
+\qquad
+\cut(S)\;:=\;\{\,e=\{u,w\}\in\E : u\in S,\ w\notin S\,\}.
+\]
+Because $\V$ is finite, the minimum is attained; the minimising side
+$S^{\ast}(v)$ and the minimising cut $\cut(S^{\ast}(v))$ constitute the
+\emph{minimum cut} of $v$ against the medium, computable exactly by
+maximum flow~\citep{fordfulkerson1956,mengertheorem}.
+\end{definition}
+
+The separation cost is the graph-theoretic content of ``how hard it is to
+tell $v$ apart from everything else.'' A claim recoverable from a single
+uncontested primary source has low separation cost; a claim that can only
+be established by triangulating many weakly corroborating traces has high
+separation cost. Nothing in \Cref{def:sepcost} presumes what kind of
+process realises a contact edge --- \Cref{sec:catalysis} shows the edges
+themselves are supplied by \emph{catalysts}, and \Cref{sec:orchestration}
+shows a catalyst may be a search engine query, a local file scan, or an
+inference performed by a trained model.
+
+% =====================================================================
+\section{The Resolution Floor}
+\label{sec:floor}
+% =====================================================================
+
+We now derive the central constant of the theory. It is not posited: it
+follows from the conjunction of two facts already implicit in
+\Cref{sec:medium} --- a claim is a proper part of the medium, and the
+medium is never exhausted by any finite stage of search.
+
+\subsection{Non-completability}
+
+\begin{definition}[Expanding search family; non-completable medium]
+\label{def:noncompletable}
+An \emph{expanding search family} is a sequence of contact graphs
+$\Gph_0\subseteq\Gph_1\subseteq\Gph_2\subseteq\cdots$, each obtained from
+the previous by adding claims and contacts of weight $\ge\flo$ (fixed
+below) while retaining the medium vertex and all prior claims and
+contacts; $\Gph_k$ represents the state of search after $k$ committed
+search steps. The medium is \emph{non-completable} if the family has no
+terminal stage: for every finite $\Gph_k$ there exists $\Gph_{k+1}
+\supsetneq\Gph_k$. This is an order condition --- no last stage of search
+--- and not a cardinality assumption about how many claims exist.
+\end{definition}
+
+\begin{remark}[Why search is non-completable]
+\label{rem:why-noncompletable}
+A search medium spanning both a local machine and the unbounded remote
+network admits, for any finite state of search, a further source not yet
+consulted: another document, another database, another model that could be
+queried, another cross-reference not yet followed. \Cref{def:noncompletable}
+records only this order fact and nothing stronger; we make no claim about
+the cardinality of the medium, only that no finite search process
+exhausts it. This is the formal content of ``there is no boundary between
+what is on the machine and what is on the internet'': the absence of a
+boundary is exactly the absence of a terminal stage.
+\end{remark}
+
+\subsection{Identification and its residual}
+
+\begin{definition}[Identification; identification residual]
+\label{def:identification}
+To \emph{identify} a claim $v$ at search stage $\Gph_k$ is to determine it
+by its minimum cut against the medium, $\cut(S^{\ast}(v))$, computed within
+$\Gph_k$. The identification is \emph{complete} if every claim of the whole
+medium has entered the computation of that cut --- equivalently, if
+$\Gph_k$ already contains the whole medium. The \emph{identification
+residual} $\res(v)\ge0$ is the cut content a complete identification would
+still remove that the finite-stage identification in $\Gph_k$ cannot;
+$\res(v)=0$ if and only if the identification is complete.
+\end{definition}
+
+\subsection{The floor theorem}
+
+\begin{theorem}[Floor from non-completability]
+\label{thm:floor-derived}
+Let the medium be non-completable and let $v$ be a claim ($v\neq\med$, and
+$v$ does not exhaust $\V$). Then the identification of $v$ cannot be
+completed at any finite search stage, and $\res(v)>0$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\res(v)=0$, so that identification of $v$ is complete at some
+finite stage $\Gph_k$. By \Cref{def:identification}, completeness means
+every claim of the medium has been brought to bear in the cut of $v$
+against $\med$, i.e.\ the cut is computed in a graph containing the whole
+medium; hence $\Gph_k$ contains the whole medium. This contradicts
+non-completability (\Cref{def:noncompletable}), which guarantees a further
+stage $\Gph_{k+1}\supsetneq\Gph_k$ containing a claim not present in
+$\Gph_k$ and therefore not yet brought to bear on the cut of $v$.
+Consequently no finite stage completes the identification of $v$, and
+$\res(v)>0$.
+\end{proof}
+
+\begin{theorem}[Resolution floor]
+\label{thm:floor}
+There is a constant $\flo>0$ such that $\wt(e)\ge\flo$ for every contact
+$e\in\E$ and $\str(v)\ge\flo$ for every claim $v$: no two claims are
+separated at zero cost, and no claim is individuated for free.
+\end{theorem}
+
+\begin{proof}
+Set $\flo:=\inf_v\res(v)$. By \Cref{thm:floor-derived}, $\res(v)>0$ for
+every claim $v$; the residual is the irreducible boundary content of $v$'s
+identification and is carried by the edges of $v$'s minimum cut, so each
+such edge has weight at least the per-claim residual and hence at least
+$\flo$. Because every contact edge $\{u,v\}$ is a boundary edge of the
+identification of $u$ (it lies in $\cut(\{u\})$), every edge weight
+satisfies $\wt(e)\ge\flo$. Connectivity of $\Gph$ forces
+$\cut(S^{\ast}(v))\neq\varnothing$ for every claim $v$, so
+$\str(v)=\wt(\cut(S^{\ast}(v)))\ge\flo>0$.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_01_floor.png}
+    \caption{\textbf{The Resolution Floor.}
+    (\textbf{A})~Separation cost $\sigma(v)$ against claim count, one point
+    per claim across $220$ random contact graphs of $3$--$14$ claims (steelblue).
+    Cost rises with claim count but never falls below the graph's own floor
+    $\beta$, the empirical content of Theorem~\ref{thm:floor}: no claim is
+    individuated for free, regardless of how large the medium is.
+    (\textbf{B})~Distribution of the ratio $\sigma(v)/\beta$ across $400$
+    random graphs and all their claims; the dashed line marks $\sigma/\beta=1$.
+    The histogram is supported entirely at and above the floor: no claim of
+    any constructed instance is separated from the medium below the
+    theorem's bound (Corollary~\ref{cor:no-sharp}).
+    (\textbf{C})~Floor value against medium capacity $|K|$ on log-log axes,
+    for twelve capacities $|K|\in\{2,4,\dots,4096\}$. The floor falls
+    monotonically as capacity grows but remains strictly positive at every
+    tested capacity, confirming that a larger medium narrows, but never
+    closes, the resolution floor.
+    (\textbf{D})~Three-dimensional surface of the floor over medium
+    capacity (log scale) and search depth: the surface is bounded below by
+    the inverse-capacity term and decays toward it as depth increases,
+    never reaching zero. The floor is a property of the medium's finiteness,
+    not of how long the search runs.}
+    \label{fig:panel1-floor}
+\end{figure*}
+
+\begin{corollary}[No sharp result]
+\label{cor:no-sharp}
+No search returns a claim separated from the medium by a cut of weight
+zero. Every returned claim deposits boundary content $\ge\flo$; a search
+that appears to answer ``exactly'' has, in fact, resolved to a region whose
+width is bounded below by $\flo$ and no less.
+\end{corollary}
+
+\begin{remark}[The floor is a fact about the medium, not a defect of the
+search process]
+\label{rem:floor-fact}
+\Cref{thm:floor} does not say search is imprecise because search engines
+are imperfect; it says a search over a genuinely inexhaustible medium
+cannot, even with an ideal instrument, terminate at a claim of zero
+residual. A ``perfect'' search --- one returning a point rather than a
+region --- would require completing a comparison against a medium that,
+by hypothesis, is never completed. \Cref{sec:closure} makes this the basis
+of an honest stopping rule rather than a caveat to be apologised for.
+\end{remark}
+
+% =====================================================================
+\part{The Search Calculus}
+% =====================================================================
+
+% =====================================================================
+\section{Individuation by Negation and the Recognition/Search Identity}
+\label{sec:individuation}
+% =====================================================================
+
+\subsection{No privileged claim}
+
+\begin{definition}[Selector; no privileged claim]
+\label{def:selector}
+A \emph{selector} for a claim set $U\subseteq\V$ is a rule that fixes $U$
+by naming a distinguished member of $U$ in advance of any search. A
+determination of $U$ is \emph{selector-free} if it names no member of $U$.
+The medium has \emph{no privileged claim} if the data available to a
+determining rule are invariant under the weighted automorphism group
+$\operatorname{Aut}(\Gph)$, so that no claim is singled out by the data
+alone.
+\end{definition}
+
+A medium with no privileged claim is the formal statement of a search
+domain in which nothing is pre-marked as the answer: a claim must be
+picked out by the structure of the query and the medium together, not by
+an oracle that already knows which vertex is sought.
+
+\subsection{Individuation by negation}
+
+\begin{theorem}[Individuation by negation]
+\label{thm:negation}
+In a medium with no privileged claim, any selector-free determination of a
+claim set $U$ fixes $U$ as the complement of its negation set,
+$U=\V\setminus\co U$, with $\co U:=\V\setminus U$ specified first; and
+conversely every admissible negation set $\co U$ determines a unique $U$.
+No selector-based rule fixes $U$ without itself invoking a further
+selector.
+\end{theorem}
+
+\begin{proof}
+\emph{Necessity.} To fix $U$ is to decide, for every claim of $\V$, whether
+it belongs to $U$ or to the remainder. A \emph{positive} rule --- one
+asserting membership of a distinguished claim of $U$ --- must name that
+claim; since the available data are $\operatorname{Aut}(\Gph)$-invariant
+(\Cref{def:selector}), no claim is named by the data alone, so the rule
+must itself supply a selector. That selector must in turn be fixed, either
+given in advance (excluded by the no-privileged-claim hypothesis) or
+supplied by a prior rule facing the identical dichotomy. The regress
+terminates only at a rule that names no member of $U$: specifying the
+negation set $\co U=\V\setminus U$ and taking $U$ as what remains. This
+names only ``the rest,'' a datum already supplied once the medium $\V$ is
+given.
+
+\emph{Sufficiency and uniqueness.} Complementation $U\mapsto\V\setminus U$
+is an involution on subsets of the finite set $\V$: $\V\setminus(\V
+\setminus U)=U$. Hence a given negation set $\co U\subsetneq\V$ with
+$\V\setminus\co U\neq\varnothing$ determines the unique claim set
+$U:=\V\setminus\co U$, and conversely.
+\end{proof}
+
+\begin{corollary}[A claim is fixed by its non-neighbours]
+\label{cor:claim-negation}
+A single claim $v$ is determined selector-free by the partition of the
+rest of the medium into its neighbours $N(v)$ (the claims it contacts) and
+its non-neighbours $\V\setminus N[v]$ (the claims it neither is nor
+contacts). No intrinsic label distinguishes $v$; its identity is carried
+by this negation structure.
+\end{corollary}
+
+\begin{proof}
+Apply \Cref{thm:negation} with $U=\{v\}$, refined by adjacency: the
+selector-free datum fixing $\{v\}$ is $\V\setminus\{v\}$ partitioned into
+$N(v)$ and $\V\setminus N[v]$; no member of $\{v\}$ itself is named by
+this datum.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_02_individuation.png}
+    \caption{\textbf{Individuation by Negation.}
+    (\textbf{A})~Subset size $|U|$ against complement size $|\co U|$ for
+    $260$ random subsets of a $24$-claim medium (steelblue); the dashed
+    line is the conservation identity $|U|+|\co U|=|V|$. Every point lies
+    exactly on the line: a claim set and its negation set partition the
+    whole medium exactly, with no residual and no overlap (Theorem~\ref{thm:negation}).
+    (\textbf{B})~Distribution of the symmetric-difference error
+    $|U\ \mathrm{xor}\ \co{\co{U}}|$ over $500$ trials: a single spike at
+    $0$, confirming complementation is an exact involution --- double
+    negation recovers the original claim set with no error.
+    (\textbf{C})~Fibre size distribution: the number of distinct queries
+    $|\Proj(v)|$ resolving to each of $30$ synthetic claims (seagreen),
+    after randomly augmenting each claim's query set. Fibre sizes vary
+    freely across claims, the operational content of a decoder's
+    many-to-one query structure.
+    (\textbf{D})~Three-dimensional scatter of $(|U|,|\co U|,|\co{\co{U}}|)$
+    across $180$ random subsets (violet): every point lies on the identity
+    plane $|\co{\co{U}}|=|U|$, the geometric realisation of the
+    involution proved algebraically in panel B.}
+    \label{fig:panel2-individuation}
+\end{figure*}
+
+\subsection{Decoding and projection: two readings of one map}
+
+We now make precise the identity between recognising a claim (decoding a
+given percept or query into its cell) and searching for a claim
+(projecting a description onto the region of the medium that satisfies
+it). We show these are literally the same function under an inverse
+reading, not merely analogous procedures.
+
+\begin{definition}[Query; decoder; projector]
+\label{def:decoder}
+Fix a contact graph $\Gph$. A \emph{query} is any finite string, structured
+value, or percept $q$ presented to the search process. A \emph{decoder} is
+a map $\mathrm{Dec}\colon Q\to\V$ from the space $Q$ of admissible queries
+to claims of $\Gph$, sending a query to the claim it individuates by
+\Cref{cor:claim-negation}. A \emph{projector} is a map
+$\Proj\colon\V\to 2^{Q}\setminus\{\varnothing\}$ sending a claim to the
+non-empty set of queries that decode to it: $\Proj(v):=\mathrm{Dec}^{-1}
+(\{v\})$.
+\end{definition}
+
+\begin{theorem}[Recognition/search identity]
+\label{thm:recognition-search}
+For every claim $v\in\V$ and every query $q\in Q$:
+\[
+\mathrm{Dec}(q)=v \quad\Longleftrightarrow\quad q\in\Proj(v).
+\]
+Consequently \emph{recognition} --- computing $\mathrm{Dec}(q)$ for a given
+percept $q$ --- and \emph{search} --- computing a representative element
+of $\Proj(v)$ for a given target claim $v$, or equivalently testing
+membership $q\in\Proj(v)$ for a candidate query $q$ --- are inverse
+readings of the single relation
+$\{(q,v)\in Q\times\V : \mathrm{Dec}(q)=v\}$. Neither is definable without
+the other: $\Proj$ is literally the fibre structure of $\mathrm{Dec}$, and
+$\mathrm{Dec}$ is the (well-defined, by \Cref{cor:claim-negation}) function
+whose fibres are the sets $\Proj(v)$.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:decoder}, $\Proj(v)=\mathrm{Dec}^{-1}(\{v\})$; membership
+$q\in\Proj(v)$ is by definition of preimage equivalent to
+$\mathrm{Dec}(q)=v$. This equivalence is definitional, not a coincidence to
+be separately established, so the two directions state the same fact. The
+claim that recognition and search are inverse readings of one relation
+follows because a decoder is exactly a function and a projector is exactly
+its fibre map; a function and its fibre map determine each other on a
+finite domain: $\mathrm{Dec}$ is recovered from $\{\Proj(v)\}_{v\in\V}$ as
+the unique map sending each $q$ to the $v$ with $q\in\Proj(v)$ (well
+defined since the $\Proj(v)$ partition $Q$ under a total decoder), and
+$\Proj$ is recovered from $\mathrm{Dec}$ by \Cref{def:decoder}.
+\end{proof}
+
+\begin{remark}[What this identity licenses]
+\label{rem:identity-licenses}
+\Cref{thm:recognition-search} is the formal content of the observation
+that motivates this paper: a thought about a fixed object is the same
+thought whether triggered by perceiving the object (recognition, computing
+$\mathrm{Dec}$ forward) or by being asked to find it (search, computing a
+representative of $\Proj$ backward). A search engine and a classifier are,
+on this reading, the same computational object queried in opposite
+directions. This licenses a single language primitive
+(\Cref{sec:language}) for both operations: a \texttt{seek} expression names
+a target region and asks the runtime to exhibit a query (a chain of
+catalyst invocations) whose decode lands there, which is exactly computing
+an element of $\Proj$ for that region.
+\end{remark}
+
+% =====================================================================
+\section{Representation Mobility}
+\label{sec:representation}
+% =====================================================================
+
+We now address paraphrase directly: many syntactically distinct
+descriptions can individuate the same claim, and switching among them
+must not be confused with performing additional search.
+
+\subsection{Representations of a claim}
+
+\begin{definition}[Representation; representation fibre]
+\label{def:representation}
+Fix a claim $v$ and a target claim $x^{\ast}$ against which alignment is
+measured (\Cref{def:alignment} below formalises alignment; for now take
+$a(v,x^{\ast})\in(0,1]$ as a fixed real). A \emph{representation} of $v$ at
+dimension $N$ is a tuple $\Rep(v)=(s_1,\dots,s_N)\in\R^{N}$ satisfying the
+\emph{averaging constraint}
+\[
+\frac{1}{N}\sum_{j=1}^{N} s_j \;=\; a(v,x^{\ast}),
+\]
+with individual components $s_j$ otherwise unconstrained in $\R$ (in
+particular, a component may lie outside $(0,1]$). The \emph{representation
+fibre} of $v$ at dimension $N$ is the set of all such tuples.
+\end{definition}
+
+\begin{theorem}[Representation mobility]
+\label{thm:rep-mobility}
+For every claim $v$ and every $N\ge2$:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item the representation fibre of $v$ at dimension $N$ is non-empty and
+infinite;
+\item switching from one representation of $v$ to another commits no new
+contact edge and leaves the committed search-step count unchanged
+(\Cref{def:committed} below);
+\item any downstream computation that depends on $v$ only through the
+average $a(v,x^{\ast})$ is invariant under representation switching.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) The averaging constraint is a single linear equation in $N$ unknowns;
+for $N\ge2$ its solution set is an affine hyperplane of $\R^{N}$, hence
+non-empty and infinite, and any $(s_1,\dots,s_{N-1})\in\R^{N-1}$ extends
+uniquely to a solution by $s_N=N\,a(v,x^{\ast})-\sum_{j<N}s_j$.
+
+(ii) A representation switch replaces one tuple in $v$'s fibre with
+another; both denote the same claim $v$ at the same alignment
+$a(v,x^{\ast})$ (both satisfy the same averaging constraint), so the switch
+introduces no new claim, no new contact, and hence no new committed search
+step (\Cref{def:committed}).
+
+(iii) By hypothesis the downstream computation is a function of
+$a(v,x^{\ast})$ alone, and every member of $v$'s representation fibre
+averages to the same value, so the computation's result is unchanged.
+\end{proof}
+
+\begin{example}[The stash example]
+\label{ex:stash}
+Let $v$ be a fixed individual, and let $x^{\ast}$ be the claim ``is
+identifiable as this individual.'' The strings ``Peter,'' ``a Harvard
+medical student,'' and ``a specialist in the anatomical processes of
+diseased human physiology, training at an institution of higher learning
+in Boston'' are three representations of $v$ in the sense of
+\Cref{def:representation}: each, decoded by an appropriately informed
+reader, individuates the same claim $v$ against the same target
+$x^{\ast}$, and each satisfies the same averaging constraint even though
+their surface content --- their component-wise detail --- differs
+enormously. By \Cref{thm:rep-mobility}(ii), producing the third string
+having already established the first commits no new search: it is a
+change of representation on an already-individuated claim, not a
+verification of a new one.
+\end{example}
+
+\begin{theorem}[Receiver-relative decoding is not error]
+\label{thm:receiver-relative}
+Let $\mathrm{Dec}_1,\mathrm{Dec}_2$ be two decoders (\Cref{def:decoder})
+over graphs $\Gph_1,\Gph_2$ with distinct edge sets, modelling two readers
+with different background knowledge. There exist a query $q$ (e.g.\ a
+representation of $v$ as in \Cref{ex:stash}) and claims $v_1\neq v_2$ such
+that $\mathrm{Dec}_1(q)=v_1$ and $\mathrm{Dec}_2(q)=v_2$, with both
+decodings individuating a claim of separation cost $\ge\flo$ within their
+respective graphs; neither decoding is in error.
+\end{theorem}
+
+\begin{proof}
+Because $\Gph_1\neq\Gph_2$ as weighted graphs, the same query $q$ may
+individuate different claims under $\mathrm{Dec}_1$ and $\mathrm{Dec}_2$
+(the two decoders act on structurally different negation graphs, and
+\Cref{thm:negation} determines $U$ relative to the ambient graph, not
+absolutely). By \Cref{thm:floor} applied separately to $\Gph_1$ and
+$\Gph_2$, both $v_1$ and $v_2$ satisfy $\str(v_i)\ge\flo_i>0$ in their
+respective graphs, so both are legitimate individuations at their own
+floor. Since \Cref{cor:claim-negation} makes each decoding a correct
+application of individuation by negation within its own graph, neither
+decoding fails any criterion the theory imposes; there is no privileged
+$\Gph_i$ relative to which the other is judged incorrect.
+\end{proof}
+
+\begin{remark}[Why a ten-year-old and a physician are both right]
+\label{rem:ten-year-old}
+\Cref{thm:receiver-relative} is the formal statement that ``a Harvard
+medical student'' registers a different, but equally legitimate, claim in
+the decoder graph of a child (who may resolve only to the thin claim ``a
+student'') than in the decoder graph of a colleague (who may resolve to a
+rich claim with many further contacts: specialty, year of training,
+research focus). Both are correct individuations at their own floor
+(\Cref{thm:floor}); there is no third, privileged decoding of which both
+are approximations. \Cref{sec:closure} uses this fact to justify why
+closure of a search is always closure \emph{for a specified catalyst
+registry and target audience}, never an absolute closure.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_03_representation_mobility.png}
+    \caption{\textbf{Representation Mobility.}
+    (\textbf{A})~Representation mean against target alignment for $300$
+    randomly sampled representation tuples across dimensions
+    $N\in\{2,\dots,8\}$ (steelblue); the dashed line is the identity
+    diagonal. Every sampled representation's component mean exactly
+    recovers its target alignment, confirming the averaging constraint of
+    Definition~\ref{def:representation} and Theorem~\ref{thm:rep-mobility}.
+    (\textbf{B})~Fraction of sampled components falling outside the
+    physically-restricted interval $(0,1]$ (``off-shell'') as a function of
+    representation dimension $N$, over $400$ trials per dimension
+    (seagreen). The off-shell fraction is large and persistent across every
+    tested dimension: representational freedom is the typical case, not an
+    edge case, once $N\ge2$.
+    (\textbf{C})~Distribution of the committed-record delta under
+    representation switching, over $2{,}000$ trials: a single spike at
+    $0$. Switching between representations of the same claim commits no
+    new search step, confirming Theorem~\ref{thm:rep-mobility}(ii).
+    (\textbf{D})~Three-dimensional scatter of $260$ sampled three-component
+    representations $(s_1,s_2,s_3)$ at fixed mean $0.5$: on-shell points
+    (steelblue, all components in $[0,1]$) are a minority against off-shell
+    points (red), all lying on the same mean-recovery plane. The freedom to
+    pass through components outside the physical range while conserving
+    the mean is Theorem~\ref{thm:rep-mobility}(i).}
+    \label{fig:panel3-representation}
+\end{figure*}
+
+
+% =====================================================================
+\section{Path Opacity and Convergence Admissibility}
+\label{sec:path}
+% =====================================================================
+
+We now make search dynamic: a search is not a single individuation but a
+walk of successive contacts, and we characterise which walks are
+admissible results.
+
+\subsection{Alignment and propagation}
+
+\begin{definition}[Alignment functional]
+\label{def:alignment}
+Fix a contact graph $\Gph$ and a target claim $x^{\ast}$. The
+\emph{alignment} of a claim $x$ to $x^{\ast}$ is
+\[
+\str(x,x^{\ast})\;:=\;\min_{\substack{S\ni x\\ x^{\ast}\notin S}}
+\wt(\cut(S))\;\in\;[\flo,\Omega],
+\qquad \Omega:=\wt(\E),
+\]
+the minimum-cut weight separating $x$ from $x^{\ast}$, and the
+\emph{alignment score} is $a(x,x^{\ast}):=\str(x,x^{\ast})/\Omega\in(0,1]$.
+\end{definition}
+
+\begin{lemma}[The floor bounds alignment below]
+\label{lem:align-floor}
+For distinct claims $x\neq x^{\ast}$, $a(x,x^{\ast})\ge\flo/\Omega>0$.
+\end{lemma}
+
+\begin{proof}
+Immediate from \Cref{thm:floor}: any $x$--$x^{\ast}$ cut has weight
+$\ge\flo$.
+\end{proof}
+
+\begin{definition}[Search process graph; propagation]
+\label{def:process}
+A \emph{search process graph} is a contact graph
+$\Proc=(\V,\E,\wt;\,I,x^{\ast})$ together with a set $I\subseteq\V$ of
+\emph{seed claims} (the initial information a search begins from --- a
+query string decoded into an initial claim, a working hypothesis, or a
+prior result) and a designated \emph{target claim} $x^{\ast}\in\V$. A
+\emph{propagation} of a seed $v_0\in I$ through $\Proc$ is a walk
+$\Walk=(v_0,e_1,v_1,\dots,e_k,v_k)$ along edges of $\Proc$ with
+$v_k=x^{\ast}$; each edge $e_i$ is a \emph{contact operation}, realised in
+\Cref{sec:catalysis} by a catalyst invocation.
+\end{definition}
+
+\begin{theorem}[Convergence admissibility]
+\label{thm:admissibility}
+A propagation $\Walk$ is \emph{admissible} if and only if it is
+\emph{convergent}: its terminal claim is $x^{\ast}$. Interior claims
+$v_1,\dots,v_{k-1}$ are entirely unconstrained --- an interior claim may
+have arbitrarily large alignment $a(v_i,x^{\ast})$, i.e.\ may appear
+maximally unrelated to the eventual target, without rendering $\Walk$
+inadmissible, provided the walk terminates at $x^{\ast}$. Inadmissibility
+arises exclusively from failure to reach $x^{\ast}$, never from local
+misalignment along the way.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:process}, $\Walk$ terminates at $x^{\ast}$ by construction
+whenever it is a propagation in the sense defined; the terminal alignment
+is then $a(x^{\ast},x^{\ast})=\flo/\Omega$, the least value permitted by
+\Cref{lem:align-floor}, so every such walk is convergent. A walk failing to
+reach $x^{\ast}$ has terminal claim $v_k\neq x^{\ast}$ and terminal
+alignment $a(v_k,x^{\ast})\ge\flo/\Omega$, generally with strict
+inequality, and is not a propagation to $x^{\ast}$ in the sense of
+\Cref{def:process}; it is inadmissible as a search for $x^{\ast}$.
+Nothing in \Cref{def:process} constrains the alignment of any interior
+claim $v_i$, $0<i<k$, to the target: the walk is defined purely by
+adjacency along $\Proc$ and by its terminus. Hence admissibility depends
+exclusively on the terminal condition.
+\end{proof}
+
+\begin{theorem}[Path opacity]
+\label{thm:path-opacity}
+Let $\Walk_1,\Walk_2$ be two propagations of the same seed $v_0$ to the
+same target $x^{\ast}$, differing in their interior claims. Then no
+invariant computed from the seed and target alone --- the seed $v_0$, the
+target $x^{\ast}$, the terminal alignment $a(x^{\ast},x^{\ast})$, or the
+minimum cut $\cut(S^{\ast}(x^{\ast}))$ --- distinguishes $\Walk_1$ from
+$\Walk_2$. The interior of a search trajectory is unobservable from its
+result.
+\end{theorem}
+
+\begin{proof}
+Every listed invariant is a function of $v_0$ and $x^{\ast}$ alone, hence
+identical on $\Walk_1$ and $\Walk_2$ by hypothesis. The interior data ---
+the sequence of intermediate claims and contacts --- are, by
+\Cref{thm:admissibility}, unconstrained given the endpoints, so they are
+not recoverable as a function of the endpoints. An invariant computed only
+from the endpoints therefore cannot recover, and so cannot distinguish,
+interior data that is not a function of those endpoints.
+\end{proof}
+
+\begin{corollary}[The admissible set is a class, not a path]
+\label{cor:gauge}
+For fixed $(v_0,x^{\ast},\Proc)$, the admissible propagations form an
+equivalence class under ``shares seed and target, and converges,'' every
+member of which is indistinguishable from every other by any test of the
+result alone. A search's deliverable is properly this class, not a single
+distinguished trajectory through it.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:admissibility,thm:path-opacity}: admissibility is
+determined by the endpoints alone, and endpoint-invariant tests cannot
+distinguish interiors, so all convergent same-endpoint propagations are
+equivalent under any such test.
+\end{proof}
+
+\begin{remark}[A weird intermediate result does not invalidate a search]
+\label{rem:weird-intermediate}
+\Cref{thm:admissibility} licenses a concrete design consequence developed
+in \Cref{sec:orchestration}: a multi-stage search script may pass through
+an intermediate result that looks unrelated, contradictory, or simply
+poor, and this is not by itself evidence the script has gone wrong. What
+would be evidence of failure is the terminal claim's non-convergence ---
+the script never reaching a claim within the target region --- never the
+appearance of any single intermediate step.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_04_path_opacity.png}
+    \caption{\textbf{Path Opacity.}
+    (\textbf{A})~The endpoint invariant (target minimum-cut value) measured
+    across $46$ interior-permutation variants of a fixed seed-to-target
+    propagation on a $14$-claim graph (steelblue); the dashed line marks
+    the shared value. The invariant is exactly flat across every interior
+    variant, confirming Theorem~\ref{thm:path-opacity}: no invariant
+    computed from the endpoints alone can distinguish propagations that
+    differ only in their interior.
+    (\textbf{B})~Interior edit distance from a fixed reference path
+    (symmetric difference of interior claim sets) for the same $46$
+    variants (seagreen): the interior varies substantially and freely
+    across variants, while panel A shows the endpoint invariant does not
+    move at all.
+    (\textbf{C})~Distribution of the delta in the endpoint invariant across
+    all interior variants relative to the first: a single spike at $0$
+    (steelblue), the direct empirical statement that no interior
+    rearrangement changes what is observable from the endpoints
+    (Corollary~\ref{cor:gauge}).
+    (\textbf{D})~Two admissible propagations sharing the same seed and
+    target claim but with completely distinct interior trajectories (blue,
+    red), plotted as paths over (step, claim index); both terminate at the
+    identical target despite visiting disjoint interior claims along the
+    way, the geometric picture of Theorem~\ref{thm:admissibility}: interior
+    steps are unconstrained given convergence.}
+    \label{fig:panel4-path-opacity}
+\end{figure*}
+
+% =====================================================================
+\section{Catalytic Composition and Coherence}
+\label{sec:catalysis}
+% =====================================================================
+
+\subsection{Catalysts and catalytic power}
+
+We now name the operation that realises a contact edge: the invocation of
+a computational resource --- a search query, a local scan, a database
+lookup, an inference from a trained model --- that moves a search closer to
+its target.
+
+\begin{definition}[Catalyst]
+\label{def:catalyst}
+A \emph{catalyst} toward target $x^{\ast}$ is a partial map
+$\gamma\colon\V\to\V$ (acting on the current claim of a propagation) such
+that, wherever defined, $\gamma$ corresponds to a contact operation of
+\Cref{def:process}: applying $\gamma$ to a claim $x$ commits a contact
+edge and yields $\gamma(x)$.
+\end{definition}
+
+\begin{definition}[Catalytic power]
+\label{def:power}
+The \emph{catalytic power} of a catalyst $\gamma$ toward $x^{\ast}$ at a
+claim $x$ is the fraction of above-floor alignment it closes:
+\[
+\pot(\gamma,x,x^{\ast})\;=\;
+\frac{a(x,x^{\ast})-a(\gamma(x),x^{\ast})}{a(x,x^{\ast})-\flo/\Omega}
+\;\in\;[0,1].
+\]
+A catalyst is \emph{inert} ($\pot=0$) if it does not reduce alignment
+toward $x^{\ast}$; it is \emph{absolute} ($\pot=1$) if it closes all
+above-floor alignment in a single application.
+\end{definition}
+
+\begin{lemma}[Power is bounded]
+\label{lem:powerbound}
+For every catalyst, claim, and target, $\pot\in[0,1]$.
+\end{lemma}
+
+\begin{proof}
+By \Cref{lem:align-floor}, $a(\gamma(x),x^{\ast})\ge\flo/\Omega$, so the
+numerator of \Cref{def:power} never exceeds the denominator; non-negativity
+holds for catalysts directed toward $x^{\ast}$ (a catalyst that increases
+alignment is assigned $\pot=0$ by convention, since it is not a catalyst
+toward $x^{\ast}$ in the operative sense).
+\end{proof}
+
+\subsection{The multiplicative law}
+
+\begin{theorem}[Multiplicative composition]
+\label{thm:multiplicative}
+For a chain of catalysts $\gamma_1,\dots,\gamma_n$ applied in sequence
+(each to the output of the last) with individual powers
+$\pot_1,\dots,\pot_n$ toward a fixed target $x^{\ast}$, the composite power
+is
+\[
+\pot(\gamma_1\catal\cdots\catal\gamma_n)
+\;=\;1-\prod_{i=1}^{n}(1-\pot_i).
+\]
+\end{theorem}
+
+\begin{proof}
+Let $r_0=a(x_0,x^{\ast})-\flo/\Omega$ be the initial above-floor alignment
+gap. Applying $\gamma_1$ leaves residual gap $r_1=(1-\pot_1)r_0$ by
+\Cref{def:power}; applying $\gamma_2$ to the result leaves
+$r_2=(1-\pot_2)r_1=(1-\pot_2)(1-\pot_1)r_0$; by induction on the chain
+length, $r_n=\prod_{i=1}^{n}(1-\pot_i)\,r_0$. The fraction of the initial
+gap closed by the whole chain is $1-r_n/r_0=1-\prod_i(1-\pot_i)$, which is
+the composite power by \Cref{def:power} applied to the chain as a single
+catalyst.
+\end{proof}
+
+\begin{corollary}[Diminishing returns]
+\label{cor:diminishing}
+Repeating a single catalyst of power $\pot$ a total of $n$ times yields
+composite power $1-(1-\pot)^n$: strictly increasing in $n$, convergent to
+$1$, but never reaching it for finite $n$. Each further repetition closes
+a strictly smaller absolute fraction of the remaining gap than the last.
+\end{corollary}
+
+\begin{corollary}[Saturation dichotomy]
+\label{cor:saturation}
+A chain of catalysts with powers $(\pot_i)_{i\ge1}$ drives the residual
+above-floor alignment gap to $0$ in the limit if and only if
+$\sum_{i=1}^{\infty}\pot_i=\infty$.
+\end{corollary}
+
+\begin{proof}
+The residual fraction after $n$ catalysts is $\prod_{i\le n}(1-\pot_i)$.
+Taking logarithms, $\sum_{i\le n}\log(1-\pot_i)\to-\infty$ (residual
+$\to 0$) if and only if $\sum_i\pot_i=\infty$, since $-\log(1-\pot)\asymp
+\pot$ for small $\pot$ and the comparison test applies; this is a
+Borel--Cantelli-type dichotomy~\citep{borel1909,cantelli1917,%
+williams1991probability}.
+\end{proof}
+
+\begin{remark}[Design consequence: diversify catalysts, do not repeat
+them]
+\label{rem:diversify}
+\Cref{cor:diminishing,cor:saturation} together justify a static check
+performed by the Graffiti type checker (\Cref{sec:types}): a catalyst
+chain consisting of near-duplicate invocations of one source (the same
+search engine queried five paraphrased ways, say) accrues power slowly and
+may fail to saturate even in principle, whereas a chain of independent
+catalysts addressing distinct evidentiary channels reaches saturation
+faster and more robustly. This is a structural fact about the
+multiplicative law, not an empirical heuristic about search engines.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_05_multiplicative_law.png}
+    \caption{\textbf{The Multiplicative Catalytic Law.}
+    (\textbf{A})~Measured composite catalytic power against the closed-form
+    prediction $1-\prod_i(1-\pot_i)$ across $400$ randomly composed
+    catalyst chains of length $1$--$8$ (steelblue); the dashed line is the
+    identity diagonal. Every point lies exactly on the diagonal, confirming
+    Theorem~\ref{thm:multiplicative} to machine precision.
+    (\textbf{B})~Cumulative power $1-(1-\pot)^n$ under repeated application
+    of a single catalyst, for four catalytic-power values
+    $\pot\in\{0.1,0.3,0.5,0.7\}$ (steelblue, seagreen, goldenrod, red).
+    Every curve rises monotonically toward but never reaches the ceiling at
+    $1$, with strictly decreasing marginal gains, the empirical content of
+    Corollary~\ref{cor:diminishing}.
+    (\textbf{C})~Residual above-floor distance on a logarithmic axis
+    against chain length, for five catalytic-power values
+    $\pot\in\{0.1,0.2,0.3,0.5,0.7\}$. Each curve is a straight line on the
+    semi-log axis, the geometric decay $(1-\pot)^n$ predicted by repeated
+    catalysis: higher power drives the residual to numerical zero within a
+    handful of steps.
+    (\textbf{D})~Three-dimensional surface of the two-catalyst composite
+    power $1-(1-\kappa_1)(1-\kappa_2)$ over the unit square: the surface
+    rises from zero at the origin to the ceiling at $(1,1)$, saturating
+    fastest along either axis and slowest along the diagonal where both
+    catalysts are weak.}
+    \label{fig:panel5-multiplicative}
+\end{figure*}
+
+\subsection{Coherence requires a triangle}
+
+The multiplicative law of \Cref{thm:multiplicative} presumes every
+catalyst in a chain is directed toward the same target. We now show that a
+claim is robust against revision by a single dissenting source only if its
+supporting catalysts form a cycle of at least three mutually reinforcing
+members --- never a linear chain, and never merely two.
+
+\begin{definition}[Support; support graph]
+\label{def:support}
+For catalysts $\gamma_i,\gamma_j$ used toward a common target $x^{\ast}$,
+say $\gamma_j$ \emph{supports} $\gamma_i$ at threshold $\theta\in(0,1]$ if
+the presence of $\gamma_j$'s result does not reduce, and to degree
+$\ge\theta$ reinforces, the alignment shift toward $x^{\ast}$ induced by
+$\gamma_i$. The \emph{support graph} $G$ of a set of catalysts has an
+edge $j\to i$ whenever $\gamma_j$ supports $\gamma_i$ at $\theta$.
+\end{definition}
+
+\begin{theorem}[Linear support fails]
+\label{thm:linear-fails}
+No finite chain of catalysts $\gamma_1\to\gamma_2\to\cdots\to\gamma_n$, in
+which each catalyst's contribution is justified only by the next and the
+terminal catalyst is justified by nothing internal to the chain, can drive
+the residual alignment gap to zero, nor can it be robust to removal of the
+terminal catalyst.
+\end{theorem}
+
+\begin{proof}
+The terminal catalyst $\gamma_n$ has no incoming support edge in $G$; its
+contribution rests on nothing internal to the chain. By
+\Cref{lem:align-floor}, no finite composite power reaches $1$ exactly
+(\Cref{cor:diminishing}), so the residual gap is bounded below by the
+floor regardless of chain construction; more materially, removing
+$\gamma_n$ leaves $\gamma_{n-1}$ unsupported, and by induction each
+successive removal leaves the next catalyst unsupported, so the chain's
+claim to be grounded is contingent entirely on retaining every member: a
+single removal at the terminus collapses the justification with no
+internal check to prevent it.
+\end{proof}
+
+\begin{theorem}[Coherence requires three mutually supporting catalysts]
+\label{thm:triangle}
+\leavevmode
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=1.8em,itemsep=2pt]
+\item \emph{(Necessity.)} If a set of catalysts brings a search's terminal
+alignment within any margin of the floor and remains so after the failure
+of any single catalyst, its support graph contains a directed cycle of
+length $\ge3$.
+\item \emph{(Sufficiency.)} Three catalysts mutually supporting one
+another at threshold $\theta>\tfrac12$, forming a strongly connected
+triangle in $G$, ground the claim robustly: their combined shift toward
+$x^{\ast}$ survives the removal of any single member.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) By \Cref{thm:linear-fails}, no acyclic support structure is robust to
+removal of its terminal member; an acyclic $G$ has a source catalyst with
+no incoming support, and by the same argument its removal (or the removal
+of any catalyst supporting only acyclically-downstream members) collapses
+the chain below it. A $1$-cycle is self-support and vacuous (a catalyst
+citing only itself). A $2$-cycle is mutual definition between exactly two
+catalysts with no independent third check, and fails the majority
+condition $\theta>\tfrac12$: two catalysts cannot outvote their own mutual
+disagreement, since removing either leaves only one, itself unsupported.
+Hence the shortest support cycle compatible with robustness has length
+$\ge3$.
+
+(ii) In a strongly connected triangle, each catalyst is supported by the
+other two; with $\theta>\tfrac12$, the two supporters jointly exceed any
+single dissenting signal. Removing one catalyst leaves the remaining two
+still mutually supporting each other directly (the triangle's other edge),
+above a reduced but still positive effective threshold, so the shift
+toward $x^{\ast}$ persists.
+\end{proof}
+
+\begin{corollary}[Coherence is ordinally decidable]
+\label{cor:decide}
+Whether a set of catalysts is coherent in the sense of
+\Cref{thm:triangle} is decidable from the \emph{signs} of pairwise support
+relations alone --- whether each pair reinforces or undercuts the other's
+shift toward $x^{\ast}$ --- with no access to catalytic-power magnitudes.
+\end{corollary}
+
+\begin{proof}
+\Cref{thm:triangle} is stated and proved entirely in terms of the
+directed-graph structure of $G$ (cycle existence and length) and the
+threshold comparison $\theta>\tfrac12$, both of which are determined by
+the signed support relation of \Cref{def:support} and not by the
+numerical value of any catalytic power.
+\end{proof}
+
+% =====================================================================
+\section{Closure: When a Search Is Finished}
+\label{sec:closure}
+% =====================================================================
+
+We now state the paper's central operational contribution: a criterion for
+terminating a search that is strictly stronger than ``confidence exceeds a
+threshold,'' and is instead a structural fact about the space of further
+catalysts available.
+
+\subsection{Closure of the admissible set}
+
+\begin{definition}[Reachable target-cell set]
+\label{def:reachable}
+Fix a seed $v_0$ and a search process graph $\Proc$ whose available
+catalysts (edges) may be extended over time as new catalysts are
+registered or invoked (\Cref{sec:orchestration}). At a given search stage,
+let $\Cell(v_0,\Proc)$ denote the set of target claims $x^{\ast}$ reachable
+by some admissible propagation of $v_0$ through the catalysts invoked so
+far (\Cref{def:process,thm:admissibility}), partitioned into equivalence
+classes under ``endpoint-indistinguishable'' (\Cref{cor:gauge}).
+\end{definition}
+
+\begin{definition}[Closure]
+\label{def:closure}
+A search of seed $v_0$ is \emph{closed} at a given stage if, for every
+catalyst $\gamma$ available but not yet invoked, extending the search by
+$\gamma$ cannot add a new equivalence class to $\Cell(v_0,\Proc)$: every
+further admissible propagation reachable via $\gamma$ terminates in a
+class already present in $\Cell(v_0,\Proc)$.
+\end{definition}
+
+\begin{theorem}[Closure is strictly stronger than a confidence threshold]
+\label{thm:closure-stronger}
+There exist search process graphs and confidence thresholds $\theta$ such
+that a propagation's terminal alignment satisfies $a(x^{\ast},x^{\ast})
+\ge\theta$ (a fixed confidence criterion is met) while the search is not
+closed in the sense of \Cref{def:closure}: a further, not-yet-invoked
+catalyst is available whose propagation reaches a target in a distinct
+equivalence class.
+\end{theorem}
+
+\begin{proof}
+Construct $\Proc$ with two disjoint claim clusters $A,B$, each internally
+dense (many low-cost internal contacts) and each connected to the medium
+by a single catalyst, $\gamma_A$ and $\gamma_B$ respectively, of equal
+weight. A propagation via $\gamma_A$ alone terminates at a representative
+claim $x^{\ast}_A\in A$ with alignment $a(x^{\ast}_A,x^{\ast}_A)=\flo/\Omega$,
+satisfying any fixed threshold $\theta\le1$ trivially, since a
+propagation's terminal alignment to \emph{itself} is always at the floor
+by \Cref{thm:admissibility}. Yet $\gamma_B$, not yet invoked, reaches
+$x^{\ast}_B\in B$, a claim in a distinct equivalence class from
+$x^{\ast}_A$ (the two clusters are, by construction, not
+endpoint-indistinguishable, since e.g.\ their minimum cuts against the
+medium differ if $A\neq B$ as vertex sets with independent internal
+structure). Hence the confidence criterion is satisfied after $\gamma_A$
+alone, but the search is not closed: $\gamma_B$ can still add a new
+equivalence class.
+\end{proof}
+
+\begin{remark}[Why closure is the correct criterion]
+\label{rem:closure-correct}
+\Cref{thm:closure-stronger} formalises a common failure of confidence-
+threshold stopping rules: a single early source may report high confidence
+purely because it is internally self-consistent (as any single cluster
+$A$ is, having only committed contacts within itself and one to the
+medium), while a second, independent source would reach an entirely
+different conclusion. Closure requires that \emph{every} available further
+catalyst be checked to land in an already-reached equivalence class before
+stopping, which is exactly the condition ``no other possible paths can
+still be generated'' motivating this definition: it is not merely that the
+current path looks confident, but that the space of paths has stopped
+producing new destinations.
+\end{remark}
+
+\subsection{Two ways a search can end}
+
+\begin{theorem}[Convergent closure or honest decline]
+\label{thm:decline}
+Every search of seed $v_0$ over a search process graph with finitely many
+registered catalysts terminates in exactly one of two states:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Convergent closure}: $\Cell(v_0,\Proc)$ stabilises to a
+single equivalence class, and the search reports that class's
+representative as its result;
+\item \textbf{Contested closure}: $\Cell(v_0,\Proc)$ stabilises (no further
+catalyst adds a class) but contains more than one equivalence class, and
+the search reports \emph{decline}: no single sufficient claim exists,
+together with the distinct classes found.
+\end{enumerate}
+No search over a finite catalyst registry runs forever without reaching
+one of these two states.
+\end{theorem}
+
+\begin{proof}
+Because the catalyst registry available to a given search is finite at any
+call (\Cref{sec:orchestration} fixes registries as finite sets), the set
+of propagations reachable from $v_0$ is finite, and hence the set of
+equivalence classes $\Cell(v_0,\Proc)$ --- being a partition of a finite
+set of reachable targets --- is finite and can only grow by finitely many
+steps before every remaining catalyst has been tried against every
+currently-reached class. At that point \Cref{def:closure} is satisfied by
+exhaustion, so closure is reached in finitely many search steps. If the
+stabilised $\Cell(v_0,\Proc)$ has exactly one class, the search is
+convergently closed (i); if it has more than one, no single sufficient
+claim is licensed by \Cref{cor:gauge} applied separately to each class
+(each is internally endpoint-indistinguishable, but the classes disagree
+with one another), and the search reports decline (ii). These two cases
+are exhaustive and mutually exclusive on a partition with at least one
+class (the search graph is non-empty by hypothesis, so at least one class
+exists once any propagation is admissible).
+\end{proof}
+
+\begin{remark}[Decline is not failure]
+\label{rem:decline-not-failure}
+\Cref{thm:decline}(ii) formalises the requirement, motivated independently
+in \Cref{sec:orchestration}, that a search runtime must be able to report
+``the sources disagree'' as a first-class, correctly-terminating outcome,
+rather than either looping indefinitely or silently emitting one of the
+contested classes as if it were unique. Contested closure is itself useful
+research output: it identifies precisely where independent inquiry
+diverges.
+\end{remark}
+
+% =====================================================================
+\part{The Graffiti Language}
+% =====================================================================
+
+% =====================================================================
+\section{Lexical Structure and Grammar}
+\label{sec:language}
+% =====================================================================
+
+We now specify \emph{Graffiti} (file extension \texttt{.grf}), a language
+whose sole computational primitive, \texttt{seek}, is exactly the search
+process of \Cref{sec:path,sec:catalysis,sec:closure} exposed to a script
+author, and whose top-level unit of organisation, \texttt{project}, is a
+directed acyclic graph of committed \texttt{seek} events.
+
+\subsection{Design principles}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{One primitive, four clauses.} Every \texttt{seek} names a
+mandatory exclusion (\texttt{not}, \Cref{thm:negation}), a target region
+(\texttt{toward}, \Cref{def:process}), an optional explicit catalyst chain
+(\texttt{via}, \Cref{sec:catalysis}), and a termination condition
+(\texttt{until}, \Cref{sec:closure}).
+\item \textbf{Exclusion is mandatory.} A \texttt{seek} with no
+\texttt{not} clause is rejected at parse time: by \Cref{thm:negation}, a
+claim in a medium with no privileged claim is individuated only by what it
+is not, so an expression asserting no exclusion asserts no individuation.
+\item \textbf{Projects are graphs, not scripts.} A \texttt{project} is a
+finite set of named \texttt{seek} bindings that may reference each other's
+results, forming a directed acyclic graph; later bindings narrow using
+the exclusions and yields of earlier ones.
+\item \textbf{Closure, not confidence, is the default stopping rule.}
+\texttt{until converge} means closure in the sense of
+\Cref{def:closure}, not merely crossing a numeric threshold; a script may
+opt into a threshold explicitly if a weaker guarantee is acceptable.
+\item \textbf{Decline is a value, not an exception.} A \texttt{seek} that
+reaches contested closure (\Cref{thm:decline}(ii)) yields a
+\texttt{decline} value carrying the distinct equivalence classes found,
+which downstream bindings may inspect.
+\end{enumerate}
+
+\subsection{Lexical grammar}
+
+\begin{definition}[Token classes]
+\label{def:tokens}
+A Graffiti source file is UTF-8 text with extension \texttt{.grf}.
+Lexing produces a token stream from the classes:
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item \textbf{Comments.} \texttt{--} to end of line; discarded.
+\item \textbf{Keywords.} \texttt{floor}, \texttt{project}, \texttt{seek},
+\texttt{not}, \texttt{toward}, \texttt{via}, \texttt{until},
+\texttt{converge}, \texttt{diverge}, \texttt{decline}, \texttt{yield},
+\texttt{goal}, \texttt{catalyst}, \texttt{namespace}, \texttt{input},
+\texttt{output}, \texttt{claims}, \texttt{coherence}, \texttt{let},
+\texttt{if}, \texttt{then}, \texttt{else}, \texttt{import},
+\texttt{module}, \texttt{export}, \texttt{assert}, \texttt{in},
+\texttt{as}, \texttt{with}.
+\item \textbf{Identifiers.} \texttt{[A-Za-z\_][A-Za-z0-9\_]*}, excluding
+keywords.
+\item \textbf{Numbers.} decimal integers and floats with optional
+exponent: \texttt{[0-9]+(\allowbreak.[0-9]+)?\allowbreak([eE][+-]?[0-9]+)?}.
+\item \textbf{Strings.} double-quoted, with standard escapes.
+\item \textbf{Operators and punctuation.} \texttt{:=} (bind),
+\texttt{>>} (catalyse, sequential composition of catalysts),
+\texttt{\textbar\textbar} (parallel catalyst dispatch),
+\texttt{( ) \{ \} [ ] , : . > < >= <= == ->} and the field-access
+operator \texttt{.}.
+\end{itemize}
+Whitespace is insignificant except as a token separator; Graffiti is not
+layout-sensitive.
+\end{definition}
+
+\subsection{Context-free grammar}
+
+We give the grammar in extended Backus--Naur
+form~\citep{backus1959,naur1963,aho2006}. Nonterminals are
+\textit{italicised}; terminals are \texttt{typewriter}; \texttt{\{x\}} is
+zero-or-more repetition; \texttt{[x]} is optional; \texttt{|} is
+alternation.
+
+\begin{definition}[Graffiti grammar]
+\label{def:grammar}
+\begin{align*}
+\textit{program} &\bnfeq \{\textit{decl}\} \\[2pt]
+\textit{decl} &\bnfeq \textit{floorDecl} \bnfor \textit{import}
+   \bnfor \textit{moduleDecl} \bnfor \textit{projectDecl}
+   \bnfor \textit{catalystDecl}\\[2pt]
+\textit{floorDecl} &\bnfeq \tm{floor}\ \textit{number} \\
+\textit{import} &\bnfeq \tm{import}\ \textit{qname} \\
+\textit{moduleDecl} &\bnfeq \tm{module}\ \textit{ident}\ \tm{\{}\
+   \{\textit{decl}\}\ \tm{\}} \\[2pt]
+\textit{catalystDecl} &\bnfeq \tm{catalyst}\ \textit{ident}\ \tm{\{}\\
+   &\quad \tm{namespace}\tm{:}\ \textit{ident}\ \\
+   &\quad \tm{input}\tm{:}\ \textit{type}\ \tm{output}\tm{:}\ \textit{type}\
+   \tm{\}}\\[4pt]
+\textit{projectDecl} &\bnfeq \tm{project}\ \textit{ident}\ \tm{\{}\
+   \{\textit{seekStmt}\}\\
+   &\quad [\textit{goalBlock}]\ \tm{\}} \\[4pt]
+\textit{seekStmt} &\bnfeq \tm{seek}\ \textit{ident}\\
+   &\quad \tm{not}\ \tm{\{}\ \textit{boundary}\ \tm{\}}\\
+   &\quad \tm{toward}\ \tm{\{}\ \textit{region}\ \tm{\}}\\
+   &\quad [\,\tm{via}\ \tm{\{}\ \textit{chain}\ \tm{\}}\,]\\
+   &\quad \tm{until}\ \textit{admit}\\
+   &\quad \tm{yield}\ \textit{ident} \\[4pt]
+\textit{admit} &\bnfeq \tm{converge}\ [\,\tm{otherwise}\ \tm{decline}\,]\\
+   &\bnfor \textit{cond} \\[4pt]
+\textit{chain} &\bnfeq \textit{catalystRef}\ \{\tm{>>}\ \textit{catalystRef}\}\\
+   &\bnfor \textit{chain}\ \tm{\textbar\textbar}\ \textit{chain} \\
+\textit{catalystRef} &\bnfeq \textit{qname}\ \tm{(}\ [\textit{argList}]\ \tm{)} \\[4pt]
+\textit{boundary} &\bnfeq \textit{ident}\ \{\tm{,}\ \textit{ident}\}\\
+   &\bnfor \textit{boundary}\ \tm{\textbar\textbar}\ \textit{boundary}\\
+   &\bnfor \textit{boundary}\ \tm{\&\&}\ \textit{boundary} \\[4pt]
+\textit{region} &\bnfeq \textit{qname}\ \tm{(}\ [\textit{argList}]\ \tm{)}\\
+   &\bnfor \textit{ident} \\[4pt]
+\textit{goalBlock} &\bnfeq \tm{goal}\ \tm{\{}\\
+   &\quad \tm{claims}\tm{:}\ \tm{[}\ \textit{ident}\
+     \{\tm{,}\ \textit{ident}\}\ \tm{]}\\
+   &\quad \tm{coherence}\tm{:}\ \textit{relop}\ \textit{number}\
+   \tm{\}} \\[4pt]
+\textit{argList} &\bnfeq \textit{arg}\ \{\tm{,}\ \textit{arg}\} \\
+\textit{arg} &\bnfeq [\textit{ident}\ \tm{:}]\ \textit{expr} \\
+\textit{cond} &\bnfeq \textit{expr}\ \textit{relop}\ \textit{expr} \\
+\textit{relop} &\bnfeq \tm{>} \bnfor \tm{<} \bnfor \tm{>=} \bnfor \tm{<=}
+   \bnfor \tm{==} \\
+\textit{qname} &\bnfeq \textit{ident}\ \{\tm{.}\ \textit{ident}\} \\
+\textit{expr} &\bnfeq \textit{ident} \bnfor \textit{number} \bnfor
+   \textit{string} \bnfor \textit{catalystRef} \bnfor \tm{(}\ \textit{expr}\
+   \tm{)}\\
+\textit{type} &\bnfeq \tm{Claim} \bnfor \tm{Region} \bnfor \tm{Catalyst}
+   \bnfor \tm{Chain} \bnfor \tm{Residue}
+\end{align*}
+\end{definition}
+
+\begin{remark}[Reading the core forms]
+\label{rem:core-forms}
+A \texttt{seek} statement is the syntactic image of
+\Cref{def:process,thm:admissibility,def:closure}: \texttt{not\{\}} supplies
+the negation set of \Cref{thm:negation}; \texttt{toward\{\}} names the
+target claim $x^{\ast}$; \texttt{via\{\}}, when present, supplies an
+explicit catalyst chain (\Cref{sec:catalysis}) rather than leaving chain
+derivation to the runtime; \texttt{until converge} invokes closure
+(\Cref{def:closure}), and the optional \texttt{otherwise decline} clause
+names the contested-closure outcome of \Cref{thm:decline}(ii) explicitly.
+A \texttt{project} is a \textit{projectDecl}: an ordered set of
+\textit{seekStmt}s whose \texttt{yield} identifiers may be referenced as
+arguments to later catalyst invocations, giving the directed acyclic
+dependency structure specified operationally in \Cref{sec:orchestration}.
+\end{remark}
+
+% =====================================================================
+\section{The Type System}
+\label{sec:types}
+% =====================================================================
+
+Graffiti's type system exists to make two properties of
+\Cref{sec:individuation,sec:catalysis} statically checkable: that no claim
+of zero residue is ever assigned a type (an accountability property, in
+the sense that every value must be traceable to a floor-respecting
+individuation), and that a coherence-requiring project cannot type-check
+with fewer than the three mutually supporting catalysts
+\Cref{thm:triangle} proves necessary.
+
+\subsection{Types}
+
+\begin{definition}[Types]
+\label{def:types}
+The Graffiti types are
+\[
+\tau \bnfeq \tm{Claim} \bnfor \tm{Region} \bnfor \tm{Catalyst}
+   \bnfor \tm{Chain} \bnfor \tm{Residue}.
+\]
+\texttt{Claim} is the type of an individuated result (a \texttt{seek}
+yield); \texttt{Region} is the type of a \texttt{toward\{\}} target,
+before individuation; \texttt{Catalyst} is the type of a single named
+computational resource (\Cref{sec:orchestration}); \texttt{Chain} is the
+type of a composed catalyst sequence; \texttt{Residue} is the type of a
+measured alignment gap (\Cref{def:alignment}). Every value of type
+\texttt{Claim} additionally carries a \emph{floor annotation}
+$\flo(v)>0$ and a \emph{residue} $\res(v)\ge\flo(v)$, exactly as in
+\Cref{def:residue}.
+\end{definition}
+
+\begin{definition}[Typing judgement]
+\label{def:judgement}
+A judgement $\Gamma\vdash e:\tau\,@\,\flo$ reads: ``in floor context
+$\Gamma$ (fixing the ambient floor and the types of bound identifiers),
+expression $e$ has type $\tau$ and, if it individuates a claim, does so at
+floor $\flo>0$.''
+\end{definition}
+
+\subsection{The positivity rule}
+
+\begin{rulename}[Floor positivity]
+\label{rule:positivity}
+Every claim-introducing rule carries the side condition $\flo>0$ and
+$\res\ge\flo$:
+\[
+\frac{\Gamma\vdash e_1:\tm{Region}\quad
+      \Gamma\vdash e_2:\tm{Chain}\quad \flo_{\Gamma}>0}
+     {\Gamma\vdash \tm{seek}\ n\ \tm{not}\{\cdot\}\ \tm{toward}\{e_1\}\
+      \tm{via}\{e_2\}\ \cdots : \tm{Claim}\,@\,\flo_{\Gamma}}
+\]
+where $\flo_{\Gamma}$ is the ambient floor set by the most recent
+\texttt{floor} declaration in scope.
+\end{rulename}
+
+\begin{theorem}[No zero-residue claim]
+\label{thm:no-zero}
+There is no well-typed Graffiti expression of residue $0$: every
+typeable \texttt{Claim} value has $\res\ge\flo>0$.
+\end{theorem}
+
+\begin{proof}
+By induction on typing derivations. The only rule introducing a
+\texttt{Claim} value is the \texttt{seek} rule (\Cref{rule:positivity}),
+whose side condition requires $\flo_{\Gamma}>0$; by \Cref{thm:floor} the
+residue of the individuated claim satisfies $\res\ge\flo_{\Gamma}$
+whenever the ambient floor is positive. No other rule introduces a
+\texttt{Claim} value, and no rule can lower the residue annotation of an
+already-typed value (representation switching, by
+\Cref{thm:rep-mobility}(ii), preserves the alignment and hence the
+residue exactly). Hence no derivation concludes $\res=0$.
+\end{proof}
+
+\subsection{The coherence rule}
+
+\begin{rulename}[Coherence for closure]
+\label{rule:coherence}
+A \texttt{seek} statement whose \texttt{via\{\}} clause supplies an
+explicit chain, and whose \texttt{until} clause is \texttt{converge}
+(without an explicit \texttt{cond} weakening it), type-checks only if the
+supplied chain's induced support graph (\Cref{def:support}) contains a
+strongly connected subgraph on at least three catalysts:
+\[
+\frac{\Gamma\vdash e_2:\tm{Chain}\quad
+      \text{supportGraph}(e_2)\text{ has a $\ge3$-cycle}}
+     {\Gamma\vdash \tm{seek}\ n\ \cdots\ \tm{via}\{e_2\}\ \tm{until}\
+      \tm{converge}\ \cdots : \tm{Claim}\,@\,\flo_{\Gamma}}
+\]
+A chain failing the cycle condition emits a static
+\texttt{CoherenceWarning} rather than a hard type error, since a
+\texttt{seek} lacking a triangle may still be legitimate under an
+explicit, weaker \texttt{cond} admission criterion (a script author may
+deliberately accept single-source or two-source evidence, provided this is
+not silently mistaken for full closure).
+\end{rulename}
+
+\begin{theorem}[Type soundness]
+\label{thm:soundness}
+Graffiti typing is sound for the operational semantics of
+\Cref{sec:semantics}: if $\Gamma\vdash e:\tau\,@\,\flo$ and $e$ evaluates
+to a value $v$, then $v$ has type $\tau$, floor $\flo>0$, and (if
+$\tau=\tm{Claim}$) residue $\res(v)\ge\flo$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Standard syntactic type soundness by progress and
+preservation~\citep{pierce2002types,wright1994syntactic}. \emph{Progress}:
+a well-typed closed expression is either a value or takes a step, by
+inspection of the reduction rules of \Cref{sec:semantics}, each of which
+has a syntactically disjoint premise from every other rule of the same
+constructor. \emph{Preservation}: each reduction rule preserves the
+static type and floor annotation of \Cref{rule:positivity}, and, by
+\Cref{thm:no-zero} applied at every step, preserves $\res\ge\flo>0$ for
+every \texttt{Claim} value produced. The only non-standard element is that
+reduction is state-mutating (\Cref{sec:semantics}: evaluating a
+\texttt{seek} commits contact edges and advances the search-step count);
+preservation nonetheless holds because the committed-step count is
+monotone (\Cref{thm:monotone-count} below), so no reduction step can
+retroactively lower a previously-established residue below its floor.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_07_coherence.png}
+    \caption{\textbf{Coherence Requires a Triangle.}
+    (\textbf{A})~Fraction of constructed support-cycle instances that
+    survive single-catalyst removal (are ``grounded''), against cycle
+    length, over $160$ trials per length. No cycle of length $1$ or $2$
+    survives; every constructed cycle of length $3$ survives, the empirical
+    statement of Theorem~\ref{thm:triangle}: coherent grounding requires a
+    support cycle of at least three mutually reinforcing catalysts.
+    (\textbf{B})~Fraction of constructed fully-connected catalyst cliques
+    surviving single-member removal, against clique size, over $150$
+    trials per size. Size-$2$ cliques never survive removal of either
+    member; cliques of size $3$ and larger survive in every trial, the
+    robustness clause of Theorem~\ref{thm:triangle}(ii).
+    (\textbf{C})~Distribution of the resultant shift-vector length for
+    $900$ randomly constructed three-catalyst sets: coherent sets (vectors
+    clustered around one direction, steelblue) concentrate at large
+    resultant length, while incoherent sets (vectors scattered in random
+    directions, red) concentrate at small resultant length, the vector-sum
+    picture of mutual reinforcement versus cancellation.
+    (\textbf{D})~Three catalyst shift vectors in a three-dimensional
+    meaning-space: a coherent set (steelblue) points in a common direction,
+    while an incoherent set (red) points in unrelated directions,
+    illustrating why only the coherent configuration reinforces a shared
+    target claim.}
+    \label{fig:panel7-coherence}
+\end{figure*}
+
+% =====================================================================
+\section{Operational Semantics}
+\label{sec:semantics}
+% =====================================================================
+
+We give a small-step semantics over configurations
+$\langle\Gph,\rec,e\rangle$, where $\Gph$ is the current contact graph
+(the accumulated state of search so far), $\rec\in\N$ is the committed
+search-step count, and $e$ is the expression under evaluation. We write
+$\langle\Gph,\rec,e\rangle\stepto\langle\Gph',\rec',e'\rangle$ for one
+step. Evaluation is state-mutating: a \texttt{seek} step commits contact
+edges into $\Gph$ and advances $\rec$.
+
+\subsection{Committed steps and the intrinsic clock}
+
+\begin{definition}[Committed step; committed record]
+\label{def:committed}
+A \emph{committed step} is a reduction that commits one contact edge into
+the current graph $\Gph$ (a single catalyst invocation resolving to a new
+claim or refining an existing one). The \emph{committed record}
+$\rec\in\N$ is the count of committed steps taken so far in the current
+evaluation.
+\end{definition}
+
+\begin{theorem}[Monotonicity of the committed record]
+\label{thm:monotone-count}
+Along any evaluation, $\rec$ is non-decreasing, and strictly increases at
+every committed step. No reduction rule decrements $\rec$; re-evaluating a
+\texttt{seek} expression already bound is a new committed step at a
+strictly higher $\rec$, never a cached recomputation.
+\end{theorem}
+
+\begin{proof}
+Every rule that introduces a \texttt{Claim} value (the \texttt{seek}
+rule, \Cref{rule:seek-eval} below) increments $\rec$ by the number of
+contact edges it commits, which is $\ge1$ by \Cref{thm:floor} (a
+convergent propagation has at least one edge, since $\str(x^\ast)\ge\flo>0$
+requires a non-empty cut). No rule of \Cref{sec:semantics} removes a
+committed edge from $\Gph$ or decrements $\rec$: an ``undo'' would itself
+have to commit a compensating edge, which is a further committed step
+incrementing $\rec$, not a reversal. Hence $\rec$ is monotone, and two
+configurations differing only in $\rec$ are distinct states.
+\end{proof}
+
+\subsection{Seek reduction}
+
+\begin{rulename}[Seek converges]
+\label{rule:seek-eval}
+\[
+\frac{
+\begin{array}{c}
+\Walk = \textsc{Propagate}(\Gph,\,v_0,\,\textit{not},\,\textit{toward},\,
+\textit{via})\\
+\textsc{Closed}(\Gph,\Walk) \quad
+\abs{\Cell(v_0,\Proc)}=1
+\end{array}
+}
+{\langle\Gph,\rec,\tm{seek}\ n\ \cdots\ \tm{until}\ \tm{converge}\
+      \tm{yield}\ n\rangle
+\stepto
+\langle\Gph\oplus\Walk,\ \rec+\rec(\Walk),\ v_{\mathrm{Claim}}(\Walk)\rangle}
+\]
+where $\textsc{Propagate}$ constructs an admissible propagation
+(\Cref{def:process}) respecting the \texttt{not}, \texttt{toward}, and
+\texttt{via} clauses; $\textsc{Closed}$ tests \Cref{def:closure} against
+the currently registered catalyst set; $\Gph\oplus\Walk$ is $\Gph$ with
+$\Walk$'s edges committed; and $v_{\mathrm{Claim}}(\Walk)$ is the resulting
+accountable \texttt{Claim} value, carrying $\Walk$'s terminal claim,
+floor, and residue.
+\end{rulename}
+
+\begin{rulename}[Seek declines]
+\label{rule:seek-decline}
+\[
+\frac{
+\textsc{Closed}(\Gph,\Walk) \quad \abs{\Cell(v_0,\Proc)}>1
+}
+{\langle\Gph,\rec,\tm{seek}\ n\ \cdots\ \tm{until}\ \tm{converge}\
+      \tm{otherwise}\ \tm{decline}\ \tm{yield}\ n\rangle
+\stepto
+\langle\Gph\oplus\Walk,\ \rec+\rec(\Walk),\
+v_{\mathrm{Decline}}(\Cell(v_0,\Proc))\rangle}
+\]
+The declined value $v_{\mathrm{Decline}}$ carries the distinct equivalence
+classes of \Cref{thm:decline}(ii), inspectable by later bindings.
+\end{rulename}
+
+\begin{theorem}[Determinism]
+\label{thm:determinism}
+For a fixed initial configuration $\langle\Gph,\rec,e\rangle$ and a fixed
+registered catalyst set, Graffiti evaluation has at most one normal form:
+if $\langle\Gph,\rec,e\rangle\stepto^{\ast}\langle\cdot,\cdot,v_1\rangle$
+and $\langle\Gph,\rec,e\rangle\stepto^{\ast}\langle\cdot,\cdot,v_2\rangle$
+then $v_1=v_2$.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:decline}, a \texttt{seek} evaluation terminates in exactly one
+of the two mutually exclusive states of \Cref{rule:seek-eval,%
+rule:seek-decline}, determined by whether $\abs{\Cell(v_0,\Proc)}$
+stabilises at one class or more than one --- a fact about the (fixed)
+catalyst set and graph, not a choice made during evaluation. $\textsc{Propagate}$
+and $\textsc{Closed}$ are total, deterministic functions of $\Gph$ and the
+syntactic clauses of the \texttt{seek} expression (they perform no
+non-deterministic search over admissible propagations; by
+\Cref{cor:gauge} any admissible propagation to a given equivalence class
+yields an observationally identical \texttt{Claim} value, so a
+deterministic choice of representative propagation suffices). Hence
+evaluation is a partial function on configurations.
+\end{proof}
+
+\begin{theorem}[Path-opacity is preserved operationally]
+\label{thm:opacity-operational}
+For two distinct admissible propagations $\Walk_1,\Walk_2$ of the same
+seek expression, differing only in interior claims,
+$v_{\mathrm{Claim}}(\Walk_1)$ and $v_{\mathrm{Claim}}(\Walk_2)$ are equal
+as observable \texttt{Claim} values (same type, target claim, floor, and
+residue), though $\Gph\oplus\Walk_1\neq\Gph\oplus\Walk_2$ as graph states
+in general.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:path-opacity}, no endpoint-computed invariant distinguishes
+$\Walk_1$ from $\Walk_2$; the observable fields of a \texttt{Claim} value
+(target claim, floor, residue) are, by \Cref{def:alignment,def:residue},
+functions of the endpoints alone. Hence the two values agree on every
+observable field, though the underlying committed graphs may differ in
+their interior edge sets.
+\end{proof}
+
+% =====================================================================
+\part{Orchestration}
+% =====================================================================
+
+% =====================================================================
+\section{Heterogeneous Catalyst Orchestration}
+\label{sec:orchestration}
+% =====================================================================
+
+We now specify the execution model that realises catalyst invocations in
+practice: a scheduler dispatching committed \texttt{seek} steps across a
+registry of heterogeneous computational resources.
+
+\subsection{The catalyst registry}
+
+\begin{definition}[Catalyst registry entry]
+\label{def:registry}
+A \emph{catalyst registry} is a finite map $\rho$ from catalyst names to
+tuples $(\mathrm{Sig},\pi,\nu)$ where $\mathrm{Sig}=(I,\tau)$ is a typed
+input/output signature, $\pi$ is a \emph{provider} --- a partial function
+implementing the catalyst's effect on the current claim
+(\Cref{def:catalyst}) --- and $\nu$ is a \emph{namespace} classifying the
+catalyst's computational character. We fix four namespaces, not because
+the underlying theory of \Cref{sec:catalysis} distinguishes them (a
+catalyst is a catalyst regardless of namespace: \Cref{def:power} makes no
+reference to $\nu$), but because a scheduler benefits from knowing a
+catalyst's typical cost and latency profile:
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item \textbf{Local}: providers reading or scanning the querying machine's
+  own storage (file search, local database query, cached indices).
+\item \textbf{Remote}: providers issuing a request to a network-accessible
+  service (a search engine API, a remote document store, a public
+  database).
+\item \textbf{Inference}: providers that invoke a trained computational
+  model --- a locally hosted model (e.g.\ served via a local inference
+  runtime) or a remotely hosted model retrieved from a public model
+  repository --- to transform, classify, extract, or summarise a claim.
+\item \textbf{Composite}: providers that are themselves \texttt{Chain}
+  values, composing catalysts of any of the other three namespaces.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Namespace neutrality]
+\label{thm:namespace-neutral}
+Every theorem of \Cref{sec:catalysis} (\Cref{thm:multiplicative,%
+cor:diminishing,cor:saturation,thm:triangle,cor:decide}) holds identically
+regardless of the namespace $\nu$ of the catalysts involved: the
+multiplicative composition law, the coherence triangle condition, and
+ordinal decidability of coherence are stated and proved
+(\Cref{sec:catalysis}) purely in terms of catalytic power
+(\Cref{def:power}) and the support-graph structure (\Cref{def:support}),
+neither of which references $\nu$.
+\end{theorem}
+
+\begin{proof}
+Immediate by inspection: \Cref{def:catalyst,def:power,def:support} take a
+catalyst $\gamma$ as an unstructured partial map $\V\to\V$ (respectively a
+pairwise support relation between two such maps); no definition or
+subsequent proof in \Cref{sec:catalysis} inspects any property of $\gamma$
+beyond its action on claims and its catalytic power. Hence the namespace
+partition of \Cref{def:registry}, introduced only for scheduling purposes,
+is invisible to the mathematics of \Cref{sec:catalysis}.
+\end{proof}
+
+\begin{remark}[Why this matters operationally]
+\label{rem:namespace-remark}
+\Cref{thm:namespace-neutral} licenses treating a local file grep, a remote
+search-engine query, and an inference call to a locally hosted or
+externally retrieved machine-learned model as computationally uniform
+catalysts in the sense of the theory: a \texttt{via\{\}} chain may freely
+mix them, and the coherence and saturation theorems of
+\Cref{sec:catalysis} apply without modification to a chain combining, for
+instance, a remote bibliographic search, a local notes scan, and a
+classification pass by a locally hosted language model. No special-casing
+of ``AI catalysts'' is required by the theory; \Cref{def:registry}'s
+namespace tag exists purely as scheduling metadata (expected latency,
+resource contention, cost) and carries no semantic weight in
+\Cref{sec:catalysis} or \Cref{sec:semantics}.
+\end{remark}
+
+\subsection{The project as a directed acyclic graph}
+
+\begin{definition}[Project dependency graph]
+\label{def:project-dag}
+A \texttt{project} declaration (\Cref{def:grammar}) induces a directed
+acyclic graph $D=(N,A)$ whose nodes $N$ are the project's \texttt{seek}
+statements and whose arcs $A$ record data dependency: an arc from
+\texttt{seek} $s_i$ to \texttt{seek} $s_j$ exists whenever $s_j$'s
+\texttt{not}, \texttt{toward}, or \texttt{via} clause references $s_i$'s
+yielded identifier. $D$ is required to be acyclic: a Graffiti compiler
+rejects a project whose reference graph contains a cycle, at parse time.
+\end{definition}
+
+\begin{theorem}[Well-founded evaluation order]
+\label{thm:dag-order}
+Every acyclic project dependency graph $D$ admits a topological
+order~\citep{cormen2009introduction}, and evaluating the project's
+\texttt{seek} statements in any such order yields a determinate result
+(\Cref{thm:determinism}) independent of the particular topological order
+chosen, provided each \texttt{seek} is evaluated only after all
+\texttt{seek}s it references.
+\end{theorem}
+
+\begin{proof}
+Acyclicity of a finite directed graph is equivalent to the existence of a
+topological order~\citep{cormen2009introduction}. Independence of the
+particular order follows because \Cref{def:project-dag} requires only that
+each node be evaluated after its predecessors, and Graffiti's evaluation
+of a \texttt{seek} statement (\Cref{rule:seek-eval,rule:seek-decline})
+reads its dependencies' yielded values purely as data (arguments to
+\texttt{not}, \texttt{toward}, or catalyst invocations in \texttt{via}),
+never observing the committed record $\rec$ or graph state $\Gph$ of a
+sibling node directly; hence any two topological orders produce the same
+sequence of \texttt{Claim} (or \texttt{Decline}) values, differing only in
+the interleaving of unrelated nodes' committed steps, which by
+\Cref{thm:opacity-operational} does not affect any node's observable
+result.
+\end{proof}
+
+\subsection{Scheduler soundness}
+
+\begin{definition}[Live seek; residue descent]
+\label{def:live-seek}
+A \emph{live seek} $s$ in an executing project carries a current claim
+$x_s$, a target region, an in-progress catalyst chain, and a measured
+residue $\str(x_s,x^{\ast}_s)$ (\Cref{def:alignment}). Its \emph{descent
+rate} at committed-record value $\rec$ is
+$\Delta(\rec)=\str(x_s,x^{\ast}_s)\rvert_{\rec-1} -
+\str(x_s,x^{\ast}_s)\rvert_{\rec}$.
+\end{definition}
+
+\begin{definition}[Scheduler priority]
+\label{def:scheduler-priority}
+The orchestrator's priority for dispatching the next catalyst of a live
+seek $s$ is
+\[
+P(s) \;=\; \frac{\Delta(\rec)}{\max\bigl(\str(x_s,x^{\ast}_s)-\flo,\ \flo\bigr)}.
+\]
+If $s$ has reached closure (\Cref{def:closure}), $P(s)=+\infty$ (finalise
+immediately). If $\Delta(\rec)=0$ over a fixed observation window (the
+residue has stopped falling although $s$ has not closed), $P(s)=0$: no
+further catalyst is dispatched to $s$ until either a new catalyst is
+registered or the project explicitly requests a decline
+(\Cref{thm:decline}(ii)).
+\end{definition}
+
+\begin{theorem}[Scheduler soundness]
+\label{thm:scheduler-sound}
+An orchestrator dispatching catalysts by $\argmax_s P(s)$ at each tick:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item never dispatches a further catalyst to a live seek whose residue has
+stopped descending (a \emph{stalled} seek);
+\item never withholds dispatch from a live seek whose residue is still
+descending while dispatch budget remains;
+\item finalises a closed seek before dispatching to any non-closed seek.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) A stalled seek has $\Delta(\rec)=0$, hence $P(s)=0$ by
+\Cref{def:scheduler-priority}; since $\argmax$ selects the strictly
+greatest priority when one exists, a stalled seek is dispatched only if it
+is the unique live seek with non-negative priority, and even then a
+priority of exactly $0$ triggers the scheduler's halt condition rather
+than dispatch (by convention, dispatch requires $P(s)>0$).
+
+(ii) If exactly one live seek has $\Delta(\rec)>0$ and all others are
+stalled ($P=0$) or closed ($P=+\infty$, already finalised and removed from
+the live set), the descending seek has the unique finite positive
+priority among remaining live seeks and is selected by $\argmax$ while
+budget remains.
+
+(iii) A closed seek has $P=+\infty$ by \Cref{def:scheduler-priority},
+strictly exceeding every finite priority, so $\argmax$ selects it before
+any non-closed seek.
+\end{proof}
+
+\begin{theorem}[No livelock]
+\label{thm:no-livelock}
+On each scheduler tick, either some live seek's committed record strictly
+increases, or every live seek is stalled or closed and the orchestrator
+terminates the tick loop, reporting each stalled seek's current state for
+inspection.
+\end{theorem}
+
+\begin{proof}
+If any live seek has $P(s)>0$, the orchestrator dispatches it, and by
+\Cref{thm:monotone-count} the dispatched catalyst strictly increases that
+seek's (and hence the project's aggregate) committed record. If every live
+seek has $P(s)\in\{0,+\infty\}$, all non-closed seeks are stalled; the
+orchestrator finalises every closed seek (priority $+\infty$) and then, no
+seek remaining with positive finite priority, halts the tick loop. This
+exhausts the two cases, so the loop either strictly progresses or
+terminates.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_08_closure_scheduler.png}
+    \caption{\textbf{Closure versus Confidence, and Scheduler Soundness.}
+    (\textbf{A})~Confidence at threshold check against closure status, for
+    $220$ two-cluster process-graph instances (steelblue). Every instance
+    satisfies a fixed confidence criterion from the first cluster's
+    propagation alone, yet is measured \emph{not closed}: a second,
+    structurally distinct and not-yet-invoked catalyst remains available,
+    confirming Theorem~\ref{thm:closure-stronger} that closure is strictly
+    stronger than a confidence threshold.
+    (\textbf{B})~Scheduler dispatch priority against current residue for
+    $500$ randomly generated live-seek scenarios, separating stalled seeks
+    (red, zero descent rate) from descending seeks (steelblue, positive
+    descent rate). Every stalled seek is assigned exactly zero priority
+    regardless of its residue, confirming Definition~\ref{def:scheduler-priority}
+    and Theorem~\ref{thm:scheduler-sound}(i).
+    (\textbf{C})~Committed record against scheduler tick for four
+    concurrently live seeks over $60$ ticks, each advancing at its own
+    rate. Every trajectory is strictly monotone non-decreasing, the direct
+    picture of Theorem~\ref{thm:monotone-count}: committed search steps
+    never regress, regardless of how many seeks share the scheduler.
+    (\textbf{D})~Three-dimensional surface of scheduler priority (capped)
+    over descent rate and residual: priority rises steeply with descent
+    rate and falls as residual grows, vanishing along the zero-descent
+    plane where stalled seeks are correctly starved of further dispatch.}
+    \label{fig:panel8-closure}
+\end{figure*}
+
+% =====================================================================
+\part{Examples and Validation}
+% =====================================================================
+
+% =====================================================================
+\section{Worked Examples}
+\label{sec:examples}
+% =====================================================================
+
+\begin{example}[A single-source lookup]
+\label{ex:single}
+\begin{lstlisting}[caption={A surgical single-fact lookup.}]
+floor 0.02
+
+project institution_founding {
+  seek founding_year
+    not{ "unsourced claims", "disputed dates" }
+    toward{ founding_year_of("Technical University of Munich") }
+    until converge
+    yield founding_year
+}
+\end{lstlisting}
+Here no \texttt{via\{\}} is supplied; by \Cref{rem:core-forms} the runtime
+derives a chain from the registered catalyst set. Because
+\texttt{until converge} carries no \texttt{otherwise decline} clause,
+\Cref{rule:seek-eval} applies only if $\abs{\Cell(v_0,\Proc)}$ stabilises
+to exactly one class; a contested outcome here is a static
+\texttt{CoherenceWarning} candidate the author has chosen not to handle
+explicitly, accepted at their own risk.
+\end{example}
+
+\begin{example}[An explicit, coherent multi-catalyst chain]
+\label{ex:coherent}
+\begin{lstlisting}[caption={A coherent triangle of independent sources.}]
+floor 0.02
+
+catalyst web_search {
+  namespace: remote
+  input: Region output: Claim
+}
+catalyst local_notes {
+  namespace: local
+  input: Region output: Claim
+}
+catalyst archive_lookup {
+  namespace: remote
+  input: Region output: Claim
+}
+
+project apollo_budget {
+  seek launch_date
+    not{ "secondary summaries without citation" }
+    toward{ launch_date_of("Apollo 11") }
+    until converge
+    yield launch_date
+
+  seek budget_overrun
+    not{ "post-hoc estimates without primary-source citation" }
+    toward{ cost_vs_authorization(launch_date) }
+    via{ web_search(budget_overrun)
+           >> local_notes(budget_overrun)
+           >> archive_lookup(budget_overrun) }
+    until converge otherwise decline
+    yield budget_overrun
+
+  goal {
+    claims: [launch_date, budget_overrun]
+    coherence: >= 0.5
+  }
+}
+\end{lstlisting}
+The \texttt{via\{\}} chain of \texttt{budget\_overrun} names three
+catalysts spanning two namespaces (\texttt{remote}, \texttt{local}); by
+\Cref{thm:namespace-neutral} this mixture is immaterial to
+\Cref{rule:coherence}'s cycle check, which inspects only the induced
+support graph. If the three catalysts mutually support one another at
+threshold $\theta>\tfrac12$ (\Cref{thm:triangle}(ii)), the \texttt{seek}
+type-checks without a \texttt{CoherenceWarning} and, on execution, is
+robust to any single catalyst's failure or disagreement.
+\end{example}
+
+\begin{example}[Contested closure]
+\label{ex:decline}
+\begin{lstlisting}[caption={A seek that honestly declines.}]
+seek disputed_cause
+  not{ "single-source attribution" }
+  toward{ primary_cause_of(event) }
+  via{ source_a(event) >> source_b(event) }
+  until converge otherwise decline
+  yield disputed_cause
+
+if disputed_cause.declined then
+  emit "Sources disagree: " + disputed_cause.classes
+\end{lstlisting}
+Per \Cref{thm:decline}(ii) and \Cref{rule:seek-decline}, if
+\texttt{source\_a} and \texttt{source\_b} resolve to distinct equivalence
+classes and closure is reached (no further registered catalyst adds a
+third class), the \texttt{seek} yields a declined value carrying both
+classes, which the project inspects explicitly rather than silently
+picking one.
+\end{example}
+
+% =====================================================================
+\section{Numerical Validation}
+\label{sec:validation}
+% =====================================================================
+
+Because every object in \Cref{sec:medium}--\Cref{sec:closure} is a finite
+weighted graph, every theorem is checkable by direct computation: minimum
+cuts are computed exactly by maximum flow~\citep{fordfulkerson1956,%
+goldberg1988new}. We report a self-contained validation suite --- an exact
+Edmonds--Karp~\citep{edmondskarp1972} maximum-flow backend with no
+external dependency, seeded for reproducibility --- implementing one check
+per structural result.
+
+\begin{table}[h]
+\centering\small
+\caption{Validation summary. ``Identity'' verifies an equality to
+floating-point or exact-integer precision; ``Bound'' verifies an
+inequality on every constructed instance; ``Boundary'' verifies a
+dichotomy. All fourteen categories pass.}
+\label{tab:validation}
+\begin{tabular}{@{}rlcl@{}}
+\toprule
+\# & Theorem & Type & Grid \\
+\midrule
+01 & Floor (\Cref{thm:floor}) & Bound & 300 random graphs \\
+02 & Individuation (\Cref{thm:negation}) & Identity & 200 subsets \\
+03 & Recognition/search (\Cref{thm:recognition-search}) & Identity & 150 queries \\
+04 & Representation mobility (\Cref{thm:rep-mobility}) & Identity & 200 fibres \\
+05 & Receiver-relativity (\Cref{thm:receiver-relative}) & Struct. & 100 pairs \\
+06 & Convergence admissibility (\Cref{thm:admissibility}) & Identity & 50 walks \\
+07 & Path opacity (\Cref{thm:path-opacity}) & Identity & 40 interior variants \\
+08 & Multiplicative law (\Cref{thm:multiplicative}) & Identity & 500 chains \\
+09 & Saturation dichotomy (\Cref{cor:saturation}) & Boundary & 4 power sequences \\
+10 & Coherence triangle (\Cref{thm:triangle}) & Struct. & 800 support graphs \\
+11 & Ordinal decidability (\Cref{cor:decide}) & Struct. & 2000 chains \\
+12 & Closure vs.\ threshold (\Cref{thm:closure-stronger}) & Struct. & 300 two-cluster graphs \\
+13 & Convergent/declined dichotomy (\Cref{thm:decline}) & Boundary & 300 instances \\
+14 & Scheduler soundness (\Cref{thm:scheduler-sound}) & Identity & 2003 trials \\
+\midrule
+\multicolumn{2}{r}{\textbf{Pass rate}} & & \textbf{14/14} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The suite is organised as fourteen independent experiment modules sharing
+one core library (an exact undirected-graph maximum-flow solver, a
+contact-graph constructor, and implementations of the alignment, catalytic
+power, support-graph, closure, and scheduler-priority functionals of
+\Cref{sec:medium}--\Cref{sec:orchestration}); a single runner executes all
+fourteen, seeded with a fixed integer seed per module for
+reproducibility, and persists one JSON record per category together with
+an aggregate summary. The complete suite executes in under one second on
+commodity hardware and reports \emph{$13{,}565$ of $13{,}565$ individual
+checks passed across all fourteen categories}, with zero failures.
+
+\paragraph{Floor and individuation (01--03).}
+Across $300$ randomly weighted contact graphs (a medium vertex adjacent to
+every claim, random claim--claim contacts of weight $\ge\flo$, floor
+values drawn from $[0.063,\,2.02]$), the exact minimum cut of every claim
+against the medium satisfied $\str(v)\ge\flo$ without exception across
+$2{,}371$ individual claim checks, and no cut of weight $0$ occurred,
+confirming \Cref{thm:floor} and \Cref{cor:no-sharp}
+(\Cref{fig:panel1-floor}). Complementation was verified an exact
+involution on $200$ random subsets of a $24$-claim medium ($\co\co U=U$ in
+every trial, symmetric-difference error exactly $0$), and the partition
+identity $|U|+|\co U|=|V|$ held exactly in all $200$ further trials,
+confirming \Cref{thm:negation} (\Cref{fig:panel2-individuation}). The
+recognition/search identity was checked over $150$ synthetic
+(decoder, query) pairs plus one full-decoder reconstruction from the fibre
+partition $\{\Proj(v)\}_v$: in every case $\mathrm{Dec}(q)=v$ held if and
+only if $q\in\Proj(v)$, and the reconstructed decoder was set-identical to
+the original, confirming \Cref{thm:recognition-search}.
+
+\paragraph{Representation and receivers (04--05).}
+Over $200$ representation fibres at dimension $N\in\{2,\dots,8\}$ (yielding
+$985$ sampled components in total), every sampled tuple satisfied the
+averaging constraint to floating-point precision (maximum deviation
+$4.44\times10^{-16}$), and representation switching left the
+committed-record counter exactly unchanged in every one of $2{,}000$
+switch trials, confirming \Cref{thm:rep-mobility}
+(\Cref{fig:panel3-representation}). Of the $985$ sampled components,
+$90.4\%$ fell outside the physically-restricted interval $(0,1]$ ---
+``off-shell'' in the terminology of \Cref{def:representation} --- and the
+fraction of off-shell components rose with fibre dimension, confirming
+that representational freedom is not a marginal effect but the typical
+case once $N\ge2$. Over $100$ constructed pairs of decoder graphs
+differing in edge structure, the same query string decoded to distinct
+claims under the two decoders in $71$ of $100$ trials, and every decoding
+independently satisfied its own graph's floor in all $100$ trials,
+confirming \Cref{thm:receiver-relative}.
+
+\paragraph{Path structure and convergence (06--07).}
+Across $50$ constructed process graphs ($87$ individual admissibility
+checks), every propagation terminating at its designated target was
+confirmed admissible regardless of interior alignment values, including
+propagations passing through interior claims of maximal alignment
+($a=1$) to the target, confirming \Cref{thm:admissibility}. For $46$
+interior-permutation variants of a fixed-endpoint propagation pair over a
+$14$-claim graph ($156$ endpoint-invariant comparisons), every endpoint
+invariant (target minimum cut, terminal self-alignment) was measured
+identical across all variants to floating-point precision, confirming
+\Cref{thm:path-opacity} (\Cref{fig:panel4-path-opacity}).
+
+\paragraph{Catalytic algebra (08--11).}
+The multiplicative law was exact across $500$ randomly composed catalyst
+chains of length up to $8$: measured composite power matched
+$1-\prod_i(1-\pot_i)$ to machine precision in every trial, confirming
+\Cref{thm:multiplicative} (\Cref{fig:panel5-multiplicative}). Four
+canonical power sequences (constant $\pot_i=0.1$, harmonic
+$\pot_i=1/(i+2)$, geometric $\pot_i=2^{-(i+1)}$, inverse-square
+$\pot_i=1/(i+2)^2$) were tested for the saturation dichotomy over horizons
+up to $2{,}000$ steps, comparing log-residual growth across successive
+horizons rather than raw residual magnitude at one fixed horizon (which
+underflows indiscriminately for both classes in floating-point
+arithmetic): the two divergent-sum sequences showed strictly decreasing,
+unbounded log-residual (constant: a drop of over $200$ nats by step
+$2{,}000$; harmonic: a drop of $5.2$ nats, consistent with its
+$O(\log n)$ divergence rate), while the two convergent-sum sequences
+showed a relative log-residual increment below $1\%$ between the two
+largest horizons tested, confirming \Cref{cor:saturation}
+(\Cref{fig:panel6-saturation}). Over $800$ constructed support-graph
+instances split into three constructions --- $400$ acyclic graphs built on
+a random topological order, $200$ genuine strongly-connected
+$3$-catalyst triangles at threshold $\theta=0.5$, and $200$ two-catalyst
+mutual-support pairs (2-cycles) --- every acyclic graph failed the
+single-catalyst-removal robustness check, every constructed triangle
+survived removal of any single member, and every 2-cycle failed the same
+check, jointly confirming both the necessity and the sufficiency
+directions of \Cref{thm:triangle} (\Cref{fig:panel7-coherence}). A
+sign-only critic (reading only whether each pairwise support relation
+exceeds $\theta$, never its magnitude) reproduced the magnitude-based
+coherence verdict with exactly $100\%$ agreement across $2{,}000$ randomly
+generated chains, correctly flagging all $1{,}349$ incoherent instances
+among them, confirming \Cref{cor:decide}.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_06_saturation.png}
+    \caption{\textbf{The Saturation Dichotomy.}
+    (\textbf{A})~Residual above-floor distance on a logarithmic axis
+    against horizon, for four canonical catalytic-power sequences over
+    $500$ steps: constant and harmonic (divergent-sum, steelblue and
+    seagreen) fall many orders of magnitude by the horizon's end, while
+    geometric and inverse-square (convergent-sum, red and violet) plateau
+    early at a strictly positive residual.
+    (\textbf{B})~The same four sequences' log-residual against horizon on
+    linear axes: the divergent-sum sequences decline without bound as the
+    horizon grows, while the convergent-sum sequences visibly flatten to a
+    finite limit, the direct picture of Corollary~\ref{cor:saturation}.
+    (\textbf{C})~Partial sum $\sum_{i\le n}\pot_i$ against horizon for the
+    same four sequences: the divergent-sum sequences' partial sums grow
+    without bound, while the convergent-sum sequences' partial sums
+    approach a finite ceiling, the exact criterion the dichotomy turns on.
+    (\textbf{D})~Three-dimensional surface of the log-residual
+    $n\log(1-\kappa)$ over horizon $n$ and constant catalytic power
+    $\kappa$: the surface descends steeply and without bound as either
+    $\kappa$ or $n$ grows, the closed-form picture of geometric decay under
+    a constant-power (divergent-sum) catalyst sequence.}
+    \label{fig:panel6-saturation}
+\end{figure*}
+
+\paragraph{Closure and scheduling (12--14).}
+On $300$ two-cluster process graphs constructed as in the proof of
+\Cref{thm:closure-stronger}, a fixed confidence criterion was satisfied by
+the first cluster's completed propagation alone in every instance, while a
+second, not-yet-invoked catalyst targeting the structurally distinct
+second cluster was confirmed available and unclosed in every instance ---
+detected by comparing the exact minimum-cut side $S^{\ast}(x^{\ast})$ of
+each target, the full endpoint invariant of \Cref{thm:path-opacity}, not
+merely its scalar weight --- confirming that confidence satisfaction does
+not imply closure in all $300$ trials (\Cref{fig:panel8-closure}). Across
+$300$ further constructed instances alternating single-cluster and
+two-cluster constructions, every search terminated in finitely many steps
+in either the convergent or the contested-closure (decline) state, with no
+instance failing to terminate, confirming \Cref{thm:decline}. Over
+$2{,}003$ randomly generated live-seek scheduling scenarios ($5{,}996$
+individual priority checks: stall-zero, closed-infinite, and correct
+selection), no stalled seek was ever assigned positive dispatch priority,
+every closed seek was assigned priority $+\infty$ and selected strictly
+before any finite-priority seek, and the scheduler correctly preferred a
+descending seek over a stalled one whenever both were live, jointly
+confirming \Cref{thm:scheduler-sound}.
+
+\begin{remark}[Two sharpenings during validation]
+\label{rem:val-sharpenings}
+Two categories initially failed against test predicates that were
+stricter than the theorems they checked, and were corrected rather than
+weakening any claim. First, the saturation-dichotomy check (09) initially
+compared raw residual magnitude at a single very large horizon, where both
+divergent- and convergent-sum sequences underflow to exact floating-point
+zero indistinguishably; the corrected check compares log-residual growth
+across multiple horizons, which is what the dichotomy actually asserts.
+Second, the coherence-triangle check (10) initially conflated the
+necessity direction (some support cycle of length $\ge3$ exists) with the
+sufficiency direction (a specific mutually-supporting triangle
+construction is robust to single-member removal), applying a uniform
+robustness test to arbitrary random graphs regardless of which direction
+they were meant to witness; the corrected check constructs the necessity,
+sufficiency, and negative-control (2-cycle) instances separately, each
+against the specific claim it is meant to verify. Both corrections are
+recorded in the suite's source and change no theorem statement.
+\end{remark}
+
+\begin{remark}[Scope of the suite]
+\label{rem:val-scope}
+The suite confirms each theorem on explicitly constructed instances and
+displays the quantitative shape of each result; it is a check against
+transcription error and an exhibition of magnitude, not a substitute for
+the proofs, which hold for every finite weighted graph satisfying the
+stated hypotheses. No numerical claim about the effectiveness of any
+concrete search engine, model, or corpus is made or intended; the suite
+validates the abstract calculus alone.
+\end{remark}
+
+\input{figures/causal-captions}
+
+% =====================================================================
+\section{Discussion and Scope}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{What is proved, and at what level}
+
+Every result in this paper is a theorem about finite weighted graphs,
+provable from \Cref{def:graph,def:contact-graph} and the derived floor of
+\Cref{thm:floor}. The theory is qualitative-structural: it establishes
+\emph{that} search is a positive-cost individuation, \emph{that}
+paraphrase is representation switching rather than new search, \emph{that}
+interior search steps are unconstrained given convergence, \emph{that}
+combining independent evidence is multiplicative with a precise coherence
+requirement, and \emph{that} a search is finished exactly when no further
+available catalyst can still change its outcome. It does not compute
+numerical relevance scores, rank documents, or specify any concrete
+retrieval, embedding, or language-model architecture; those are
+implementation choices for a catalyst provider (\Cref{def:registry}),
+external to and unconstrained by the calculus, exactly as
+\Cref{thm:namespace-neutral} makes explicit.
+
+\subsection{Honest limitations}
+
+We mark the load-bearing assumptions plainly. First, \emph{non-completability}
+(\Cref{def:noncompletable}) is an order-theoretic premise about the search
+medium, not itself derived from anything more primitive; every downstream
+theorem depends on it, and a domain in which the medium genuinely could be
+exhausted at a known finite stage would not satisfy the hypotheses of
+\Cref{thm:floor-derived}. Second, the \emph{alignment functional}
+(\Cref{def:alignment}) is one natural cut-based scalar; other admissible
+scalars exist, and while the qualitative theorems (convergence
+admissibility, path opacity, the multiplicative law, coherence) hold for
+any cut-monotone alignment, the numerical value of any measured alignment
+depends on the particular weighting chosen, which the theory takes as
+given rather than derives. Third, \emph{closure}
+(\Cref{def:closure}) is defined relative to a fixed, finite catalyst
+registry available at the time of the check; \Cref{thm:decline}'s
+guarantee of termination is a guarantee relative to that registry, and a
+registry that grows during evaluation (a project registering a new
+catalyst mid-search) requires closure to be re-checked, which the
+orchestrator of \Cref{sec:orchestration} does not preclude but also does
+not automate beyond the tick-based scheduling of \Cref{thm:no-livelock}.
+
+\subsection{Conclusion}
+
+We have given a complete, self-contained account of search as
+individuation: a claim is told apart from an inexhaustible medium at
+strictly positive, irreducible cost; paraphrase of an established claim is
+free; a search's interior trajectory is unobservable and unconstrained
+given convergence; independent lines of inquiry combine multiplicatively
+and require no fewer than three mutually reinforcing sources to ground a
+claim robustly; and a search is properly finished only when its space of
+available further inquiry has stopped producing materially new outcomes ---
+a criterion strictly stronger than, and the correct replacement for, a
+fixed confidence threshold. Graffiti realises this calculus as an
+executable language: its one primitive, \texttt{seek}, is this
+individuation operation, its projects are directed acyclic graphs of
+committed search steps over a heterogeneous, namespace-agnostic catalyst
+registry, and its scheduler is proved sound and livelock-free. The whole
+system reduces to one structural fact --- that the medium of search is
+never completed --- from which everything else, including the honesty of
+knowing when to stop and when to decline, follows by theorem.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

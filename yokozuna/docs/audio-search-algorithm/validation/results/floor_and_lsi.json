@@ -1,0 +1,87 @@
+{
+  "e1_floor": {
+    "claim": "Thm 4.3 Floor: sigma(v) >= beta for every constituent",
+    "cuts_below_floor": 0,
+    "min_sigma_over_beta": 1.0009774151802104,
+    "n_cut_checks": 2511,
+    "n_graphs": 300,
+    "pass": true,
+    "sample": [
+      {
+        "floor": 1.8164589836139464,
+        "n_items": 13,
+        "realised_floor": 6.605696305574451
+      },
+      {
+        "floor": 1.0589994762032013,
+        "n_items": 5,
+        "realised_floor": 2.4755083121691746
+      },
+      {
+        "floor": 1.1172153133488538,
+        "n_items": 3,
+        "realised_floor": 2.5445445335303356
+      },
+      {
+        "floor": 0.38577667313822755,
+        "n_items": 9,
+        "realised_floor": 8.000743931341207
+      },
+      {
+        "floor": 0.5259891280556217,
+        "n_items": 12,
+        "realised_floor": 3.6900692857479944
+      }
+    ]
+  },
+  "e2_region": {
+    "claim": "Cor 4.5 / Thm (region): min-cut side is in general not a singleton",
+    "max_side_size": 6,
+    "mean_side_size": 3.885,
+    "n_trials": 200,
+    "non_singleton_fraction": 1.0,
+    "pass": true
+  },
+  "e3_sufficiency": {
+    "claim": "Thm 4.7: sufficiency stops resolution; insufficiency requires acoustic descent",
+    "insufficient_resolved_by_acoustic": 178,
+    "n_insufficient": 178,
+    "n_sufficient": 322,
+    "n_trials": 500,
+    "pass": true,
+    "sufficient_placement_stable": 322
+  },
+  "e4_name_first_economy": {
+    "claim": "Cor 4.8: acoustic invoked exactly on the residual (unnamed or name-colliding)",
+    "n_trials": 400,
+    "pass": true,
+    "sample": [
+      {
+        "expected_residual": 8,
+        "invoked_acoustic": 8,
+        "n": 9
+      },
+      {
+        "expected_residual": 12,
+        "invoked_acoustic": 12,
+        "n": 18
+      },
+      {
+        "expected_residual": 25,
+        "invoked_acoustic": 25,
+        "n": 27
+      },
+      {
+        "expected_residual": 4,
+        "invoked_acoustic": 4,
+        "n": 6
+      },
+      {
+        "expected_residual": 25,
+        "invoked_acoustic": 25,
+        "n": 25
+      }
+    ],
+    "trials_matching_exactly": 400
+  }
+}

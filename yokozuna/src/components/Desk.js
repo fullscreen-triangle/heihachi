@@ -15,11 +15,17 @@ THREE.ColorManagement.enabled = true
 const AudioContext = createContext()
 
 const DEFAULT_PLAYLIST = [
-    { name: 'Noisia - Feed the Machine (BSE)', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3' },
+    { name: 'Black Sun Empire & Noisia - Feed the Machine', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3' },
     { name: 'Konflict - Messiah (Magnetude Remix)', src: '/audio/Konflict-Messiah-Magnetude.mp3' },
     { name: 'Noisia - Stigma (Neosignal Remix)', src: '/audio/Noisia_Stigma(NeosignalRemix).mp3' },
     { name: 'Spor - Running Man', src: '/audio/Spor_RunningMan.mp3' },
     { name: 'Squarepusher - Dark Steering', src: '/audio/Squarepusher_Dark_Steering.mp3' },
+    { name: 'Phace - Farce', src: '/audio/PHACE_FARCE.mp3' },
+    { name: 'Task Horizon - Mekaneck', src: '/audio/TaskHorizon_Mekaneck.mp3' },
+    { name: 'Audio & Mindscape - Jarhead', src: '/audio/audio_mindscape_jarhead.mp3' },
+    { name: 'Audio - Omega', src: '/audio/audio_omega.mp3' },
+    { name: 'Benga - Electro West', src: '/audio/benga_electro_west.mp3' },
+    { name: 'IMANU & Icicle - Preamble', src: '/audio/imanu_icicle_preamble.mp3' },
 ]
 
 function AudioProvider({ children, playlist = DEFAULT_PLAYLIST }) {

@@ -1,0 +1,79 @@
+{
+  "all_pass": true,
+  "categories": {
+    "e10_duality": {
+      "category": "duality_and_complexity",
+      "claim": "Thm 7.3: analysis and synthesis share one symmetric alignment objective",
+      "pass": true
+    },
+    "e11_economy": {
+      "category": "duality_and_complexity",
+      "claim": "Cor 8.5: whole-item cost n*c_sym+r*c_ac < per-track n*c_ac iff nameable frac > c_sym/c_ac",
+      "pass": true
+    },
+    "e11b_alignment_complexity": {
+      "category": "duality_and_complexity",
+      "claim": "Thm 8.4: alignment DP scales ~O(n*N) (quadratic in length)",
+      "pass": true
+    },
+    "e12_worked_example": {
+      "category": "worked_example",
+      "claim": "Sec 9 worked example: end-to-end identification of a degraded whole item",
+      "pass": true
+    },
+    "e1_floor": {
+      "category": "floor_and_lsi",
+      "claim": "Thm 4.3 Floor: sigma(v) >= beta for every constituent",
+      "pass": true
+    },
+    "e2_region": {
+      "category": "floor_and_lsi",
+      "claim": "Cor 4.5 / Thm (region): min-cut side is in general not a singleton",
+      "pass": true
+    },
+    "e3_sufficiency": {
+      "category": "floor_and_lsi",
+      "claim": "Thm 4.7: sufficiency stops resolution; insufficiency requires acoustic descent",
+      "pass": true
+    },
+    "e4_name_first_economy": {
+      "category": "floor_and_lsi",
+      "claim": "Cor 4.8: acoustic invoked exactly on the residual (unnamed or name-colliding)",
+      "pass": true
+    },
+    "e5_signature_invariance": {
+      "category": "signature_identity",
+      "claim": "Thm 5.4: signature pattern invariant under re-encoding; content set not individuating; pattern <=> re-encoding",
+      "pass": true
+    },
+    "e5b_content_cannot_separate": {
+      "category": "signature_identity",
+      "claim": "Thm 5.4(ii): content set conflates items that the signature separates",
+      "pass": true
+    },
+    "e6_context_narrowing": {
+      "category": "signature_identity",
+      "claim": "Prop 5.7: ambiguity set shrinks (non-increasing) with context length",
+      "pass": true
+    },
+    "e7_convergence_only": {
+      "category": "matching",
+      "claim": "Thm 6.6: admissibility is global (cost<=eps*Omega); single positions are absorbed",
+      "pass": true
+    },
+    "e8_partial_recognition_bound": {
+      "category": "matching",
+      "claim": "Cor 6.7: measured admissibility == predicted (misrec fraction <= bound)",
+      "pass": true
+    },
+    "e9_residual_recovery": {
+      "category": "matching",
+      "claim": "Prop 6.10: alignment residual == the positions a sufficient handle failed to place",
+      "pass": true
+    }
+  },
+  "n_experiments": 14,
+  "n_experiments_passed": 14,
+  "runtime_sec": 4.957672199991066,
+  "seed": 20260710
+}

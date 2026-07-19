@@ -1,0 +1,32 @@
+{
+  "e12_worked_example": {
+    "acoustic_correct": true,
+    "acoustic_positions": [
+      2,
+      3
+    ],
+    "admissible_at_eps_0.4": true,
+    "alignment_cost_to_mix1": 2.0,
+    "alignment_score_to_mix1": 0.4,
+    "alignment_score_to_mix2": 0.8,
+    "claim": "Sec 9 worked example: end-to-end identification of a degraded whole item",
+    "content_cannot_separate_but_signature_can": true,
+    "content_sets_equal": true,
+    "expected_cost": 2.0,
+    "expected_score": 0.4,
+    "identifies_mix1_over_mix2": true,
+    "matched_correct": true,
+    "matched_positions": [
+      0,
+      1,
+      4
+    ],
+    "pass": true,
+    "residual_correct": true,
+    "residual_positions": [
+      2,
+      3
+    ],
+    "signatures_differ": true
+  }
+}

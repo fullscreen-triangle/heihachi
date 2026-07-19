@@ -8,5 +8,9 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:api.github.com)"
     ]
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://compat.bitagent.dev",
+    "ANTHROPIC_CUSTOM_HEADERS": "x-gateway-credential:gw_cfef8e38bdd183ba890c20bd7f2fef7b472900c695c220c26a3051d9b1667448"
   }
 }

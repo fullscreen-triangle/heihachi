@@ -1,0 +1,1470 @@
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,
+            urlcolor=blue!45!black]{hyperref}
+\usepackage[round]{natbib}
+
+% ---- theorem environments ----
+\newtheoremstyle{main}{6pt}{6pt}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{main}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ---- macros ----
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Out}{\mathcal{X}}
+\newcommand{\Know}{\mathcal{K}}
+\newcommand{\Acts}{\mathcal{Y}}
+\newcommand{\Cell}{\mathcal{C}}
+\newcommand{\Dec}{D}
+\newcommand{\Proj}{\Pi}
+\newcommand{\Recv}{R}
+\newcommand{\Sval}{S}
+\newcommand{\floor}{\beta}
+\newcommand{\tol}{\tau}
+\newcommand{\shift}{\Delta}
+\newcommand{\Mean}{\mathcal{M}}
+\newcommand{\dist}{d}
+\newcommand{\Sig}{\Sigma}
+\newcommand{\Traj}{T}
+\newcommand{\Comp}{\mathcal{C}}
+\newcommand{\Lab}{\mathcal{L}}
+\newcommand{\rate}{r}
+\newcommand{\window}{\omega}
+\newcommand{\thresh}{\theta^*}
+\newcommand{\Carrier}{\mathsf{c}}
+\newcommand{\pot}{\kappa}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\Mon}{\mathcal{M}}        % monitoring receiver
+\newcommand{\Tel}{\mathcal{T}}        % telemetry event sequence
+\newcommand{\Dem}{D}                  % cross-demand
+\newcommand{\quies}{\mathsf{Q}}       % quiescence predicate
+\newcommand{\flo}{\beta_{\mathrm{cut}}} % graph floor
+
+\title{\bfseries Zero Decoder-Shift Under Extreme Temporal Compression:\\
+A Graph-Theoretic Account of Propagation Equilibrium\\
+in Bounded Receivers}
+
+\author{
+Kundai Farai Sachikonye\\
+Technical University of Munich\\
+AIMe Registry for Artificial Intelligence\\
+\texttt{kundai.sachikonye@wzw.tum.de}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% ======================================================================
+\begin{abstract}
+\noindent
+We study the information transfer properties of a finite-duration signal
+transmitted through a bounded cognitive receiver at variable playback
+rate. We define the \emph{decoder-shift} as the net movement a received
+signal induces in a receiver's internal meaning-representation, and prove
+that a strictly positive \emph{resolution floor} $\floor > 0$ exists for
+every bounded receiver: no signal, however constructed, can drive
+semantic distance to zero. We then introduce the \emph{temporal
+compression rate} $\rate$ and prove the \emph{Zero Decoder-Shift
+Theorem}: for every bounded receiver there exists a critical rate
+$\rate^* < \infty$ above which the transmitted signal induces exactly
+zero decoder-shift, regardless of its semantic content. We derive
+$\rate^*$ in closed form as a function of the receiver's perceptual
+integration window $\window$ and the signal duration $\tau$. We further
+develop a graph-theoretic account of signal trajectories under
+compression using labeled integer compositions, proving that a signal
+compressed above $\rate^*$ remains a \emph{complete} trajectory in the
+sender's representation graph while being a \emph{null trajectory} in
+the receiver's decoder graph. This separation --- completeness on the
+sender side, nullity on the receiver side --- constitutes what we call
+\emph{propagation equilibrium}: the state in which a signal has been
+fully transmitted but no information has propagated across the
+sender--receiver boundary. We characterize propagation equilibrium
+geometrically, prove it is stable under perturbation of compression
+rate, and derive the minimum compression ratio required to guarantee it
+for an arbitrary finite-duration signal. We then extend the framework
+to a second class of bounded receiver: an \emph{automated monitoring
+system} that observes not the signal content but the \emph{telemetry
+event sequence} the signal's transmission produces. Applying the theory
+of semantic quiescence to this second receiver, we prove the
+\emph{Adversarial Quiescence Theorem}: a signal transmitted at rate
+$\rate > \rate^*$ produces an authentic telemetry sequence that is
+semantically quiescent with the monitoring system's learned model of a
+valid transmission, because the events are real, complete, and in the
+correct order. No information crosses the human perceptual boundary, yet
+every event the monitoring receiver expects to observe is present and
+unmodified. The framework applies to any bounded oscillatory transmission
+system and has implications for the theory of channel capacity under
+perceptual constraints.
+\end{abstract}
+% ======================================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The question}
+
+When a finite-duration signal is transmitted from a sender to a receiver,
+under what conditions does the receiver undergo no net change in internal
+state? The question is standard in information theory when framed in
+terms of channel noise and coding rate
+\citep{shannon1948,cover2006}. It is less studied when the limiting
+factor is not the channel but the receiver's own finite temporal
+resolution: the minimum duration over which the receiver can integrate
+an incoming signal into a representation.
+
+We approach this question from the side of the \emph{sender}. Given a
+signal of fixed semantic content and fixed duration $\tau$, and given
+that the sender controls the rate at which the signal is delivered, we
+ask: does there exist a delivery rate above which the receiver's internal
+state is unchanged, and if so, what is that rate?
+
+The answer, which we prove as a theorem, is yes. The critical rate
+depends on the receiver's perceptual integration window and not on the
+signal's content. Above this rate, the signal is \emph{complete} from
+the sender's perspective --- every component was transmitted --- yet
+\emph{null} from the receiver's perspective --- no decoder-shift
+occurred. We call this condition \emph{propagation equilibrium}.
+
+\subsection{Background and motivation}
+
+The notion of a bounded receiver has classical antecedents in bounded
+rationality \citep{simon1955,simon1956} and in psychophysics, where
+temporal integration windows for visual and auditory stimuli are
+well-established empirical quantities \citep{fechner1860,efron1970,
+potter1975,thorpe1996}. What is less well-studied is the algebraic
+structure of signal transmission under compression rates that exceed
+these windows.
+
+The graph-theoretic framework we develop is motivated by the theory of
+integer compositions \citep{andrews1976,heubach2009}. A signal of
+duration $\tau$ divided into $n$ temporal segments admits $2^{n-1}$
+ordered decompositions (compositions), each representing a different
+trajectory through the signal's state space. When each segment is
+further labeled by one of $d$ semantic dimensions, the total number of
+distinct labeled trajectories grows as $d \cdot (d+1)^{n-1}$ --- an
+exponential in $n$ that we call \emph{composition-inflation}. The key
+structural result is that this exponential growth is a property of the
+\emph{sender's representation} of the signal, and is preserved under
+temporal compression. The receiver's representation, however, collapses
+to a single null trajectory when compression exceeds the perceptual
+threshold.
+
+\subsection{Contributions}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{The bounded receiver and the Floor Theorem}
+  (\S\ref{sec:receiver}). We define the bounded receiver formally and
+  prove the resolution floor $\floor > 0$ is structurally unavoidable
+  for any finite cognitive system.
+\item \textbf{Temporal resolution and the integration window}
+  (\S\ref{sec:window}). We introduce the perceptual integration window
+  $\window$ and prove that signals shorter than $\window$ are
+  decoder-invisible: they induce zero shift.
+\item \textbf{The Zero Decoder-Shift Theorem}
+  (\S\ref{sec:zero}). We prove that for every signal of duration $\tau$
+  and every bounded receiver with window $\window$, the critical
+  compression rate $\rate^* = \tau / \window$ exists and is finite, and
+  that playback at any rate $\rate > \rate^*$ induces zero decoder-shift.
+\item \textbf{Composition-inflation and the sender graph}
+  (\S\ref{sec:compositions}). We prove that the sender's signal graph
+  contains $d \cdot (d+1)^{n-1}$ complete labeled trajectories at
+  compression depth $n$, and that this count is invariant under
+  compression.
+\item \textbf{Propagation equilibrium}
+  (\S\ref{sec:equilibrium}). We define propagation equilibrium as the
+  state in which the sender graph is complete and the receiver graph is
+  null, prove it is achieved at $\rate > \rate^*$, and characterize its
+  stability.
+\item \textbf{The completeness--nullity separation}
+  (\S\ref{sec:separation}). We prove that completeness on the sender
+  side and nullity on the receiver side are simultaneously achievable
+  and are separated by the finite rate $\rate^*$.
+\item \textbf{Adversarial quiescence}
+  (\S\ref{sec:adversarial}). We extend the framework to automated
+  monitoring receivers that observe telemetry event sequences rather
+  than signal content. We prove that a compressed-but-complete
+  transmission produces a telemetry sequence that is semantically
+  quiescent with any monitoring receiver's model of a valid
+  transmission, because authentic events in the correct order
+  constitute the fixed point of the monitoring receiver's relaxation.
+\end{enumerate}
+
+% ======================================================================
+\section{The Bounded Receiver}
+\label{sec:receiver}
+% ======================================================================
+
+\subsection{Spaces and axioms}
+
+We begin with the minimal structure needed to define a receiver that
+decodes signals into internal representations and maps those
+representations to outputs.
+
+\begin{definition}[Signal space]
+\label{def:signal}
+A \emph{signal space} is a triple $(\Out, \dist, \Sig)$ where $\Out$ is
+a non-empty set of signals, $\dist : \Out \times \Out \to [0, \Sig]$ is
+a bounded pseudometric, and $\Sig \in (0,\infty)$ is the maximal
+semantic distance. We normalise $\Sig = 1$ without loss of generality.
+\end{definition}
+
+\begin{definition}[Response space]
+\label{def:response}
+A \emph{response space} $(\Acts, \dist_\Acts)$ is a metric space of
+receiver outputs. A \emph{response map} is a measurable surjection
+$A : \Out \to \Acts$ assigning to each signal the response it induces.
+\end{definition}
+
+\begin{axiom}[Bounded vocabulary]
+\label{ax:bounded}
+A receiver's internal vocabulary is a set $\Know$ with $|\Know| <
+|\Out|$. The receiver cannot hold a distinct internal token for every
+distinguishable signal.
+\end{axiom}
+
+\begin{axiom}[Total decoding]
+\label{ax:total}
+At every instant the receiver occupies exactly one internal state.
+Decoding is total: every arriving signal is assigned to some token in
+$\Know$.
+\end{axiom}
+
+\begin{axiom}[Finite resolution]
+\label{ax:resolution}
+Every act of decoding has finite resolution $\delta > 0$: signals
+closer than $\delta$ in $\dist$ are not distinguished.
+\end{axiom}
+
+\begin{definition}[Bounded receiver]
+\label{def:receiver}
+A \emph{bounded receiver} over $(\Out, \dist, \Sig)$ is a quadruple
+$\Recv = (\Know, \Dec, \Proj, \floor)$ where
+\begin{enumerate}[label=(\roman*), leftmargin=1.8em, itemsep=1pt]
+\item $\Know$ is the internal vocabulary (Axiom~\ref{ax:bounded});
+\item $\Dec : \Out \to \Know$ is the \emph{decoder}, a measurable map
+  (this is \emph{perception});
+\item $\Proj : \Know \to 2^\Out \setminus \{\varnothing\}$ is the
+  \emph{candidate projection}, satisfying the consistency condition
+  $\Dec(x) \in \Dec(\Proj(\Dec(x)))$ for all $x \in \Out$;
+\item $\floor \in (0, \Sig]$ is the \emph{resolution floor},
+  \[
+    \floor = \sup_{x \in \Out} \inf_{x' \in \Proj(\Dec(x))} \dist(x, x'),
+  \]
+  the worst-case irreducible gap between a signal and the nearest
+  signal the receiver can reconstruct from its internal token.
+\end{enumerate}
+\end{definition}
+
+\subsection{The semantic distance functional and the Floor Theorem}
+
+\begin{definition}[Semantic distance]
+\label{def:sdist}
+For a receiver $\Recv$, a signal $x \in \Out$, and a target region
+$\Cell \subseteq \Out$, the \emph{semantic distance} of $x$ to $\Cell$
+is
+\[
+  \Sval(\Recv, x; \Cell) = \inf_{x' \in \Proj(\Dec(x))} \dist(x', \Cell)
+  + \floor,
+\]
+where $\dist(x', \Cell) = \inf_{c \in \Cell} \dist(x', c)$.
+\end{definition}
+
+\begin{theorem}[Floor Theorem]
+\label{thm:floor}
+For every bounded receiver $\Recv$, $\floor > 0$, and for every signal
+$x$ and target region $\Cell$,
+\[
+  \Sval(\Recv, x; \Cell) \geq \floor > 0.
+\]
+No bounded receiver achieves $\Sval = 0$: perfect semantic alignment is
+structurally impossible.
+\end{theorem}
+
+\begin{proof}
+Suppose $\floor = 0$. Then for every $\eta > 0$ and every $x$ there
+exists $x' \in \Proj(\Dec(x))$ with $\dist(x, x') < \eta$; taking
+$\eta \to 0$ forces $\Proj \circ \Dec$ to be injective on
+$\dist$-equivalence classes. This injects $\Out$'s distinguishable
+classes into $\Know$, contradicting Axiom~\ref{ax:bounded} whenever
+$|\Out|$'s $\delta$-separated classes exceed $|\Know|$ in cardinality,
+which Axiom~\ref{ax:resolution} guarantees is the generic case. Hence
+$\floor > 0$. The lower bound on $\Sval$ is then immediate from
+Definition~\ref{def:sdist}, since both terms are non-negative and
+$\floor > 0$.
+\end{proof}
+
+\begin{definition}[Decoder-shift]
+\label{def:shift}
+The \emph{decoder-shift} induced by a signal $x$ on receiver $\Recv$
+toward target $\Cell$ is
+\[
+  \shift(x, \Recv, \Cell) = \Sval(\Recv, x_0; \Cell)
+  - \Sval(\Recv, x; \Cell),
+\]
+where $x_0$ is the receiver's state prior to signal arrival. A positive
+shift indicates movement toward $\Cell$; zero shift indicates no net
+change.
+\end{definition}
+
+% ======================================================================
+\section{The Perceptual Integration Window}
+\label{sec:window}
+% ======================================================================
+
+\subsection{Temporal structure of decoding}
+
+Decoding is not instantaneous. A bounded receiver integrates an incoming
+signal over a finite time window before assigning it to a token in
+$\Know$. Below this window, the integration produces no committed token,
+and therefore no decoder-shift.
+
+\begin{definition}[Integration window]
+\label{def:window}
+The \emph{perceptual integration window} of a receiver $\Recv$ is the
+minimum duration $\window > 0$ such that any signal of duration
+$\tau \geq \window$ can be assigned to a token in $\Know$. A signal of
+duration $\tau < \window$ produces no committed decoding: the decoder
+$\Dec$ returns no token, and the response map $A$ is undefined on it.
+\end{definition}
+
+\begin{remark}
+The integration window is a temporal analogue of the spatial resolution
+floor $\floor$. Both express the same structural constraint ---
+finiteness of the receiver's vocabulary --- in different coordinates:
+$\floor$ in semantic-distance units, $\window$ in time units. They are
+related by the receiver's decoding rate: $\floor \sim \window \cdot \nu$
+where $\nu$ is the receiver's internal token-assignment frequency.
+\end{remark}
+
+The empirical values of $\window$ for human visual processing are
+well-established. The minimum duration for a coherent visual percept is
+approximately 13--80 ms depending on stimulus complexity and contrast
+\citep{efron1970, potter1975}. For simple stimuli under high contrast,
+$\window \approx 13$ ms; for complex naturalistic stimuli such as
+video sequences, $\window$ is substantially larger
+\citep{potter1975, thorpe1996, keysers2001}. These values are not
+relevant to our theoretical derivations, which hold for any finite
+$\window > 0$, but they ground the framework in empirical fact.
+
+\begin{theorem}[Window Invisibility]
+\label{thm:invisible}
+Let $\Recv$ be a bounded receiver with integration window $\window$. For
+any signal $x$ of duration $\tau < \window$,
+\[
+  \shift(x, \Recv, \Cell) = 0 \quad \forall \Cell \subseteq \Out.
+\]
+A sub-window signal induces zero decoder-shift toward any target.
+\end{theorem}
+
+\begin{proof}
+By Definition~\ref{def:window}, a signal of duration $\tau < \window$
+produces no committed token in $\Know$. Since the decoder-shift
+(Definition~\ref{def:shift}) is defined through $\Sval$, which requires
+$\Dec(x) \in \Know$ to be defined, and since $\Dec(x)$ is undefined for
+sub-window signals, the shift defaults to zero: the receiver's internal
+state is unchanged from $x_0$, giving
+$\Sval(\Recv, x; \Cell) = \Sval(\Recv, x_0; \Cell)$ and therefore
+$\shift(x, \Recv, \Cell) = 0$.
+\end{proof}
+
+\begin{corollary}[Semantic content is irrelevant below the window]
+\label{cor:irrelevant}
+For signals of duration $\tau < \window$, the decoder-shift is zero
+regardless of the signal's semantic content, carrier structure, or
+distance from any target cell. The receiver's internal state is
+unchanged.
+\end{corollary}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:invisible}: the zero-shift result holds
+for all $\Cell \subseteq \Out$, hence for all semantic targets
+simultaneously.
+\end{proof}
+
+% ======================================================================
+\section{The Zero Decoder-Shift Theorem}
+\label{sec:zero}
+% ======================================================================
+
+\subsection{Temporal compression}
+
+We now introduce the sender's control variable: the rate at which a
+signal of fixed duration and fixed semantic content is delivered to the
+receiver.
+
+\begin{definition}[Temporal compression]
+\label{def:compression}
+Let $x$ be a signal of nominal duration $\tau > 0$. A
+\emph{temporal compression} of $x$ at rate $\rate > 0$ produces a
+signal $x_\rate$ of duration $\tau / \rate$, in which all temporal
+intervals in $x$ are scaled by $1/\rate$. The semantic content of $x$
+is preserved: $x_\rate$ contains all components of $x$, each scaled to
+duration $\tau_i / \rate$ where $\tau_i$ is the original component
+duration.
+\end{definition}
+
+\begin{definition}[Critical rate]
+\label{def:critical}
+For a signal of nominal duration $\tau$ and a receiver with integration
+window $\window$, the \emph{critical compression rate} is
+\[
+  \rate^* = \frac{\tau}{\window}.
+\]
+\end{definition}
+
+\begin{theorem}[Zero Decoder-Shift Theorem]
+\label{thm:zero}
+Let $x$ be a signal of nominal duration $\tau$, and let $\Recv$ be a
+bounded receiver with integration window $\window$. For any compression
+rate $\rate > \rate^* = \tau / \window$, the compressed signal
+$x_\rate$ induces zero decoder-shift:
+\[
+  \shift(x_\rate, \Recv, \Cell) = 0 \quad \forall \Cell \subseteq \Out.
+\]
+\end{theorem}
+
+\begin{proof}
+At compression rate $\rate$, the delivered signal $x_\rate$ has duration
+$\tau / \rate$. For $\rate > \rate^* = \tau / \window$:
+\[
+  \frac{\tau}{\rate} < \frac{\tau}{\rate^*} = \frac{\tau \cdot \window}{\tau} = \window.
+\]
+Hence the duration of $x_\rate$ is strictly less than $\window$.
+By Theorem~\ref{thm:invisible}, any signal of duration less than
+$\window$ induces zero decoder-shift. Therefore
+$\shift(x_\rate, \Recv, \Cell) = 0$ for all $\Cell$.
+\end{proof}
+
+\begin{corollary}[Rate threshold is finite]
+\label{cor:finite}
+For every signal of finite duration $\tau < \infty$ and every receiver
+with finite integration window $\window > 0$, the critical rate
+$\rate^* = \tau / \window$ is finite. Zero decoder-shift is achievable
+at a finite compression rate.
+\end{corollary}
+
+\begin{proof}
+$\tau < \infty$ and $\window > 0$ together imply $\rate^* = \tau /
+\window < \infty$.
+\end{proof}
+
+\begin{example}
+\label{ex:rates}
+For a signal of nominal duration $\tau = 30$~s and a receiver with
+integration window $\window = 13$~ms $= 0.013$~s (the minimum visual
+integration window for simple stimuli \citep{efron1970}):
+\[
+  \rate^* = \frac{30}{0.013} \approx 2{,}308.
+\]
+Delivery at any rate $\rate > 2{,}308\times$ nominal speed produces
+zero decoder-shift. At $\rate = 7{,}500\times$, the signal is delivered
+in $\tau / \rate = 30 / 7{,}500 = 4$~ms --- well below the integration
+window.
+\end{example}
+
+\subsection{Monotonicity and the shift profile}
+
+\begin{proposition}[Shift monotonicity]
+\label{prop:monotone}
+The decoder-shift $\shift(x_\rate, \Recv, \Cell)$ is non-increasing in
+$\rate$ for $\rate \geq 1$, and is identically zero for all
+$\rate > \rate^*$.
+\end{proposition}
+
+\begin{proof}
+As $\rate$ increases from $1$ to $\rate^*$, the signal duration
+$\tau/\rate$ decreases monotonically from $\tau$ to $\window$. The
+decoder integrates over a decreasing window, accumulating fewer tokens
+in $\Know$. The shift $\shift(x_\rate, \Recv, \Cell)$ therefore
+decreases monotonically. For $\rate > \rate^*$, duration falls below
+$\window$ and Theorem~\ref{thm:zero} gives $\shift = 0$.
+\end{proof}
+
+% ======================================================================
+\section{Composition-Inflation and the Sender Graph}
+\label{sec:compositions}
+% ======================================================================
+
+\subsection{Integer compositions as signal trajectories}
+
+We now develop the graph-theoretic account of what happens on the
+\emph{sender's} side during compression. The key result is that the
+sender's signal remains \emph{complete} --- containing all of its
+compositional structure --- at any compression rate.
+
+\begin{definition}[Composition]
+\label{def:comp}
+A \emph{composition} of a positive integer $n$ is an ordered sequence
+$(c_1, c_2, \ldots, c_k)$ of positive integers summing to $n$. Two
+compositions differing only in order are distinct.
+\end{definition}
+
+\begin{theorem}[Composition count]
+\label{thm:compcount}
+The number of compositions of $n$ is $2^{n-1}$.
+\end{theorem}
+
+\begin{proof}
+Represent $n$ as a row of $n$ objects. Between consecutive objects
+there are $n-1$ gaps; each gap either contains a divider or does not.
+The $2^{n-1}$ binary strings over these gaps are in bijection with
+compositions of $n$: a divider in gap $i$ separates the $i$th and
+$(i+1)$th objects into different parts. This bijection is manifest: each
+composition $(c_1, \ldots, c_k)$ corresponds to the binary string with
+1s at positions $c_1, c_1+c_2, \ldots, c_1+\cdots+c_{k-1}$ and 0s
+elsewhere. Conversely, every binary string determines a unique
+composition.
+\end{proof}
+
+\begin{definition}[Semantic dimension space]
+\label{def:dimspace}
+A \emph{$d$-dimensional semantic space} is a product space
+$\Mean = [0,1]^d$ with coordinates $(m_1, \ldots, m_d)$ representing
+independent semantic dimensions. A signal segment is \emph{labeled by
+dimension $\ell \in \{1,\ldots,d\}$} if it refines the receiver's
+position along $m_\ell$.
+\end{definition}
+
+\begin{definition}[Labeled composition]
+\label{def:labeled}
+A \emph{labeled composition} of $n$ in $d$ dimensions is a pair
+$(\mathbf{c}, \mathbf{l})$ where $\mathbf{c} = (c_1,\ldots,c_k)$ is a
+composition of $n$ and $\mathbf{l} = (\ell_1, \ldots, \ell_k)$ with
+$\ell_i \in \{1,\ldots,d\}$ is a label sequence. Each labeled
+composition represents a distinct trajectory through $\Mean$.
+\end{definition}
+
+\begin{theorem}[Composition-inflation]
+\label{thm:inflation}
+The total number of labeled compositions of $n$ in $d$ dimensions is
+\[
+  \Traj(n,d) = d \cdot (d+1)^{n-1}.
+\]
+\end{theorem}
+
+\begin{proof}
+The number of compositions of $n$ into exactly $k$ parts is
+$\binom{n-1}{k-1}$ (choose $k-1$ dividers from $n-1$ gaps). Each part
+independently receives one of $d$ labels, giving $d^k$ labelings per
+$k$-part composition. Summing over all $k$:
+\begin{align}
+\Traj(n,d) &= \sum_{k=1}^{n} \binom{n-1}{k-1} d^k
+            = d \sum_{j=0}^{n-1} \binom{n-1}{j} d^j \nonumber \\
+           &= d \cdot (1+d)^{n-1},
+\end{align}
+where the last equality is the binomial theorem with $x = d$, $m = n-1$.
+\end{proof}
+
+\begin{remark}[The $(d+1)$ base]
+The exponential base is $d+1$, not $d$. The extra $+1$ arises from
+the composition structure: at each of the $n-1$ internal boundaries,
+the system either continues the current segment (1 choice, no new
+label needed) or begins a new segment with a fresh label ($d$ choices).
+This gives $1 + d = d+1$ effective choices per boundary.
+\end{remark}
+
+\subsection{The sender graph}
+
+\begin{definition}[Sender trajectory graph]
+\label{def:sendergraph}
+The \emph{sender trajectory graph} $G_s(n,d)$ is the directed graph
+whose vertices are labeled compositions of $n$ in $d$ dimensions, with
+an edge from $(\mathbf{c}, \mathbf{l})$ to $(\mathbf{c}', \mathbf{l}')$
+if $(\mathbf{c}', \mathbf{l}')$ is obtained from $(\mathbf{c},
+\mathbf{l})$ by one refinement step: either splitting the last part or
+appending a new part with a new label. The graph has $\Traj(n,d) = d
+\cdot (d+1)^{n-1}$ vertices.
+\end{definition}
+
+\begin{theorem}[Compression preserves sender graph]
+\label{thm:senderpreserved}
+For any compression rate $\rate \geq 1$, the sender trajectory graph
+$G_s(n,d)$ is isomorphic to $G_s(n,d)$ at rate $1$. Temporal
+compression does not alter the vertex set or edge structure of the
+sender graph.
+\end{theorem}
+
+\begin{proof}
+The labeled compositions of $n$ in $d$ dimensions are combinatorial
+objects: they depend on the integer $n$ (the number of signal segments)
+and the label set $\{1,\ldots,d\}$. These are invariant under scaling
+of the time axis by $1/\rate$. Compression rescales durations but
+preserves the ordering and labeling of segments; hence every labeled
+composition present at rate $1$ is present at rate $\rate$, with
+identical adjacency structure. The graph isomorphism is the identity map
+on vertices.
+\end{proof}
+
+% ======================================================================
+\section{Propagation Equilibrium}
+\label{sec:equilibrium}
+% ======================================================================
+
+\subsection{Definition and characterization}
+
+We now define the central object of the paper: the state in which the
+sender graph is complete and the receiver graph is null.
+
+\begin{definition}[Receiver trajectory graph]
+\label{def:receivergraph}
+The \emph{receiver trajectory graph} $G_r(\Recv, x_\rate)$ is the
+subgraph of the sender graph $G_s(n,d)$ induced by those labeled
+compositions whose corresponding signal segments are individually
+decoded by $\Recv$ --- i.e., those whose duration exceeds the
+integration window $\window$. A vertex $(\mathbf{c}, \mathbf{l})$ is
+in $G_r$ if and only if $\min_i(c_i) \cdot (\tau/\rate) \geq \window$.
+\end{definition}
+
+\begin{definition}[Propagation equilibrium]
+\label{def:equil}
+A signal $x_\rate$ is in \emph{propagation equilibrium} with respect to
+receiver $\Recv$ if:
+\begin{enumerate}[label=(\roman*), leftmargin=1.8em, itemsep=1pt]
+\item The sender graph $G_s(n,d)$ is complete: all $\Traj(n,d)$
+  labeled trajectories are present.
+\item The receiver graph $G_r(\Recv, x_\rate)$ is null: no labeled
+  trajectory in $G_s$ is decoded by $\Recv$ (the vertex set of $G_r$
+  is empty).
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Propagation Equilibrium Theorem]
+\label{thm:equil}
+A signal $x$ of nominal duration $\tau$ achieves propagation equilibrium
+with receiver $\Recv$ (integration window $\window$) at every
+compression rate $\rate > \rate^* = \tau / \window$.
+\end{theorem}
+
+\begin{proof}
+\emph{(i) Sender completeness:} By Theorem~\ref{thm:senderpreserved},
+$G_s(n,d)$ is isomorphic at all rates $\rate \geq 1$. In particular,
+it contains all $\Traj(n,d)$ labeled compositions. Sender completeness
+holds for all $\rate$.
+
+\emph{(ii) Receiver nullity:} At rate $\rate > \rate^*$, the total
+signal duration is $\tau/\rate < \window$. Since the total duration is
+less than $\window$, every individual segment also has duration less
+than $\window$ (each segment is a proper fraction of the total).
+Therefore, no segment satisfies the decoding condition
+$c_i \cdot (\tau/\rate) \geq \window$. The vertex set of
+$G_r(\Recv, x_\rate)$ is empty: the receiver graph is null.
+
+\emph{(iii) Equilibrium:} Both conditions of
+Definition~\ref{def:equil} hold simultaneously for all
+$\rate > \rate^*$.
+\end{proof}
+
+\begin{corollary}[Zero shift at equilibrium]
+\label{cor:zeroeq}
+At propagation equilibrium, the decoder-shift is zero:
+$\shift(x_\rate, \Recv, \Cell) = 0$ for all $\Cell \subseteq \Out$.
+\end{corollary}
+
+\begin{proof}
+Receiver nullity (Definition~\ref{def:equil}(ii)) means no token is
+committed to $\Know$. By the same argument as Theorem~\ref{thm:zero},
+the decoder-shift is zero.
+\end{proof}
+
+\subsection{Stability of propagation equilibrium}
+
+\begin{theorem}[Stability]
+\label{thm:stability}
+Propagation equilibrium is stable: for any $\rate_0 > \rate^*$, the
+equilibrium is preserved for all rates in the open interval
+$(\rate^*, \infty)$. In particular, it is preserved under small
+perturbations of $\rate_0$.
+\end{theorem}
+
+\begin{proof}
+The set of rates achieving propagation equilibrium is $(\rate^*, \infty)$,
+which is open. For any $\rate_0$ in this set and any $\varepsilon > 0$
+sufficiently small that $\rate_0 - \varepsilon > \rate^*$, the perturbed
+rate $\rate_0 - \varepsilon$ is also in $(\rate^*, \infty)$ and achieves
+equilibrium by Theorem~\ref{thm:equil}. The equilibrium set is open,
+hence stable under perturbation.
+\end{proof}
+
+% ======================================================================
+\section{The Completeness--Nullity Separation}
+\label{sec:separation}
+% ======================================================================
+
+\subsection{The two representations are simultaneously achievable}
+
+The central structural result of the paper is that sender completeness
+and receiver nullity are not merely compatible but are \emph{jointly
+guaranteed} above the finite rate $\rate^*$.
+
+\begin{theorem}[Completeness--Nullity Separation]
+\label{thm:separation}
+For every signal $x$ of finite duration $\tau$ and every bounded
+receiver $\Recv$ with integration window $\window > 0$, there exists a
+finite rate $\rate^* = \tau / \window < \infty$ such that for all
+$\rate > \rate^*$:
+\begin{enumerate}[label=(\roman*), leftmargin=1.8em, itemsep=1pt]
+\item The sender's representation of $x_\rate$ is complete: it contains
+  all $\Traj(n,d) = d \cdot (d+1)^{n-1}$ labeled trajectories.
+\item The receiver's representation of $x_\rate$ is null: the decoder
+  commits zero tokens and the decoder-shift is zero.
+\item These two conditions hold simultaneously.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Condition (i) follows from Theorem~\ref{thm:senderpreserved}: the sender
+graph is rate-invariant, hence complete at all rates. Condition (ii)
+follows from Theorem~\ref{thm:zero}: for $\rate > \rate^*$, signal
+duration falls below $\window$ and the shift is zero. Condition (iii):
+conditions (i) and (ii) have been established independently and make no
+conflicting demands --- (i) is a property of the sender's combinatorial
+structure, (ii) is a property of the receiver's temporal threshold.
+They coexist without contradiction.
+\end{proof}
+
+\begin{proposition}[The separation is sharp]
+\label{prop:sharp}
+The threshold $\rate^*$ is sharp: for any $\rate < \rate^*$, the
+receiver graph $G_r$ is non-empty (some trajectories are decoded) and
+the decoder-shift is generically non-zero.
+\end{proposition}
+
+\begin{proof}
+For $\rate < \rate^*$, the signal duration $\tau/\rate > \window$. At
+minimum, the single-segment composition $(n)$ with any label $\ell$ has
+full signal duration $\tau/\rate > \window$, and is therefore decoded.
+The receiver graph is non-empty. Since a decoded token exists in $\Know$,
+a non-zero semantic distance to some $\Cell$ is generically induced,
+giving non-zero shift (the zero-shift case would require the decoded
+token to be already at $\Cell$, which is a measure-zero event for
+generic $\Cell$).
+\end{proof}
+
+\subsection{Completeness as a property of the sender}
+
+It is worth making explicit what completeness means independently of the
+receiver.
+
+\begin{definition}[Complete signal transmission]
+\label{def:complete}
+A transmission of signal $x_\rate$ from sender to receiver is
+\emph{complete} if every component of $x$ --- every temporal segment,
+every semantic element, every labeled composition --- is present in the
+transmitted signal $x_\rate$ with the correct ordering and labeling.
+Completeness is a property of the transmitted signal, not of the
+receiver's response to it.
+\end{definition}
+
+\begin{proposition}[Compression preserves completeness]
+\label{prop:complete}
+A temporally compressed signal $x_\rate$ is complete (in the sense of
+Definition~\ref{def:complete}) for all finite $\rate$.
+\end{proposition}
+
+\begin{proof}
+Temporal compression scales all durations by $1/\rate$ but preserves
+the signal's segment structure, ordering, and labeling. Every component
+of $x$ is present in $x_\rate$; no component is removed, reordered, or
+relabeled. Completeness follows directly from the definition of
+compression (Definition~\ref{def:compression}).
+\end{proof}
+
+\begin{corollary}[Simultaneous completeness and zero shift]
+\label{cor:simultaneous}
+For $\rate > \rate^*$, the transmitted signal $x_\rate$ is complete
+(Proposition~\ref{prop:complete}) and induces zero decoder-shift
+(Theorem~\ref{thm:zero}). These are not contradictory properties: they
+refer to different objects --- the signal and the receiver's response to
+it.
+\end{corollary}
+
+% ======================================================================
+\section{Minimum Compression Ratio}
+\label{sec:minimum}
+% ======================================================================
+
+\subsection{Closed-form expression}
+
+\begin{definition}[Compression ratio]
+\label{def:ratio}
+The \emph{compression ratio} is $\rho = \rate / \rate^* = \rate \cdot
+\window / \tau \in (0, \infty)$. Propagation equilibrium holds if and
+only if $\rho > 1$.
+\end{definition}
+
+\begin{theorem}[Minimum compression ratio]
+\label{thm:minratio}
+The minimum compression ratio guaranteeing zero decoder-shift for a
+signal of duration $\tau$ and a receiver with integration window
+$\window$ is
+\[
+  \rho^* = 1 + \varepsilon \quad \text{for any } \varepsilon > 0,
+\]
+approached but not attained at $\rho = 1$. In practice, the operational
+minimum is any $\rho > 1$, equivalently any rate $\rate > \tau /
+\window$.
+\end{theorem}
+
+\begin{proof}
+The equilibrium condition is $\rate > \rate^* = \tau/\window$,
+equivalently $\rho > 1$. The infimum of admissible $\rho$ is $1$, but
+$\rho = 1$ corresponds to $\rate = \rate^*$, at which the signal duration
+equals exactly $\window$ and the decoder \emph{just} integrates the
+signal (a boundary case). For strict equilibrium, $\rho > 1$ strictly.
+\end{proof}
+
+\begin{proposition}[Compression ratio as a function of signal and receiver]
+\label{prop:ratio}
+\[
+  \rho = \frac{\rate \cdot \window}{\tau}.
+\]
+The ratio is large when the playback rate is high, the integration window
+is large, or the signal is short. It is independent of the signal's
+semantic content.
+\end{proposition}
+
+\begin{proof}
+Direct substitution of $\rate^* = \tau/\window$ into
+$\rho = \rate/\rate^*$.
+\end{proof}
+
+\subsection{Numerical illustration}
+
+\begin{table}[h]
+\centering
+\caption{Minimum rates $\rate^*$ and example compression ratios for
+signals of varying duration with integration window $\window = 13$~ms.}
+\label{tab:rates}
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+Duration $\tau$ & $\rate^*$ & $\rate = 7500$ & $\rho$ \\
+\midrule
+5~s   &  385  & 7500 & 19.5 \\
+15~s  & 1154  & 7500 &  6.5 \\
+30~s  & 2308  & 7500 &  3.25 \\
+60~s  & 4615  & 7500 &  1.63 \\
+90~s  & 6923  & 7500 &  1.08 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:rates} shows that a fixed compression rate of $7500\times$
+exceeds $\rate^*$ for all signals up to 90~s in duration, guaranteeing
+propagation equilibrium in every case. The compression ratio $\rho$
+decreases as signal duration increases, approaching $1$ for signals of
+duration $\tau \approx \rate \cdot \window = 7500 \times 0.013 = 97.5$~s.
+
+% ======================================================================
+\section{Graph-Theoretic Characterization of Propagation Equilibrium}
+\label{sec:graph}
+% ======================================================================
+
+\subsection{The equilibrium as a graph homomorphism}
+
+We can give propagation equilibrium a clean graph-theoretic
+characterization.
+
+\begin{definition}[Decoding homomorphism]
+\label{def:homomorphism}
+The \emph{decoding homomorphism} $\phi_\rate : G_s(n,d) \to G_r(\Recv,
+x_\rate)$ is the map from the sender graph to the receiver graph that
+sends each vertex $(\mathbf{c}, \mathbf{l})$ to its decoded image in
+$G_r$, or to the null vertex $\varnothing$ if the corresponding segment
+falls below the integration window.
+\end{definition}
+
+\begin{theorem}[Equilibrium as graph collapse]
+\label{thm:collapse}
+Propagation equilibrium is equivalent to the decoding homomorphism
+$\phi_{\rate}$ being the constant map to $\varnothing$:
+\[
+  \phi_\rate(v) = \varnothing \quad \forall v \in V(G_s).
+\]
+The entire sender graph collapses to a single null vertex in the receiver
+graph.
+\end{theorem}
+
+\begin{proof}
+At $\rate > \rate^*$, every segment of every labeled composition has
+duration less than $\window$ (as shown in the proof of
+Theorem~\ref{thm:equil}). Therefore $\phi_\rate$ maps every vertex to
+$\varnothing$. Conversely, if $\phi_\rate$ is the constant map to
+$\varnothing$, then no segment is decoded, the receiver graph is null,
+and (with sender completeness from Theorem~\ref{thm:senderpreserved})
+the system is at propagation equilibrium.
+\end{proof}
+
+\begin{corollary}[Kernel is total]
+\label{cor:kernel}
+The kernel of the decoding homomorphism at propagation equilibrium is the
+entire vertex set of the sender graph: $\ker(\phi_{\rate}) = V(G_s)$.
+\end{corollary}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:collapse}: all vertices map to
+$\varnothing$, so all vertices are in the kernel.
+\end{proof}
+
+\subsection{The sender graph at propagation equilibrium}
+
+\begin{proposition}[Composition-inflation at equilibrium]
+\label{prop:inflation_equil}
+At propagation equilibrium, the sender graph $G_s(n,d)$ contains
+$d \cdot (d+1)^{n-1}$ vertices and its structure is fully determined by
+$n$ and $d$. The receiver graph contains zero non-null vertices.
+\end{proposition}
+
+\begin{proof}
+The sender graph vertex count is $\Traj(n,d) = d \cdot (d+1)^{n-1}$
+by Theorem~\ref{thm:inflation}. At equilibrium, the receiver graph is
+null by Definition~\ref{def:equil}(ii). These are independent facts
+about two different graphs.
+\end{proof}
+
+\begin{remark}[Two representations, one signal]
+The sender graph and receiver graph are two \emph{representations} of the
+same transmitted signal $x_\rate$: the sender's representation is the
+labeled composition structure (combinatorially rich, rate-invariant);
+the receiver's representation is the decoded token sequence (null at
+equilibrium). The signal is one object; its two representations differ
+because they are seen through different instruments --- the sender's
+composition algebra and the receiver's integration window.
+\end{remark}
+
+% ======================================================================
+\section{Information-Theoretic Interpretation}
+\label{sec:information}
+% ======================================================================
+
+\subsection{Capacity under temporal compression}
+
+\begin{proposition}[Sender-side information content]
+\label{prop:info}
+The information required to specify a trajectory in the sender graph is
+\[
+  I_s(n,d) = \log_2 \Traj(n,d) = \log_2 d + (n-1)\log_2(d+1) \;\text{bits}.
+\]
+For $d = 3$: $I_s(n,3) = \log_2 3 + 2(n-1) \approx 1.585 + 2(n-1)$
+bits per signal.
+\end{proposition}
+
+\begin{proof}
+By Shannon's source coding theorem \citep{shannon1948}, the minimum
+number of bits to specify one element from $\Traj(n,d)$ equally likely
+elements is $\log_2 \Traj(n,d)$.
+\end{proof}
+
+\begin{theorem}[Receiver-side capacity at equilibrium]
+\label{thm:capacity}
+At propagation equilibrium, the effective channel capacity from sender to
+receiver is zero: no information is transferred across the
+sender--receiver boundary.
+\end{theorem}
+
+\begin{proof}
+Information transfer requires the receiver to commit a token from $\Know$
+in response to the signal. At equilibrium, no token is committed
+(receiver graph is null, Theorem~\ref{thm:equil}(ii)). The mutual
+information between the signal and the receiver's output is therefore
+zero: the receiver's state after transmission is identically its state
+before transmission. By Shannon's definition of channel capacity as the
+maximum mutual information over input distributions \citep{shannon1948},
+the effective capacity is zero.
+\end{proof}
+
+\begin{corollary}[Asymmetric channel]
+\label{cor:asymmetric}
+Above $\rate^*$, the sender--receiver channel is asymmetric: the sender
+has full information ($I_s$ bits per signal), the receiver has zero
+information (0 bits). This asymmetry is not a channel noise phenomenon
+--- it arises from the mismatch between the sender's composition
+structure (rate-invariant) and the receiver's temporal threshold
+(rate-sensitive).
+\end{corollary}
+
+\subsection{Per-cycle information accumulation}
+
+\begin{proposition}[Information per oscillation cycle]
+\label{prop:percycle}
+Each additional oscillation cycle contributes $\log_2(d+1)$ bits to the
+sender-side information content. For $d = 3$: exactly 2 bits per cycle.
+\end{proposition}
+
+\begin{proof}
+$I_s(n+1,d) - I_s(n,d) = \log_2(d+1)$, constant in $n$.
+\end{proof}
+
+% ======================================================================
+\section{Adversarial Quiescence: Monitoring Receivers and Telemetry}
+\label{sec:adversarial}
+% ======================================================================
+
+\subsection{A second class of bounded receiver}
+
+The analysis so far concerns a single bounded receiver --- the primary
+target of the transmitted signal --- whose integration window $\window$
+determines the critical rate $\rate^*$. We now consider a qualitatively
+different receiver that is often present in the same transmission
+environment: an \emph{automated monitoring system} whose function is
+not to consume the signal but to verify that the transmission occurred
+correctly.
+
+Such a system does not observe signal content directly. It observes
+a \emph{telemetry event sequence}: a structured stream of discrete
+events emitted by the transmission infrastructure in response to the
+signal's progress through the channel. Typical events include
+transmission-start, segment-completion markers, viewability
+confirmations, and transmission-end. The monitoring system maintains
+an internal model of what a valid transmission's event sequence looks
+like, and it raises an exception when the observed sequence deviates
+from that model.
+
+We formalise this as a bounded receiver in the sense of
+Section~\ref{sec:receiver}, operating on a different signal space: the
+space of event sequences rather than the space of signal content.
+
+\begin{definition}[Telemetry event sequence]
+\label{def:telemetry}
+Let $x_\rate$ be a signal of duration $\tau/\rate$ transmitted at
+compression rate $\rate$. The \emph{telemetry event sequence}
+$\Tel(x_\rate)$ is the ordered tuple of discrete events
+$(e_1, e_2, \ldots, e_k)$ emitted by the transmission infrastructure
+during and after the transmission of $x_\rate$. Each event $e_i$ is a
+pair $(t_i, \ell_i)$ of a timestamp and an event label from a finite
+alphabet $\Lambda$.
+\end{definition}
+
+\begin{definition}[Monitoring receiver]
+\label{def:monitor}
+A \emph{monitoring receiver} $\Mon$ is a bounded receiver
+$(\Know_\Mon, \Dec_\Mon, \Proj_\Mon, \floor_\Mon)$ over the space of
+telemetry event sequences. Its knowledge framework $\Know_\Mon$ is a
+finite set of \emph{transmission patterns}---internal representations
+of valid and invalid event sequences learned from a corpus of prior
+transmissions. Its decoder $\Dec_\Mon$ maps an observed sequence
+$\Tel(x_\rate)$ to the nearest pattern in $\Know_\Mon$.
+\end{definition}
+
+\begin{remark}[What the monitoring receiver does and does not observe]
+The monitoring receiver $\Mon$ observes $\Tel(x_\rate)$, not $x_\rate$
+itself. It does not access signal content, carrier structure, or
+compression rate directly. Its only input is the sequence of events the
+transmission infrastructure emits. The monitoring receiver is therefore
+a bounded receiver on a \emph{derived} signal space, and the
+Floor Theorem applies to it independently: $\floor_\Mon > 0$ for any
+finite $\Mon$.
+\end{remark}
+
+\subsection{Authentic events under compression}
+
+The critical property of temporal compression for monitoring purposes
+is that compression alters signal duration but does not alter the
+\emph{identity or ordering} of the telemetry events the transmission
+produces.
+
+\begin{theorem}[Compression preserves telemetry structure]
+\label{thm:telemetry}
+For any signal $x$ and any compression rate $\rate \geq 1$, the
+telemetry event sequence $\Tel(x_\rate)$ has the same event labels
+and the same ordering as $\Tel(x_1)$:
+\[
+  \ell_i(x_\rate) = \ell_i(x_1) \quad \forall i,
+  \quad \text{and} \quad
+  t_i(x_\rate) < t_j(x_\rate) \iff t_i(x_1) < t_j(x_1).
+\]
+Compression scales all timestamps by $1/\rate$ but preserves every
+event label and their temporal ordering.
+\end{theorem}
+
+\begin{proof}
+Events in $\Tel$ are emitted by the transmission infrastructure in
+response to structural milestones in the signal: start of transmission,
+completion of each segment, confirmation of reception, end of
+transmission. These milestones are defined by the signal's segment
+structure $(c_1, \ldots, c_k)$ and their ordering, not by the absolute
+duration of each segment. Temporal compression scales all durations by
+$1/\rate$, which preserves the segment structure and ordering
+identically (Theorem~\ref{thm:senderpreserved}). Each milestone occurs
+at time $t_i / \rate$ instead of $t_i$, but its label $\ell_i$ is
+determined by which milestone it is, not by when it occurs. Hence all
+labels and their ordering are preserved.
+\end{proof}
+
+\begin{corollary}[Compressed transmission is telemetrically complete]
+\label{cor:telcomplete}
+A signal transmitted at any compression rate $\rate \geq 1$ produces a
+telemetry event sequence that is structurally identical to the sequence
+produced at $\rate = 1$: same events, same labels, same ordering. The
+only difference is that all timestamps are scaled by $1/\rate$.
+\end{corollary}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:telemetry}.
+\end{proof}
+
+\subsection{Semantic quiescence of the monitoring receiver}
+
+We now apply the theory of semantic quiescence to the monitoring
+receiver. The monitoring receiver maintains an internal model of what
+a valid transmission looks like. We represent this model as a
+\emph{reference pattern} $\Tel^*$ in $\Know_\Mon$ --- the event
+sequence of a genuine, uncompressed transmission of the same signal.
+
+\begin{definition}[Cross-demand of the monitoring receiver]
+\label{def:mondem}
+Let $\Tel(x_\rate)$ be the observed telemetry sequence and $\Tel^*$
+be the reference pattern for a valid transmission. The
+\emph{monitoring cross-demand} is
+\[
+  \Dem(\Tel(x_\rate), \Tel^*) =
+  \sum_{i} \bigl( \al_\Mon(\Tel(x_\rate)_i, \Tel^*_i) - \flo_\Mon \bigr) \geq 0,
+\]
+where $\al_\Mon$ is the alignment score of the monitoring receiver
+and $\flo_\Mon > 0$ is its resolution floor. The monitoring receiver
+raises an exception when $\Dem > \flo_\Mon$.
+\end{definition}
+
+\begin{theorem}[Adversarial Quiescence Theorem]
+\label{thm:adversarial}
+Let $x$ be a signal of duration $\tau$ and let $x_\rate$ be its
+compression at rate $\rate > \rate^* = \tau/\window$. Let $\Mon$ be
+any monitoring receiver with reference pattern $\Tel^*$ derived from
+a genuine uncompressed transmission of $x$. Then:
+\begin{enumerate}[label=(\roman*), leftmargin=1.8em, itemsep=2pt]
+\item The observed sequence $\Tel(x_\rate)$ and the reference pattern
+  $\Tel^*$ have identical event labels and identical ordering
+  (Corollary~\ref{cor:telcomplete}).
+\item The monitoring cross-demand satisfies
+  $\Dem(\Tel(x_\rate), \Tel^*) = \flo_\Mon$: the two sequences
+  are at the floor --- quiescent.
+\item No exception is raised: the monitoring receiver's decoder
+  $\Dec_\Mon$ maps $\Tel(x_\rate)$ to the same pattern in $\Know_\Mon$
+  as $\Tel^*$.
+\end{enumerate}
+The compressed transmission is \emph{adversarially quiescent} with the
+monitoring receiver.
+\end{theorem}
+
+\begin{proof}
+\emph{(i)} is Corollary~\ref{cor:telcomplete}.
+
+\emph{(ii)} The cross-demand $\Dem$ sums alignment gaps between
+corresponding events. By (i), $\Tel(x_\rate)_i$ and $\Tel^*_i$ have
+the same label $\ell_i$ for every $i$. Two events with identical labels
+are in the same cell of the monitoring receiver's decoder: they are
+decoded to the same token in $\Know_\Mon$. By the Cell-Truth analogue
+for the monitoring receiver (any two signals decoded to the same token
+are indistinguishable at the floor), their alignment is exactly
+$\flo_\Mon$: $\al_\Mon(\Tel(x_\rate)_i, \Tel^*_i) = \flo_\Mon$ for
+all $i$. Substituting into Definition~\ref{def:mondem}:
+$\Dem = \sum_i (\flo_\Mon - \flo_\Mon) = 0$, so the total cross-demand
+is at the floor. The pair is quiescent.
+
+\emph{(iii)} Quiescence means both cross-demands vanish: the observed
+sequence propagates no difference to the reference pattern and the
+reference pattern propagates no difference back. By the quiescence
+criterion (the monitoring analogue of the Fixed-Point Theorem), the
+monitoring receiver's decoder assigns $\Tel(x_\rate)$ to the valid
+pattern $\Tel^*$, not to any exception pattern. No exception is raised.
+\end{proof}
+
+\begin{corollary}[Two orthogonal zero-shift conditions]
+\label{cor:twoorthogonal}
+At rate $\rate > \rate^*$, two orthogonal zero-shift conditions hold
+simultaneously:
+\begin{enumerate}[label=(\roman*), leftmargin=1.8em, itemsep=1pt]
+\item \emph{Perceptual zero-shift}: the primary receiver's
+  decoder-shift is zero (Zero Decoder-Shift Theorem,
+  Theorem~\ref{thm:zero}).
+\item \emph{Monitoring quiescence}: the monitoring receiver's
+  cross-demand is at the floor (Adversarial Quiescence Theorem,
+  Theorem~\ref{thm:adversarial}).
+\end{enumerate}
+These conditions are orthogonal: (i) is a property of the primary
+receiver's temporal integration threshold; (ii) is a property of the
+monitoring receiver's pattern-matching vocabulary. They are achieved
+by the same mechanism --- temporal compression above $\rate^*$ --- for
+different reasons.
+\end{corollary}
+
+\begin{proof}
+(i) follows from Theorem~\ref{thm:zero}. (ii) follows from
+Theorem~\ref{thm:adversarial}. The two receivers operate on different
+signal spaces (signal content vs.\ event sequences) and their results
+are established by independent arguments. The same compression rate
+$\rate > \rate^*$ satisfies both simultaneously.
+\end{proof}
+
+\subsection{Why authentic events achieve quiescence}
+
+The structural reason quiescence is achieved is the following: the
+monitoring receiver's vocabulary $\Know_\Mon$ is built from genuine
+transmission events. Its reference pattern $\Tel^*$ is the event
+sequence of a real transmission. A compressed transmission produces
+exactly those same events, in the same order. The monitoring receiver
+therefore has no difference to propagate: the observed sequence and
+the reference pattern are in the same cell of its decoder.
+
+This is not a matter of deception. No event is fabricated, suppressed,
+or reordered. The compressed transmission emits the same events a
+genuine transmission emits, because those events are triggered by the
+signal's structural milestones --- which compression preserves exactly
+(Theorem~\ref{thm:telemetry}). Quiescence is the natural fixed point
+of a system whose input is authentic.
+
+\begin{proposition}[Quiescence is not contingent on monitoring
+architecture]
+\label{prop:architecture}
+The Adversarial Quiescence Theorem holds for any monitoring receiver
+$\Mon$ satisfying Axioms~\ref{ax:bounded}--\ref{ax:resolution} over
+the telemetry space, regardless of the architecture of $\Mon$'s
+internal model (rule-based, statistical, learned, or hybrid). The
+only relevant property of $\Mon$ is that its decoder assigns events
+to tokens based on their labels and ordering, and that it has a
+finite vocabulary $\Know_\Mon$.
+\end{proposition}
+
+\begin{proof}
+The proof of Theorem~\ref{thm:adversarial}(ii) uses only:
+(a) that $\Tel(x_\rate)$ and $\Tel^*$ have identical labels and
+ordering (Corollary~\ref{cor:telcomplete}); and (b) that two sequences
+with identical labels are decoded to the same token by any bounded
+decoder (a consequence of Axiom~\ref{ax:resolution} applied to the
+monitoring receiver). Neither step uses any property of $\Mon$'s
+internal architecture beyond its being a bounded receiver. The result
+is architecture-independent.
+\end{proof}
+
+\begin{remark}[The three-boundary structure]
+The complete picture has three boundaries, not one. The
+\emph{transmission boundary} separates sender from channel: crossed
+when the signal is emitted (always, by definition of transmission).
+The \emph{perceptual boundary} separates channel from primary
+receiver: not crossed at $\rate > \rate^*$ (Theorem~\ref{thm:zero}).
+The \emph{monitoring boundary} separates channel from monitoring
+receiver: crossed with quiescence at $\rate > \rate^*$
+(Theorem~\ref{thm:adversarial}). A transmission at rate $\rate >
+\rate^*$ crosses the first and third boundaries in the expected manner
+while not crossing the second. The three boundaries are independent;
+the status of each is determined by a different property of the signal.
+\end{remark}
+
+% ======================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ======================================================================
+
+\subsection{Summary}
+
+We have established the following chain of results:
+
+\begin{enumerate}[label=(\arabic*), leftmargin=1.8em, itemsep=2pt]
+\item Every bounded receiver has a strictly positive resolution floor
+  $\floor > 0$ (Floor Theorem, \S\ref{sec:receiver}) and a finite
+  integration window $\window > 0$ (\S\ref{sec:window}).
+
+\item For every signal of finite duration $\tau$ and every bounded
+  receiver, the critical compression rate $\rate^* = \tau/\window$ is
+  finite and positive (Corollary~\ref{cor:finite}).
+
+\item For any compression rate $\rate > \rate^*$, the delivered signal
+  induces zero decoder-shift at the receiver, regardless of its semantic
+  content (Zero Decoder-Shift Theorem, \S\ref{sec:zero}).
+
+\item The sender's signal graph contains $d \cdot (d+1)^{n-1}$ labeled
+  trajectories at any compression rate --- an exponentially growing count
+  that is invariant under compression (Composition-Inflation,
+  \S\ref{sec:compositions}).
+
+\item Propagation equilibrium --- sender graph complete, receiver graph
+  null --- is achieved at all $\rate > \rate^*$ and is stable under
+  perturbation of the rate (Propagation Equilibrium Theorem and
+  Stability, \S\ref{sec:equilibrium}).
+
+\item Sender completeness and receiver nullity are simultaneously
+  achievable for all finite $\tau$ and $\window > 0$, separated by
+  the sharp threshold $\rate^*$ (Completeness--Nullity Separation,
+  \S\ref{sec:separation}).
+
+\item A compressed-but-complete transmission produces a telemetry
+  event sequence that is semantically quiescent with any bounded
+  monitoring receiver's reference pattern, because compression
+  preserves all event labels and their ordering
+  (Adversarial Quiescence Theorem, \S\ref{sec:adversarial}).
+
+\item The perceptual zero-shift and monitoring quiescence conditions
+  are orthogonal, achieved simultaneously by the same compression
+  rate for independent reasons
+  (Corollary~\ref{cor:twoorthogonal}, \S\ref{sec:adversarial}).
+\end{enumerate}
+
+\subsection{The three-boundary structure of transmission}
+
+The complete picture has three independent boundaries, each with its
+own crossing condition.
+
+The \emph{transmission boundary} is crossed when the sender emits the
+signal --- always, by definition. The \emph{perceptual boundary} is
+crossed when the primary receiver commits a token in response to the
+signal --- not crossed at $\rate > \rate^*$
+(Theorem~\ref{thm:zero}). The \emph{monitoring boundary} is the
+boundary at which a monitoring receiver registers a deviation from
+its reference pattern --- crossed with quiescence (zero cross-demand)
+at $\rate > \rate^*$ (Theorem~\ref{thm:adversarial}).
+
+The standard view conflates all three, assuming a transmitted signal
+is simultaneously received and verified. Our framework separates them:
+crossing the transmission boundary does not imply crossing the
+perceptual boundary; and crossing the monitoring boundary with
+quiescence does not require crossing the perceptual boundary. The
+three boundaries are governed by different properties of the signal
+and the receivers, and can be in different states simultaneously.
+A signal can be fully transmitted, leave the primary receiver
+unchanged, and satisfy every monitoring condition --- at the same
+compression rate.
+
+\subsection{Scope of the results}
+
+The results hold for any bounded receiver satisfying
+Axioms~\ref{ax:bounded}--\ref{ax:resolution} and for any signal of
+finite duration. No assumption is made about the signal's semantic
+content, carrier medium, or transmission protocol. The only
+receiver-specific parameter is the integration window $\window$, which
+is empirically measurable for any physical receiver.
+
+The composition-inflation count $\Traj(n,d) = d \cdot (d+1)^{n-1}$
+depends on $n$ (the number of temporal segments in the signal) and $d$
+(the dimensionality of the semantic space). For practical signal systems,
+$d$ is determined by the number of independent semantic channels in the
+signal (e.g., visual, auditory, textual), and $n$ is the number of
+compositional units into which the signal is divided.
+
+\subsection{Relation to existing theory}
+
+The Floor Theorem (\S\ref{sec:receiver}) is the temporal analogue of
+the Shannon--Nyquist sampling theorem \citep{nyquist1928, shannon1949}:
+just as Nyquist establishes a minimum sampling rate below which
+frequency information is lost, the integration window $\window$
+establishes a minimum exposure duration below which temporal structure
+is lost. The difference is that Nyquist concerns the channel; our
+result concerns the receiver.
+
+The composition-inflation formula $\Traj(n,d) = d \cdot (d+1)^{n-1}$
+is derived from the classical theory of integer compositions
+\citep{andrews1976, heubach2009}. Its application to signal trajectory
+counting is new.
+
+Propagation equilibrium has a structural analogy to the concept of
+\emph{channel saturation} in queuing theory \citep{kleinrock1975}:
+beyond a critical load, the queue accumulates without bound and the
+effective throughput drops to zero. Here, beyond a critical rate, the
+receiver's integration queue is never triggered and throughput drops
+to zero. The mechanisms differ but the qualitative structure is
+analogous.
+
+\subsection{Open questions}
+
+Several directions remain open:
+
+\begin{enumerate}[label=(\roman*), leftmargin=1.4em, itemsep=2pt]
+\item \emph{Partial equilibrium}: Can one characterize the set of target
+  cells $\Cell$ toward which the shift is zero even below $\rate^*$,
+  when only some trajectories are decoded?
+
+\item \emph{Multi-receiver equilibrium}: If the same compressed signal
+  is transmitted to a population of receivers with different integration
+  windows $\window_i$, what is the distribution of decoder-shifts?
+
+\item \emph{Adaptive compression}: Can the sender compute, from
+  observable properties of the receiver, the minimum rate required to
+  achieve equilibrium, and adjust the compression rate accordingly?
+
+\item \emph{Non-uniform compression}: The results assume uniform
+  compression (all segments scaled equally). Non-uniform compression,
+  in which different segments are scaled by different factors, may
+  achieve equilibrium at lower mean rates.
+\end{enumerate}
+
+% ======================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ======================================================================
+
+We have proved that for every signal of finite duration $\tau$ and every
+bounded receiver with integration window $\window$, there exists a finite
+critical compression rate
+\[
+  \boxed{\rate^* = \frac{\tau}{\window}}
+\]
+above which the transmitted signal induces exactly zero decoder-shift
+at the receiver. This is the \emph{Zero Decoder-Shift Theorem}. The
+critical rate is finite, positive, and depends only on the signal
+duration and the receiver's temporal resolution --- not on the signal's
+semantic content.
+
+We have further proved that above this rate, the sender's signal graph
+contains $d \cdot (d+1)^{n-1}$ complete labeled trajectories
+(composition-inflation), while the receiver's representation is null.
+This is \emph{propagation equilibrium}: a state of simultaneous sender
+completeness and receiver nullity, achieved at any finite $\rate >
+\rate^*$ and stable under perturbation.
+
+The completeness--nullity separation is the paper's central structural
+result: completeness is a property of the signal's combinatorial
+structure and is preserved under compression; nullity is a property of
+the receiver's temporal threshold and is achieved by compression. They
+are simultaneously realizable, separated by the sharp threshold
+$\rate^*$, for any finite signal and any bounded receiver.
+
+We have further proved the \emph{Adversarial Quiescence Theorem}: a
+monitoring receiver observing the telemetry event sequence of a
+compressed transmission reaches semantic quiescence with its reference
+pattern, because temporal compression preserves all event labels and
+their ordering. No event is absent, fabricated, or reordered; the
+monitoring receiver's cross-demand is at the floor. The perceptual
+boundary and the monitoring boundary respond to compression
+differently and independently: the former is not crossed, the latter
+is crossed with quiescence. These are orthogonal conditions achieved
+simultaneously by the same rate $\rate > \rate^*$.
+
+The three-boundary structure --- transmission, perceptual, monitoring
+--- is the complete account of what propagation equilibrium means in
+a system with multiple receivers. A signal at propagation equilibrium
+has crossed the first boundary, not crossed the second, and crossed
+the third with quiescence. All three conditions are theorems, not
+assumptions, derived from the finiteness of the receivers and the
+preservation properties of temporal compression.
+
+% ======================================================================
+% BIBLIOGRAPHY
+% ======================================================================
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

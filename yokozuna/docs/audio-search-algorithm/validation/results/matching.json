@@ -1,0 +1,115 @@
+{
+  "e7_convergence_only": {
+    "claim": "Thm 6.6: admissibility is global (cost<=eps*Omega); single positions are absorbed",
+    "global_criterion_holds": 400,
+    "n_trials": 400,
+    "pass": true,
+    "single_position_absorbed": 400
+  },
+  "e8_partial_recognition_bound": {
+    "agreement": 600,
+    "claim": "Cor 6.7: measured admissibility == predicted (misrec fraction <= bound)",
+    "n_trials": 600,
+    "pass": true,
+    "sample": [
+      {
+        "eps": 0.21772408334477367,
+        "measured": false,
+        "n": 34,
+        "n_wrong": 32,
+        "predicted": false,
+        "score": 0.8529411764705882
+      },
+      {
+        "eps": 0.4043961625367038,
+        "measured": true,
+        "n": 31,
+        "n_wrong": 12,
+        "predicted": true,
+        "score": 0.3870967741935484
+      },
+      {
+        "eps": 0.10419832066268216,
+        "measured": false,
+        "n": 17,
+        "n_wrong": 3,
+        "predicted": false,
+        "score": 0.17647058823529413
+      },
+      {
+        "eps": 0.09890699082969645,
+        "measured": false,
+        "n": 29,
+        "n_wrong": 22,
+        "predicted": false,
+        "score": 0.7586206896551724
+      },
+      {
+        "eps": 0.4900425852147144,
+        "measured": true,
+        "n": 20,
+        "n_wrong": 1,
+        "predicted": true,
+        "score": 0.05
+      },
+      {
+        "eps": 0.3651657608709713,
+        "measured": false,
+        "n": 19,
+        "n_wrong": 14,
+        "predicted": false,
+        "score": 0.6842105263157895
+      }
+    ]
+  },
+  "e9_residual_recovery": {
+    "claim": "Prop 6.10: alignment residual == the positions a sufficient handle failed to place",
+    "exact_residual_recovery": 400,
+    "n_trials": 400,
+    "pass": true,
+    "sample": [
+      {
+        "accounts_for_wrong": true,
+        "n": 23,
+        "n_wrong": 4,
+        "position_exact": true,
+        "residual_recovered": 4
+      },
+      {
+        "accounts_for_wrong": true,
+        "n": 14,
+        "n_wrong": 0,
+        "position_exact": true,
+        "residual_recovered": 0
+      },
+      {
+        "accounts_for_wrong": true,
+        "n": 14,
+        "n_wrong": 3,
+        "position_exact": true,
+        "residual_recovered": 3
+      },
+      {
+        "accounts_for_wrong": true,
+        "n": 19,
+        "n_wrong": 8,
+        "position_exact": true,
+        "residual_recovered": 8
+      },
+      {
+        "accounts_for_wrong": true,
+        "n": 11,
+        "n_wrong": 2,
+        "position_exact": true,
+        "residual_recovered": 2
+      },
+      {
+        "accounts_for_wrong": true,
+        "n": 9,
+        "n_wrong": 4,
+        "position_exact": true,
+        "residual_recovered": 4
+      }
+    ]
+  }
+}

@@ -1,0 +1,1539 @@
+% =====================================================================
+%  The Causal Propagation Table
+%  Individuation, Contact, and the Accountable Cut in Finite
+%  Weighted Graphs
+%
+%  Self-contained. Every object is a finite weighted graph or a
+%  construction on one. No external framework assumed.
+% =====================================================================
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+\crefname{axiom}{Axiom}{Axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\V}{V}
+\newcommand{\E}{E}
+\newcommand{\wt}{w}
+\newcommand{\med}{\mathsf{m}}            % medium vertex
+\newcommand{\flo}{\beta}                 % floor
+\newcommand{\cut}{\partial}              % edge boundary / cut
+\newcommand{\co}{\complement}
+\newcommand{\Walk}{W}
+\newcommand{\rec}{M}                     % committed record / count
+\newcommand{\res}{\rho}                  % residue
+\newcommand{\str}{\sigma}                % separation cost
+\newcommand{\acc}{\mathcal{A}}           % accountable set
+\newcommand{\Rep}{\mathsf{R}}            % representation
+\newcommand{\Proc}{\Pi}                  % process graph
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\eps}{\varepsilon}
+
+\title{\textbf{The Causal Propagation Table:\\[3pt]
+Individuation, Contact, and the Accountable Cut\\
+in Finite Weighted Graphs}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+We construct, entirely within the language of finite weighted graphs, a
+system in which the act of telling one thing from another---%
+\emph{individuation}---is a single, costly, one-use cut, and in which
+every physical-seeming notion (identity, time, causation, measurement,
+reaction, equilibrium) is a property of cuts and their propagation. The
+development rests on one premise, itself derived rather than posited: in a
+finite weighted graph whose vertices are the parts individuated within a
+whole, every cut separating a part from the rest has weight bounded below
+by a strictly positive \emph{floor} $\flo>0$, because identifying a part
+is comparing it against a non-completable complement and that comparison
+never closes. From the floor we prove, as graph theorems: that a part is
+fixed only by its complement (individuation by negation admits no
+selector without regress); that the \emph{identity} of a part is not a
+vertex label but the invariant minimum-cut value that survives every
+relabelling, hence a region and never a point; that the residue of each
+cut is the unique edge that makes the next cut possible, so that a
+\emph{causal chain} is a walk whose committed-edge count is monotone and
+never returns; and that a measurement and a reaction are the \emph{same}
+graph operation---a contact edge propagating uncertainty---differing only
+in which endpoint is read as instrument, a free labelling of a symmetric
+link. We then define the central object, the \emph{causal propagation
+table}: a map that takes a designated item vertex, a set of input
+vertices, and a process graph, and returns the set of all
+\emph{accountable propagations}---walks from input to output whose
+composed cut-residue converges, in a bounded $[0,1]$ alignment functional,
+to the observed output. We prove the system's three structural freedoms:
+\textbf{representation mobility} (the same item admits equivalent
+decompositions related by an averaging constraint, so a propagation may
+change representation between steps), \textbf{path opacity} (propagations
+sharing an endpoint are indistinguishable by any invariant computed at the
+endpoint, so the interior path is free), and \textbf{convergence
+admissibility} (a propagation is admissible iff it converges to the
+output; locally arbitrary, even ``impossible,'' intermediate steps are
+permitted, and rejection is only on non-convergence). The output of the
+table is shown to be the same kind of object as a cell of the periodic
+catalogue of resting items: the catalogue is the table evaluated at the
+resting contact, and the table is the catalogue under propagation. We
+close by formalising the system's emblem, the single precise cut that can
+be made once and dulls the cutter: a cut is a one-use committed edge whose
+residue is deposited into the cutter as much as the cut, so no instrument
+cuts cleanly and stays sharp---the perfect repeatable traceless cut is
+exactly the $\flo=0$ object the floor forbids. Every claim is a theorem
+about finite weighted graphs; all interpretation is confined to remarks on
+which no theorem depends.
+\end{abstract}
+
+\noindent\textbf{Keywords:} finite weighted graph; minimum cut;
+individuation by negation; contact floor; causal residue; monotone walk;
+path opacity; convergence; representation mobility; accountable
+propagation; one-use cut.
+
+\tableofcontents
+
+% =====================================================================
+\part{Foundations}
+% =====================================================================
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question and the method}
+
+We ask one question and answer it once: what must hold for a process---a
+reaction, a measurement, any sequence of physical happenings---to track an
+item from input to output, and what is the output it produces? The answer
+we develop is that a process is the propagation of a single repeated
+operation, the \emph{cut} that individuates an item from everything else,
+and that the output of tracking an item through a process is the same kind
+of object as the entry one would write for that item in a catalogue of
+resting items.
+
+The method is deliberately austere: every object in the paper is a finite
+weighted graph or a construction on one. We use no metric space, no
+measure, no probability except as a derived normalisation, and no physical
+primitive. The reason is to leave nothing undefined. When we say ``the
+identity of an item,'' we mean a specific invariant of a specific graph;
+when we say ``a measurement,'' we mean a specific edge; when we say
+``causation,'' we mean a specific relation between edges. A reader who
+grants only the existence of finite weighted graphs can check every claim.
+
+\subsection{What the paper builds}
+
+The development has four movements.
+
+\emph{Foundations} (Part~I). We fix the contact graph---a finite weighted
+graph of individuated parts---and prove that it carries a strictly
+positive floor on every cut, that the floor is forced rather than assumed,
+that parts are individuated only by negation, and that the identity of a
+part is the invariant minimum cut, a region never collapsing to a point.
+
+\emph{Propagation} (Part~II). We prove that the residue of each cut is the
+edge that enables the next, so that processes are monotone non-returning
+walks; that measurement and reaction are the same symmetric contact
+operation; and that the count of committed cuts is the system's time.
+
+\emph{The table} (Part~III). We define the causal propagation table and
+prove its three freedoms---representation mobility, path opacity, and
+convergence admissibility---culminating in the statement that the
+output of the table is a catalogue cell, and that the resting catalogue
+(the periodic system) is the table evaluated at rest.
+
+\emph{The cut} (Part~IV). We formalise the system's emblem: the single
+precise cut is one-use and self-blunting, and the perfect repeatable cut
+is the forbidden $\flo=0$ object. We close with the master equivalence
+tying the whole system to the single fact $\flo>0$.
+
+\subsection{The single fact}
+
+Everything below is a consequence of one inequality:
+\[
+\boxed{\ \flo>0\ }
+\]
+the floor on the cost of a cut. We first derive it (\Cref{sec:floor}),
+then read off the system it forces. The interpretive content---that
+$\flo>0$ is why anything is distinct, why processes have a direction, why
+no measurement is perfect, and why there is anything to know at all---is
+stated in remarks and never used in a proof.
+
+% =====================================================================
+\section{The contact graph}
+\label{sec:graph}
+% =====================================================================
+
+\subsection{Graphs, cuts, and the medium}
+
+\begin{definition}[Finite weighted graph]
+\label{def:graph}
+A \emph{finite weighted graph} is a triple $\Gph=(\V,\E,\wt)$ with $\V$ a
+finite non-empty vertex set, $\E\subseteq\binom{\V}{2}$ an undirected edge
+set, and $\wt\colon\E\to\R_{>0}$ a strictly positive weight. We assume
+$\Gph$ connected unless stated. The \emph{order} is $\abs{\V}$.
+\end{definition}
+
+\begin{definition}[Cut and cut weight]
+\label{def:cut}
+For $\varnothing\neq S\subsetneq\V$ the \emph{cut} is
+$\cut(S)=\{\,e=\{u,v\}\in\E:u\in S,\ v\notin S\,\}$, and its weight is
+$\wt(\cut(S))=\sum_{e\in\cut(S)}\wt(e)$. For two disjoint vertex sets
+$S,T$ we write $\cut(S,T)$ for the edges with one end in each.
+\end{definition}
+
+\begin{definition}[Contact graph and medium]
+\label{def:contact-graph}
+A \emph{contact graph} is a finite weighted graph $\Gph$ together with a
+distinguished vertex $\med\in\V$, the \emph{medium}, adjacent to every
+other vertex: $\{v,\med\}\in\E$ for all $v\neq\med$. The vertices
+$v\neq\med$ are the \emph{items}; an edge $\{u,v\}$ between two items is a
+\emph{contact}, and its weight $\wt(\{u,v\})$ is the cost of the
+separation distinguishing $u$ from $v$.
+\end{definition}
+
+\begin{remark}[The medium is the rest of the whole, not a background]
+\label{rem:medium}
+The medium $\med$ is not a spatial container; it is the single vertex
+standing for ``everything else,'' against which each item is told apart.
+That it is adjacent to every item encodes that every item is, at minimum,
+individuated against the whole. No theorem uses any reading of $\med$
+beyond \Cref{def:contact-graph}.
+\end{remark}
+
+\subsection{Separation cost}
+
+\begin{definition}[Separation cost of an item]
+\label{def:sepcost}
+The \emph{separation cost} of item $v$ is the minimum weight of a cut
+placing $v$ on one side and the medium on the other,
+\[
+\str(v)=\min_{\substack{S\ni v\\ \med\notin S}}\wt(\cut(S)).
+\]
+The minimising side $S^{\ast}(v)$ exists and the minimising cut
+$\cut(S^{\ast}(v))$ is the \emph{minimum cut} of $v$ against $\med$
+(finite $\V$, so the minimum is attained; this is the $s$--$t$ minimum cut
+with $s=v$, $t=\med$, computable by max-flow~\citep{fordfulkerson1956,%
+mengertheorem}).
+\end{definition}
+
+% =====================================================================
+\section{The floor, derived}
+\label{sec:floor}
+% =====================================================================
+
+We show the central constant is not an assumption but a consequence of two
+facts: an item is a proper part, and the whole is non-completable.
+
+\subsection{Non-completability}
+
+\begin{definition}[Expanding family; non-completable whole]
+\label{def:noncompletable}
+An \emph{expanding family} is a sequence of contact graphs
+$\Gph_0\subseteq\Gph_1\subseteq\Gph_2\subseteq\cdots$, each obtained from
+the last by adding vertices and edges (of weight $\ge\flo$ as fixed below)
+while retaining the medium and all prior vertices and edges. The whole is
+\emph{non-completable} if the family has no terminal stage: for every
+finite $\Gph_k$ there is a $\Gph_{k+1}\supsetneq\Gph_k$. This is an order
+condition (no last stage), not a cardinality assumption.
+\end{definition}
+
+\begin{definition}[Identification and its residual]
+\label{def:identification}
+To \emph{identify} item $v$ in $\Gph_k$ is to determine $v$ by its cut
+against the medium, $\cut(S^{\ast}(v))$. The identification is
+\emph{complete} if every item of the whole has been brought to bear in the
+cut---i.e.\ the cut is taken in a graph that contains the whole. The
+\emph{identification residual} $\res(v)$ is the weight of the cut content
+that a complete identification would remove but a finite-stage
+identification cannot; $\res(v)=0$ iff identification is complete.
+\end{definition}
+
+\subsection{Floor from non-completability}
+
+\begin{theorem}[Floor from infinitude]
+\label{thm:floor-derived}
+Let the whole be non-completable and let $v$ be an item (a proper part:
+$v\neq\med$, and $v$ does not exhaust $\V$). Then the identification of $v$
+cannot be completed at any finite stage, and its residual is strictly
+positive: $\res(v)>0$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\res(v)=0$, i.e.\ identification of $v$ is complete at some
+finite stage $\Gph_k$. By \Cref{def:identification} completeness means
+every item of the whole has entered the cut of $v$ against $\med$; that
+is, the cut is computed in a graph containing the whole. But then
+$\Gph_k$ contains the whole, contradicting non-completability
+(\Cref{def:noncompletable}), which guarantees a further stage
+$\Gph_{k+1}\supsetneq\Gph_k$ with an item not in $\Gph_k$, hence not yet
+brought to bear. Therefore no finite stage completes the identification,
+and $\res(v)>0$.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1_floor.png}
+    \caption{\textbf{The Floor: Minimum Cuts over Random Contact Graphs.}
+    (\textbf{A})~Three-dimensional scatter of $400$ random contact graphs in (number of items, minimum-cut cost, cut-side size) space, points coloured by cut cost (viridis), with the floor plane at cost $\beta$ drawn in red. Every point lies on or above the floor plane: no item is separated from the medium for less than $\beta$ (Theorem~\ref{thm:floor}).
+    (\textbf{B})~Distribution of the exact minimum-cut costs (\texttt{networkx} max-flow) across the $400$ graphs, with the floor $\beta$ marked (red dashed). No mass falls below $\beta$, the absence of any sharp cut (Corollary~\ref{cor:no-sharp}).
+    (\textbf{C})~Minimum-cut cost versus number of items (jittered) for all graphs; the entire cloud sits above the floor line $\beta$ (red dashed) independently of graph order, confirming the bound holds at every size.
+    (\textbf{D})~Survival curve: the fraction of cuts with cost at least a given threshold, dropping from one only after the threshold passes $\beta$ (red dashed). The fraction at or above $\beta$ is unity---every one of the $300$ validated cuts clears the floor.}
+    \label{fig:panel_floor}
+\end{figure*}
+
+\begin{theorem}[Positive floor]
+\label{thm:floor}
+There is a constant $\flo>0$ with $\wt(e)\ge\flo$ for every edge and
+$\str(v)\ge\flo$ for every item: no two adjacent vertices are separated at
+zero cost, and no item is individuated for free.
+\end{theorem}
+
+\begin{proof}
+Set $\flo:=\inf_v\res(v)$. By \Cref{thm:floor-derived} each $\res(v)>0$;
+the residual is the irreducible boundary content of $v$'s individuation,
+which is carried by the edges of $v$'s minimum cut, so each such edge has
+weight at least the per-item residual and hence at least $\flo$. As every
+edge is the boundary edge of some item's individuation (every edge
+$\{u,v\}$ is in $\cut(\{u\})$), every weight is $\ge\flo$. Connectivity
+forces $\cut(S^{\ast}(v))\neq\varnothing$ (at least one edge crosses any
+$v$--$\med$ separation), so
+$\str(v)=\wt(\cut(S^{\ast}(v)))\ge\flo>0$.
+\end{proof}
+
+\begin{corollary}[No sharp cut]
+\label{cor:no-sharp}
+There is no cut of weight $0$ separating a connected contact graph into a
+nonempty item set and its nonempty complement. Every individuation
+deposits weight $\ge\flo$.
+\end{corollary}
+
+\begin{remark}[The floor is the trace of the whole on its parts]
+\label{rem:trace}
+\Cref{thm:floor-derived,thm:floor} make $\flo$ a derived quantity: it is
+the residual the non-completable whole forces on every finite part.
+A completable whole would permit $\res(v)=0$, hence $\flo=0$, hence sharp
+cuts and point-identities; the impossibility of completing the comparison
+is exactly what makes the floor positive. We return to this as the master
+equivalence (\Cref{sec:master}). No later theorem assumes $\flo$; each
+uses only its positivity.
+\end{remark}
+
+% =====================================================================
+\section{Individuation by negation}
+\label{sec:negation}
+% =====================================================================
+
+\subsection{No privileged vertex}
+
+\begin{definition}[Selector; selector-free determination]
+\label{def:selector}
+A \emph{selector} for an item set $U\subseteq\V$ is a rule fixing $U$ by
+naming a distinguished vertex of $U$ in advance. A determination of $U$ is
+\emph{selector-free} if it names no vertex of $U$. The graph has \emph{no
+privileged vertex} if the data presented to a determining rule are
+invariant under the weighted automorphism group $\operatorname{Aut}(\Gph)$,
+so no vertex is singled out by the data alone.
+\end{definition}
+
+\begin{theorem}[Individuation by negation]
+\label{thm:negation}
+In a contact graph with no privileged vertex, any selector-free
+determination of an item set $U$ fixes $U$ as the complement of its
+negation set, $U=\V\setminus\co U$ with $\co U:=\V\setminus U$ specified
+first; and conversely every admissible $\co U$ determines a unique $U$. No
+selector-based rule fixes $U$ without invoking a further selector.
+\end{theorem}
+
+\begin{proof}
+\emph{Necessity.} To fix $U$ is to decide membership of each vertex. A
+positive rule asserting membership of a distinguished vertex of $U$ must
+name that vertex; with $\operatorname{Aut}(\Gph)$-invariant data no vertex
+is named, so the rule must itself supply one---a selector---which must in
+turn be fixed, either given in advance (excluded) or by a prior rule
+facing the same dichotomy. The regress halts only at a rule naming no
+vertex of $U$: the withholding of $U$ from the whole, i.e.\ specifying
+$\co U=\V\setminus U$ and taking $U$ as the remainder. This names only
+``the rest,'' supplied by $\V$. \emph{Sufficiency and uniqueness.}
+Complementation $U\mapsto\V\setminus U$ is an involution on subsets of the
+finite set $\V$, so $\co U$ determines $U$ uniquely and conversely.
+\end{proof}
+
+\begin{corollary}[An item is fixed by its non-neighbours]
+\label{cor:vertex-negation}
+A single item $v$ is determined selector-free by the partition of the rest
+into its neighbours $N(v)$ (what $v$ contacts) and its non-neighbours
+$\V\setminus N[v]$ (what it neither is nor contacts), with no intrinsic
+mark on $v$. Its identity is carried by this negation structure, not by
+its label.
+\end{corollary}
+
+\begin{proof}
+\Cref{thm:negation} with $U=\{v\}$, refined by adjacency: the
+selector-free datum fixing $\{v\}$ is $\V\setminus\{v\}$ split into
+$N(v)$ and $\V\setminus N[v]$; no vertex of $\{v\}$ is named.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2_negation.png}
+    \caption{\textbf{Individuation by Negation: the Complement Involution.}
+    (\textbf{A})~Three-dimensional scatter of $200$ random subsets of an eight-element whole in $(|U|,\,|\co U|,\,|\co\co U|)$ space, coloured by $|U|$ (plasma). Every point satisfies $|\co\co U|=|U|$: double complementation returns the part, the involution underlying Theorem~\ref{thm:negation}.
+    (\textbf{B})~Subset size $|U|$ versus complement size $|\co U|$; all points lie on the conservation line $|U|+|\co U|=8$ (red dashed): the complement is exactly ``the rest,'' fixed once the whole is given.
+    (\textbf{C})~Double-complement size $|\co\co U|$ versus $|U|$ on the identity diagonal (grey dashed); the points coincide with the diagonal, so $\co$ is its own inverse and $\co U$ determines $U$ uniquely.
+    (\textbf{D})~Rules required to fix a part as a function of nesting level: a positive (selector-based) rule regresses without bound (red), while negation closes at level one (green). The diverging red curve is the selector regress that Theorem~\ref{thm:negation} excludes; the flat green line is complementation, which needs only the whole.}
+    \label{fig:panel_negation}
+\end{figure*}
+
+% =====================================================================
+\section{Identity is the invariant cut}
+\label{sec:identity}
+% =====================================================================
+
+We now identify what, about an item, is invariant across all re-encodings
+of the graph---and show it is never a vertex label and never a point.
+
+\subsection{The intrinsic minimum cut}
+
+\begin{definition}[Weighted isomorphism; relabelling]
+\label{def:iso}
+A \emph{weighted isomorphism} $\phi\colon\Gph\to\Gph'$ is a vertex
+bijection preserving the medium, edges, and weights:
+$\{u,v\}\in\E\iff\{\phi u,\phi v\}\in\E'$ and
+$\wt'(\{\phi u,\phi v\})=\wt(\{u,v\})$, with $\phi(\med)=\med'$. A
+\emph{relabelling} is an automorphism ($\Gph'=\Gph$).
+\end{definition}
+
+\begin{definition}[Intrinsic floor of an item]
+\label{def:intrinsic}
+For an item $v$ in an expanding family $\Gph_0\subseteq\Gph_1\subseteq
+\cdots$, the \emph{intrinsic floor} is
+$\flo^{\ast}(v):=\lim_{k\to\infty}\min_{e\ni v}\wt_k(e)$, the limit of the
+least weight incident to $v$ as the whole grows.
+\end{definition}
+
+\begin{lemma}[Existence and positivity of the intrinsic floor]
+\label{lem:intrinsic}
+For every item $v$ the limit $\flo^{\ast}(v)$ exists and satisfies
+$\flo^{\ast}(v)\ge\flo>0$.
+\end{lemma}
+
+\begin{proof}
+The sequence $\min_{e\ni v}\wt_k(e)$ is non-increasing (adding edges can
+only lower the minimum incident weight) and bounded below by $\flo$
+(\Cref{thm:floor}). A non-increasing sequence bounded below converges, to
+a limit $\ge\flo$.
+\end{proof}
+
+\subsection{Identity is invariant and region-valued}
+
+\begin{theorem}[The minimum cut is the conserved invariant]
+\label{thm:invariant}
+The separation cost $\str(v)$ and the intrinsic floor $\flo^{\ast}(v)$ are
+weighted-graph invariants: if $\phi\colon\Gph\to\Gph'$ is a weighted
+isomorphism then $\str_{\Gph'}(\phi v)=\str_{\Gph}(v)$ and
+$\flo^{\ast}(\phi v)=\flo^{\ast}(v)$. The vertex label of $v$ is not an
+invariant: it is permuted by automorphisms.
+\end{theorem}
+
+\begin{proof}
+$\phi$ carries the cut $\cut(S^{\ast}(v))$ to a cut of $\phi v$ against
+$\med'$ of equal weight (weights preserved), and the bijection on cuts has
+inverse $\phi^{-1}$, so the minima agree:
+$\str_{\Gph'}(\phi v)=\str_\Gph(v)$. The same applies stagewise in an
+expanding family, giving $\flo^{\ast}(\phi v)=\flo^{\ast}(v)$. Labels are
+permuted by any nontrivial automorphism, hence not invariant.
+\end{proof}
+
+\begin{theorem}[Identity is a region, never a point]
+\label{thm:region}
+The identity of an item---the invariant data fixing it---is the minimum
+cut $\cut(S^{\ast}(v))$, a set of edges of total weight $\str(v)\ge\flo>0$.
+It is realised by no single vertex: in general the minimising side
+$S^{\ast}(v)$ is not the singleton $\{v\}$, and the identity cannot be
+reduced to a zero-content (point) datum.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:invariant} the invariant fixing $v$ is the minimum-cut value
+and its cut set, not the (variable) label. By \Cref{thm:floor} the cut has
+weight $\ge\flo>0$, so it is never a zero-content point. Non-locality: take
+a contact graph with two dense item-clusters joined by a single
+$\flo$-weight contact; the minimum cut against $\med$ may separate a whole
+cluster (side $S^{\ast}$ of size $>1$) at weight below
+$\min_v\wt(\cut(\{v\}))$, so the minimiser is not a singleton and the
+identity is borne by a region of edges, not a point.
+\end{proof}
+
+\begin{remark}[What a name is]
+\label{rem:name}
+\Cref{thm:invariant,thm:region} say that a name---a vertex label such as
+``this item''---carries no invariant; it is the relabellable surface. What
+is invariant is the minimum cut, the region of edges by which the item is
+told from the rest, of weight $\ge\flo$. A name denotes a cut at the
+current stage of an expanding family; the identity it points at is the
+intrinsic floor the cut is converging to and, by \Cref{thm:region}, never
+reaches as a point. This is used substantively in \Cref{sec:catalogue}:
+a catalogue entry is a name for a cut, not a point.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3_identity.png}
+    \caption{\textbf{Identity as an Invariant Region, Never a Point.}
+    (\textbf{A})~Three-dimensional rendering of the two-cluster contact graph: items (blue if on the source side $S$ of the minimum cut, red otherwise) and the medium (orange) at the origin, lifted on the vertical axis by cut membership, with edges drawn at width proportional to weight. The minimum cut places a multi-item set on the source side---identity is borne by a region, not a single vertex.
+    (\textbf{B})~Minimum-cut cost before versus after a random relabelling (weighted isomorphism) of the items, over $120$ graphs; all points lie on the identity diagonal (grey dashed), so the cost is label-independent (Theorem~\ref{thm:invariant}).
+    (\textbf{C})~Distribution of minimum-cut side sizes over $400$ random graphs; the mass lies predominantly above one item (the threshold at $1.5$, red dashed), the empirical content of ``the minimising side is in general not a singleton'' (Theorem~\ref{thm:region}).
+    (\textbf{D})~Minimum-cut value for four different separated pairs in the two-cluster instance: the cluster-separating pairs (green) realise the cheap inter-cluster cut, while same-cluster pairs (orange) cost more, showing the cut value is a property of the partition, not of a chosen endpoint.}
+    \label{fig:panel_identity}
+\end{figure*}
+
+% =====================================================================
+\part{Propagation}
+% =====================================================================
+
+% =====================================================================
+\section{The residue is the next cut}
+\label{sec:residue}
+% =====================================================================
+
+We now make cuts dynamic: a sequence of cuts is a walk, and the residue of
+each cut is precisely the edge that the next cut requires.
+
+\subsection{Committed cuts and the record}
+
+\begin{definition}[Committed edge; committed record]
+\label{def:committed}
+A \emph{cut event} on $\Gph$ commits a contact: it fixes one edge
+$e\in\E$ as a realised separation (the boundary just drawn). A
+\emph{process} is a finite sequence of cut events
+$P=(e_1,e_2,\dots,e_k)$, $e_i\in\E$, possibly with repetition of vertices
+but each $e_i$ a distinct committing act. The \emph{committed record}
+after $P$ is the count $\rec(P)=k$ of cut events.
+\end{definition}
+
+\begin{definition}[Residue of a cut event]
+\label{def:residue}
+The \emph{residue} of cut event $e_i=\{u,v\}$ is the weight
+$\res_i:=\wt(e_i)\ge\flo>0$ it deposits as committed boundary content
+between $u$ and $v$. The residue is irreducible (\Cref{thm:floor}): no cut
+event deposits less than $\flo$.
+\end{definition}
+
+\subsection{Residue as causal propagator}
+
+\begin{theorem}[The residue enables the next cut]
+\label{thm:propagator}
+In a process $P=(e_1,\dots,e_k)$, the residue $\res_i>0$ of cut $e_i$ is
+necessary and sufficient for cut $e_{i+1}$ to be a distinct committing
+event: $e_{i+1}$ is a new cut iff the state after $e_i$ differs from the
+state before, which holds iff $\res_i>0$. If $\res_i=0$ there is no
+difference between pre- and post-$e_i$ states and no ground for a distinct
+$e_{i+1}$.
+\end{theorem}
+
+\begin{proof}
+A cut event $e_{i+1}$ is distinct from its predecessor iff it acts on a
+state changed by $e_i$. The only change $e_i$ makes is the deposit of its
+residue $\res_i$ (the committed boundary content). If $\res_i>0$ the
+post-state carries a committed edge absent from the pre-state, so
+$e_{i+1}$ acts on a strictly different graph configuration and is a
+distinct event; the residue is the difference enabling it. If $\res_i=0$
+(excluded by \Cref{thm:floor} but argued for necessity) the pre- and
+post-states coincide and $e_{i+1}$ has no changed state to act on, hence is
+not a distinct committing event. Thus $\res_i>0$ is necessary and
+sufficient.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4_record_residue.png}
+    \caption{\textbf{The Monotone Record and the Residue Propagator.}
+    (\textbf{A})~Three-dimensional trajectory of a process in (step, committed record $M$, cumulative residue) space: the record climbs monotonically while the residue accumulates, the two coupled because each cut deposits a residue and increments the record (Theorem~\ref{thm:monotone}, Theorem~\ref{thm:propagator}).
+    (\textbf{B})~Committed record $M$ versus step for an eight-event process; the staircase strictly increases, and the ``undo'' events (red points) increment the record exactly as forward cuts (blue) do---un-committing is itself a further cut, so the record never returns.
+    (\textbf{C})~Whether a distinct next cut is possible (yes/no) versus the residue of the current cut; the transition occurs at residue zero, with points coloured green when the residue clears the floor $\beta$ (red dashed) and red otherwise. Residue $>0$ is necessary and sufficient for the next cut.
+    (\textbf{D})~Residue at each step of a five-step chain, bars blue where the residue clears the floor and red where it would vanish; the dashed floor line $\beta$ and the halt marker (grey dotted) show the chain stopping exactly where a residue would fall below $\beta$---no residue, no next event.}
+    \label{fig:panel_record_residue}
+\end{figure*}
+
+\begin{corollary}[A process is a residue chain]
+\label{cor:chain}
+A process is a chain in which each cut's residue is the cause of the next:
+$\res_1\to e_2,\ \res_2\to e_3,\ \dots$. The chain has a first cut (the
+seed) and proceeds only by the deposit of residues; remove any $\res_i$
+and the chain halts at step $i$.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:propagator} applied along $P$.
+\end{proof}
+
+\subsection{Monotonicity and non-return}
+
+\begin{theorem}[Monotone non-returning record]
+\label{thm:monotone}
+The committed record $\rec(P)$ is strictly increasing along any process:
+each cut event increments it by one, and no process decreases it. In
+particular a process that revisits a vertex configuration does not return
+to a prior state: the configuration recurs but the record has strictly
+grown.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:committed} each cut event is a distinct committing act,
+incrementing $\rec$ by one. To decrease $\rec$ a committed edge would have
+to be un-committed; un-committing is itself a further committing act (a new
+cut redrawing the boundary), which increments $\rec$ rather than
+decrementing it---the residue of the original cut cannot be withdrawn
+without depositing a new residue. Hence $\rec$ is monotone. Two process
+states with the same vertex configuration but different records are
+distinguished by the record (the partition of states ``record $\le r$''
+versus ``$>r$'' separates them), so they are distinct states: recurrence of
+configuration is not return of state.
+\end{proof}
+
+\begin{remark}[The record is time]
+\label{rem:time}
+\Cref{thm:monotone} gives a monotone scalar attached to every process---the
+committed count. It is the system's clock: each cut event is one tick, the
+count never decreases, and equal configurations at different counts are
+different states. ``Before'' and ``after'' are the order on the record.
+Nothing in the proof uses any external time parameter; the order is
+intrinsic to the sequence of cuts. No theorem below depends on this
+reading.
+\end{remark}
+
+\subsection{The three readings of a residue}
+
+\begin{theorem}[Time, information, entropy as one residue]
+\label{thm:three-readings}
+A residue $\res_i$ admits exactly three readings, according to how its link
+to the next cut is resolved:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Time}: as the increment of the committed record, $\res_i$ is
+one tick (\Cref{thm:monotone}).
+\item \textbf{Information}: when $\res_i$ is tracked as the specific cause
+of a specific next cut $e_{i+1}$, it is a resolved causal link---one bit of
+``which cut caused which''---and the chain is determinate.
+\item \textbf{Entropy}: when residues are present but their links to next
+cuts are not individually tracked, their aggregate is the Shannon content
+$H=-\sum_i p_i\log p_i$ of the unresolved link distribution
+\citep{shannon1948,cover2006}.
+\end{enumerate}
+Tracking a process---resolving which residue causes which next cut---moves
+its reading from entropy toward information; losing track moves it back.
+\end{theorem}
+
+\begin{proof}
+(i) is \Cref{thm:monotone}. (ii): a tracked link is a determinate function
+``$\res_i\mapsto e_{i+1}$''; specifying it for each $i$ is specifying the
+chain exactly, i.e.\ resolving the causal structure---one bit per binary
+link. (iii): with links unresolved, the chain is known only through the
+distribution over which residue caused which next cut, whose information
+content is $H$ by definition \citep{shannon1948}. Resolving links converts
+unknown distribution (entropy) into determinate functions (information);
+the conversion is exactly the tracking. \qed
+\end{proof}
+
+\begin{remark}[Tracking is the table's work]
+\label{rem:tracking}
+\Cref{thm:three-readings} is the hinge to Part~III. The causal propagation
+table is the device that \emph{tracks}: it resolves causal links along a
+process, converting the residue chain from an entropy reading (an opaque
+box: things go in, things come out) to an information reading (an accounted
+chain: this cut caused that one). The output of the table is the resolved
+chain---the residues read as information.
+\end{remark}
+
+% =====================================================================
+\section{Measurement and reaction are one operation}
+\label{sec:contact-symmetry}
+% =====================================================================
+
+We prove the identity on which the table rests: a measurement step and a
+reaction step are the same graph operation---a contact edge propagating
+uncertainty---and ``instrument'' versus ``sample'' is a free labelling of a
+symmetric link.
+
+\subsection{The contact operation}
+
+\begin{definition}[Contact operation]
+\label{def:contact-op}
+A \emph{contact operation} on items $u,v$ is the cut event committing the
+edge $\{u,v\}$: it individuates $u$ against $v$ and $v$ against $u$
+simultaneously, depositing residue $\wt(\{u,v\})\ge\flo$ on the single
+shared boundary. The operation is \emph{symmetric}: it is the same edge
+whether read from $u$ or from $v$.
+\end{definition}
+
+\begin{theorem}[Instrument--sample symmetry]
+\label{thm:symmetry}
+A contact operation on $\{u,v\}$ admits two readings---``$u$ measures $v$''
+(read $u$ as instrument) and ``$v$ measures $u$'' (read $v$ as
+instrument)---which are the same cut event. Neither reading is privileged
+by the graph: the edge $\{u,v\}$ is unordered, and exchanging the labels
+$u\leftrightarrow v$ is an isomorphism of the operation. Hence
+``instrument'' and ``sample'' are a labelling of the two ends of one
+symmetric link, not a property of either end.
+\end{theorem}
+
+\begin{proof}
+The committed object is the undirected edge $\{u,v\}$ with a single weight;
+``measure'' in either direction is reading the same residue from one end.
+The transposition $u\leftrightarrow v$ fixes the edge and its weight, hence
+is an automorphism of the one-edge operation; by \Cref{thm:negation} no
+privileged vertex exists to break the symmetry. The two readings therefore
+denote the same cut event under a label exchange. \qed
+\end{proof}
+
+\begin{theorem}[Reaction = measurement]
+\label{thm:reaction-measurement}
+Let a \emph{reaction step} be a contact operation committing $\{u,v\}$ that
+is not subsequently tracked (its causal link unresolved), and a
+\emph{measurement step} be a contact operation committing $\{u,v\}$ that is
+tracked (its causal link resolved). Then a reaction step and a measurement
+step are the same operation (\Cref{def:contact-op}) differing only in the
+reading of its residue (\Cref{thm:three-readings}): reaction reads it as
+entropy, measurement as information. There is no graph-level distinction
+between them.
+\end{theorem}
+
+\begin{proof}
+Both are the cut event committing the edge $\{u,v\}$, depositing the same
+residue $\wt(\{u,v\})$ (\Cref{def:contact-op}); the operations are
+identical as graph acts. The only difference is whether the residue's link
+to the next cut is resolved (\Cref{thm:three-readings}): tracked
+$\Rightarrow$ information reading $\Rightarrow$ ``measurement''; untracked
+$\Rightarrow$ entropy reading $\Rightarrow$ ``reaction.'' Tracking is not a
+property of the edge but of the observer's resolution of the chain
+(\Cref{rem:tracking}). Hence no graph-level distinction exists. \qed
+\end{proof}
+
+\begin{corollary}[Either end is the instrument; synthesis = analysis]
+\label{cor:either-end}
+For any contact in a process, either endpoint may be read as the
+instrument and the other as the sample (\Cref{thm:symmetry}), and the
+process may be read forward (building a product) or backward (resolving a
+measurement) (\Cref{thm:reaction-measurement}). An ionic contact and a
+spectrometric contact are the same operation: a contact edge propagating
+uncertainty.
+\end{corollary}
+
+\begin{proof}
+\Cref{thm:symmetry} gives end-exchange freedom;
+\Cref{thm:reaction-measurement} gives reading-direction freedom. Both are
+label freedoms on the same symmetric operation. \qed
+\end{proof}
+
+\begin{remark}[The mystery box]
+\label{rem:box}
+A \emph{mystery box} is a process whose contacts are committed but whose
+causal links are unresolved---the entropy reading
+(\Cref{thm:three-readings}(iii)): inputs go in, an output comes out, and
+the interior chain is opaque. By \Cref{thm:reaction-measurement} the
+interior is a chain of contact operations indifferent to whether each is
+called reaction or measurement. The table's task (Part~III) is to resolve
+the interior into an accountable chain---to convert the box from entropy to
+information. No theorem depends on the word ``box.''
+\end{remark}
+
+% =====================================================================
+\part{The Causal Propagation Table}
+% =====================================================================
+
+% =====================================================================
+\section{Alignment and accountability}
+\label{sec:alignment}
+% =====================================================================
+
+To say a propagation ``converges to the output'' we need a scalar that
+measures how far a graph state is from a target. We build it from cuts, so
+it remains internal to the graph language.
+
+\subsection{The alignment functional}
+
+\begin{definition}[Alignment functional]
+\label{def:alignment}
+Fix a contact graph $\Gph$ and a target item $x^{\ast}$ (the observed
+output). The \emph{alignment} of an item $x$ to $x^{\ast}$ is
+\[
+\str(x,x^{\ast})\ :=\ \min_{\substack{S\ni x\\ x^{\ast}\notin S}}
+\wt(\cut(S))\ \in\ [\flo,\,\Omega],
+\]
+the minimum-cut weight separating $x$ from $x^{\ast}$, where
+$\Omega:=\wt(\E)$ is the total weight (a finite upper bound). Normalising,
+the \emph{alignment score} is
+\[
+a(x,x^{\ast})\ :=\ \frac{\str(x,x^{\ast})}{\Omega}\ \in\ (0,1].
+\]
+$a$ is small when $x$ and $x^{\ast}$ are cheaply separated (nearly the same
+cut) and large when they are expensively separated (very different cuts).
+\end{definition}
+
+\begin{lemma}[The floor bounds alignment below]
+\label{lem:align-floor}
+For distinct items $x\neq x^{\ast}$, $a(x,x^{\ast})\ge\flo/\Omega>0$:
+no two distinct items are perfectly aligned. Alignment $a=0$ would require
+$\str=0$, forbidden by \Cref{thm:floor}.
+\end{lemma}
+
+\begin{proof}
+Immediate from \Cref{thm:floor}: any $x$--$x^{\ast}$ cut has weight
+$\ge\flo$, so $a\ge\flo/\Omega>0$. \qed
+\end{proof}
+
+\begin{remark}[Why a positive floor on alignment matters]
+\label{rem:align-floor}
+\Cref{lem:align-floor} is the convergence analogue of ``identity is never
+a point'' (\Cref{thm:region}): a propagation can converge \emph{toward} the
+output but never to perfect ($a=0$) alignment, only to within the floor.
+``Accountable'' below means ``converged to within the floor,'' never
+``identical.''
+\end{remark}
+
+\subsection{Accountability}
+
+\begin{definition}[Accountable state]
+\label{def:accountable}
+A graph state is \emph{accountable to the output $x^{\ast}$ at tolerance
+$\eps$} if its current item $x$ satisfies $a(x,x^{\ast})\le\flo/\Omega+\eps$
+for the prescribed $\eps\ge0$, i.e.\ it has converged to within the floor
+plus tolerance of the output. The least achievable is the floor itself
+($\eps=0$): convergence to within the floor.
+\end{definition}
+
+% =====================================================================
+\section{Processes, propagations, and the table}
+\label{sec:table}
+% =====================================================================
+
+\subsection{The process graph}
+
+\begin{definition}[Process graph]
+\label{def:process-graph}
+A \emph{process graph} $\Proc=(\V,\E,\wt;\,I,x^{\ast})$ is a contact graph
+together with a set $I\subseteq\V$ of \emph{input items}, and a designated
+\emph{output item} $x^{\ast}\in\V$. The edges of $\Proc$ are the available
+contact operations (the ``conditions and processes'' the user supplies):
+each edge is a permitted cut event.
+\end{definition}
+
+\begin{definition}[Propagation]
+\label{def:propagation}
+A \emph{propagation} of a designated \emph{tracked item} $v_0\in I$ through
+$\Proc$ is a walk $W=(v_0,e_1,v_1,e_2,\dots,e_k,v_k)$ along edges of
+$\Proc$, with $v_k=x^{\ast}$. Each step $e_i$ is a contact operation
+(\Cref{def:contact-op}) committing $\{v_{i-1},v_i\}$; the propagation
+\emph{tracks} $v_0$ in that each step resolves the causal link
+$\res_i\to e_{i+1}$ (information reading, \Cref{thm:three-readings}(ii)).
+The \emph{committed record} of $W$ is $\rec(W)=k$.
+\end{definition}
+
+\subsection{Convergence and admissibility}
+
+\begin{definition}[Convergent propagation]
+\label{def:convergent}
+A propagation $W$ is \emph{convergent to $x^{\ast}$ at tolerance $\eps$} if
+its terminal state is accountable: $a(v_k,x^{\ast})\le\flo/\Omega+\eps$,
+which holds with $\eps=0$ since $v_k=x^{\ast}$ gives $a=\flo/\Omega$
+(the floor). More usefully, the \emph{intermediate} alignments may be
+arbitrary; only the composed terminal alignment must converge.
+\end{definition}
+
+\begin{theorem}[Convergence admissibility]
+\label{thm:admissibility}
+A propagation $W$ is \emph{admissible} iff it is convergent to the output.
+Local steps are unconstrained: an intermediate item $v_i$ may have
+arbitrarily large alignment $a(v_i,x^{\ast})$ (a step ``away from'' the
+output, even one corresponding to no realisable item) without rendering
+$W$ inadmissible, provided the composed walk terminates at $x^{\ast}$.
+Inadmissibility arises only from failure to reach $x^{\ast}$ (non-%
+convergence), never from local misalignment.
+\end{theorem}
+
+\begin{proof}
+A propagation is, by \Cref{def:propagation}, a walk terminating at
+$x^{\ast}$; its terminal alignment is $a(x^{\ast},x^{\ast})=\flo/\Omega$
+(the floor, the least possible by \Cref{lem:align-floor}), so any walk
+that reaches $x^{\ast}$ is convergent ($\eps=0$). A walk that does not
+reach $x^{\ast}$ has terminal item $v_k\neq x^{\ast}$, hence
+$a(v_k,x^{\ast})\ge\flo/\Omega$ with strict inequality unless $v_k$ is
+cut-equivalent to $x^{\ast}$; it is convergent only if it nonetheless lands
+within tolerance, and inadmissible otherwise. The intermediate alignments
+$a(v_i,x^{\ast})$ enter nowhere in the terminal condition, so they are
+free: a step to a high-alignment (even non-realisable) $v_i$ is permitted
+as long as a continuation returns the walk to $x^{\ast}$. Thus
+admissibility $\iff$ convergence, with local steps unconstrained. \qed
+\end{proof}
+
+\begin{remark}[``It came from space''; the snow]
+\label{rem:snow}
+\Cref{thm:admissibility} is the precise sense of the following: if one
+wakes to find snow and proposes that it came from space, the proposal is
+not refuted by the local implausibility of the step---local alignment is
+unconstrained. It is refuted only if no propagation containing that step
+converges to the snow (the observed output). A locally ``impossible''
+intermediate is admissible exactly when some completion through it reaches
+the output; it is excluded only on non-convergence. This is the graph form
+of crossing through off-target intermediates and is used in
+\Cref{thm:path-opacity}.
+\end{remark}
+
+\subsection{Path opacity}
+
+\begin{theorem}[Path opacity]
+\label{thm:path-opacity}
+Let $W_1,W_2$ be two propagations of the same tracked item with the same
+input $v_0$ and the same output $x^{\ast}$, differing in their interior
+walks. Then no invariant computed from the endpoints alone---the input
+$v_0$, the output $x^{\ast}$, the terminal alignment $a(x^{\ast},x^{\ast})$,
+or the minimum cut $\cut(S^{\ast}(x^{\ast}))$---distinguishes $W_1$ from
+$W_2$. The interior path is free.
+\end{theorem}
+
+\begin{proof}
+Every endpoint invariant is a function of $v_0$ and $x^{\ast}$ only, hence
+equal on $W_1$ and $W_2$ by hypothesis. Interior data (the sequence of
+intermediate vertices and committed edges) are not functions of the
+endpoints---\Cref{thm:admissibility} shows the interior is unconstrained
+given the endpoints---so they are not recoverable from any endpoint
+invariant. Thus endpoint invariants cannot distinguish the two
+propagations. \qed
+\end{proof}
+
+\begin{corollary}[The admissible set is a class, not a path]
+\label{cor:gauge}
+For a given $(v_0,x^{\ast},\Proc)$ the admissible propagations form an
+equivalence class under ``shares endpoints and converges,'' all members
+indistinguishable by endpoint invariants. The table's output is this
+class, not a single chosen path.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:path-opacity} all convergent same-endpoint propagations are
+endpoint-indistinguishable; by \Cref{thm:admissibility} convergence is the
+sole admissibility criterion. The class of convergent same-endpoint
+propagations is therefore the well-defined output. \qed
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_6_opacity.png}
+    \caption{\textbf{Path Opacity: the Interior is Free.}
+    (\textbf{A})~Three-dimensional rendering of two propagations sharing the same input (green) and output (orange) but distinct interior vertex orders, drawn on a circular item layout and lifted onto two path-index planes (blue and red). The two interiors differ while the endpoints coincide.
+    (\textbf{B})~The endpoint invariant (the output's minimum-cut cost against the medium) across $40$ interior permutations; it is constant (points on the red dashed level), because the invariant depends only on the endpoints (Theorem~\ref{thm:path-opacity}).
+    (\textbf{C})~Interior edit distance from a reference path (blue bars, left axis) growing across interior variants, against the endpoint invariant (red line, right axis) which stays flat: the interior may be edited arbitrarily without moving the endpoint invariant.
+    (\textbf{D})~Distribution of the change $\Delta$ in the endpoint invariant across interior variants, a single spike at zero (red dashed): no interior rearrangement changes the endpoint invariant, so same-endpoint propagations are indistinguishable.}
+    \label{fig:panel_opacity}
+\end{figure*}
+
+\subsection{Representation mobility}
+
+\begin{definition}[Representation]
+\label{def:representation}
+A \emph{representation} of an item $v$ is a tuple
+$\Rep(v)=(s_1,\dots,s_N)\in\R^N$ subject to the \emph{averaging
+constraint}
+\[
+\tfrac1N\textstyle\sum_{j=1}^{N}s_j\ =\ a(v,x^{\ast}),
+\]
+i.e.\ the components average to the item's alignment, while individual
+components are unrestricted in $\R$ (they may lie outside $(0,1]$). Two
+representations of the same $v$ are \emph{equivalent}; the set of
+representations of $v$ is its \emph{representation fibre}.
+\end{definition}
+
+\begin{theorem}[Representation mobility]
+\label{thm:rep-mobility}
+\textup{(i)} For any item $v$ and any $N\ge2$ the representation fibre is
+nonempty and, for $N\ge2$, infinite: given any
+$(s_1,\dots,s_{N-1})\in\R^{N-1}$ there is a unique
+$s_N=N\,a(v,x^{\ast})-\sum_{j<N}s_j$ completing it. \textup{(ii)} A
+propagation may change representation between consecutive steps without
+changing the tracked item or the committed record: the averaging
+constraint ties every representation to the same alignment, so a
+representation switch commits no new cut. \textup{(iii)} Admissibility
+(\Cref{thm:admissibility}) is representation-independent: it depends only on
+the terminal alignment, which is the average over any representation.
+\end{theorem}
+
+\begin{proof}
+(i) The averaging constraint is one linear equation in $N$ unknowns; for
+$N\ge2$ its solution set is an affine subspace of dimension $N-1$, hence
+infinite, and the stated $s_N$ solves it for any choice of the others.
+(ii) Switching from $\Rep(v)$ to $\Rep'(v)$ (both in $v$'s fibre) leaves
+$v$ and its alignment fixed (both average to $a(v,x^{\ast})$); no edge is
+committed, so $\rec$ is unchanged (\Cref{def:committed}). (iii) The
+terminal condition of \Cref{thm:admissibility} is $a(v_k,x^{\ast})$, which
+equals the average of any terminal representation by
+\Cref{def:representation}; hence admissibility is the same in every
+representation. \qed
+\end{proof}
+
+\begin{corollary}[Mobility is required for heterogeneous propagation]
+\label{cor:mobility-required}
+A propagation whose steps are accountable only in different
+representations---one contact resolved in representation $\Rep$, the next
+in $\Rep'$---is admissible: by \Cref{thm:rep-mobility}(ii,iii) the
+representation may be switched between the steps at no cut cost and without
+affecting convergence. Hence tracking through a process that mixes contacts
+of different representational type requires, and is permitted, inter-step
+representation switching.
+\end{corollary}
+
+\begin{proof}
+Apply \Cref{thm:rep-mobility}(ii) at the step boundary and (iii) for
+admissibility. \qed
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_7_representation.png}
+    \caption{\textbf{Representation Mobility and Mean Recovery.}
+    (\textbf{A})~Three-dimensional scatter of $120$ three-component representations of a single item (alignment $0.5$) in $(s_1,s_2,s_3)$ space, coloured on-shell (blue, all components in $[0,1]$) or off-shell (red, some component outside): all lie on the mean-recovery plane $\tfrac13\sum s_j=0.5$, with off-shell components fully admissible (Theorem~\ref{thm:rep-mobility}).
+    (\textbf{B})~Representation mean versus target alignment over $300$ random fibres and targets; every point lies on the diagonal (grey dashed): the component mean recovers the target exactly, whatever the individual components.
+    (\textbf{C})~Off-shell fraction versus the component spread $M$; as the admissible spread grows the fraction of representations with an out-of-range component rises toward one, the freedom of the fibre to pass through ``impossible'' components while keeping the physical mean.
+    (\textbf{D})~Record increment per operation: a representation switch (green) adds nothing to the committed record, while a cut event (red) increments it---switching representation commits no cut and leaves admissibility unchanged (Corollary~\ref{cor:mobility-required}).}
+    \label{fig:panel_representation}
+\end{figure*}
+
+\subsection{The table}
+
+\begin{definition}[Causal propagation table]
+\label{def:table}
+The \emph{causal propagation table} is the map
+\[
+\mathcal{T}\colon\ (v_0,\,I,\,\Proc)\ \longmapsto\
+\acc(v_0,x^{\ast},\Proc),
+\]
+sending a tracked item $v_0$, input set $I\ni v_0$, and process graph
+$\Proc$ with output $x^{\ast}$ to the set $\acc$ of all admissible
+propagations of $v_0$ to $x^{\ast}$---the convergent same-endpoint
+equivalence class (\Cref{cor:gauge}), with representations free
+(\Cref{thm:rep-mobility}) and interiors free (\Cref{thm:path-opacity}).
+\end{definition}
+
+\begin{theorem}[The table is well-defined and direction-agnostic]
+\label{thm:table-welldefined}
+For every $(v_0,I,\Proc)$ with $x^{\ast}$ reachable from $v_0$ in $\Proc$,
+$\mathcal{T}(v_0,I,\Proc)$ is a nonempty equivalence class. It is
+direction-agnostic: the same class is obtained whether the process is read
+forward ($v_0\to x^{\ast}$, ``synthesis'') or backward
+($x^{\ast}\to v_0$, ``analysis''), because each contact operation is a
+symmetric edge (\Cref{thm:symmetry}) and each step admits either reading
+(\Cref{thm:reaction-measurement}).
+\end{theorem}
+
+\begin{proof}
+Reachability gives at least one walk $v_0\to x^{\ast}$, which is convergent
+(\Cref{thm:admissibility}), so $\acc\neq\varnothing$; by \Cref{cor:gauge}
+$\acc$ is the convergent same-endpoint class. Direction-agnosticism:
+reversing a walk reverses each edge, but edges are undirected
+(\Cref{def:contact-op}), and each reversed step is admissible by the same
+convergence criterion read from the other end (\Cref{cor:either-end}). The
+forward and backward admissible sets therefore coincide. \qed
+\end{proof}
+
+\begin{definition}[Amalgamation]
+\label{def:amalgamation}
+The \emph{amalgamation} of $(v_0,I,\Proc)$ is the maximal set of contact
+operations accounted for across $\acc$: the union, over admissible
+propagations, of the resolved (information-read) contacts---``all the steps
+we can account for in the propagation.'' Equivalently, it is the resolved
+causal-residue chain (\Cref{cor:chain}) read as information
+(\Cref{thm:three-readings}(ii)).
+\end{definition}
+
+\begin{theorem}[The amalgamation is the accounted propagation]
+\label{thm:amalgamation}
+The amalgamation is exactly the set of contacts whose causal links are
+resolvable consistent with convergence to $x^{\ast}$. It is indifferent to
+the reaction/measurement labelling of its steps
+(\Cref{thm:reaction-measurement}) and to the instrument/sample labelling
+of each contact's endpoints (\Cref{thm:symmetry}). Its size is the amount
+of the process converted from the entropy reading to the information
+reading (\Cref{thm:three-readings}); the unaccounted remainder is the
+irreducible residual bounded below by the floor.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:amalgamation} the amalgamation collects the resolved contacts
+of admissible propagations; admissibility is convergence
+(\Cref{thm:admissibility}), so a contact is in the amalgamation iff its
+link is resolvable within some convergent propagation. Labelling
+indifference is \Cref{thm:reaction-measurement} (reaction/measurement) and
+\Cref{thm:symmetry} (instrument/sample). The size statement is
+\Cref{thm:three-readings}: resolving a link moves it from entropy to
+information, so the amalgamation's extent is the resolved fraction; what
+cannot be resolved remains entropy, of weight $\ge\flo$ per unresolved
+contact (\Cref{thm:floor}). \qed
+\end{proof}
+
+% =====================================================================
+\section{The resting catalogue and the propagated table}
+\label{sec:catalogue}
+% =====================================================================
+
+We now show the table's output is the same kind of object as an entry in a
+catalogue of resting items---and that the familiar periodic catalogue is
+the table evaluated at rest.
+
+\subsection{The resting cut}
+
+\begin{definition}[Resting catalogue]
+\label{def:catalogue}
+The \emph{resting catalogue} of a contact graph is the assignment, to each
+item $v$, of its minimum cut against the medium,
+$\mathrm{cell}(v):=\cut(S^{\ast}(v))$ with value $\str(v)\ge\flo$. A
+catalogue \emph{cell} is the name of this cut: the invariant region by
+which $v$ is told from the rest at rest (\Cref{thm:region}).
+\end{definition}
+
+\begin{theorem}[A catalogue cell is an accountable output]
+\label{thm:cell-is-output}
+For each item $v$, the cell $\mathrm{cell}(v)$ equals the output of the
+table run on $v$ against the medium with the trivial (rest) process: i.e.\
+$\mathrm{cell}(v)$ is the accountable output of the propagation that
+individuates $v$ against $\med$. Equivalently, a catalogue entry is the
+convergent terminal cut of the resting propagation.
+\end{theorem}
+
+\begin{proof}
+Take $\Proc_{\mathrm{rest}}$ to be the contact graph with output
+$x^{\ast}=v$ and the single contact $\{v,\med\}$ as available operation;
+the propagation is the one cut event individuating $v$ from $\med$, whose
+terminal accountable object is the minimum cut $\cut(S^{\ast}(v))$
+(\Cref{def:alignment}, \Cref{thm:admissibility}). This is precisely
+$\mathrm{cell}(v)$ (\Cref{def:catalogue}). \qed
+\end{proof}
+
+\begin{theorem}[The catalogue is the table at rest; the table is the
+catalogue propagated]
+\label{thm:catalogue-table}
+The resting catalogue is the restriction of the causal propagation table
+$\mathcal{T}$ to trivial (rest) processes:
+$\mathrm{cell}(v)=\mathcal{T}(v,\{v\},\Proc_{\mathrm{rest}})$. Conversely,
+for a nontrivial process $\Proc$, the output
+$\mathcal{T}(v_0,I,\Proc)$ is an object of the same kind as a catalogue
+cell---an accountable cut, the convergent terminal individuation of the
+tracked item---computed for the process rather than for rest.
+\end{theorem}
+
+\begin{proof}
+The forward direction is \Cref{thm:cell-is-output}. For the converse: by
+\Cref{thm:admissibility} every admissible propagation terminates at the
+accountable output $x^{\ast}$, whose individuating datum is the minimum cut
+$\cut(S^{\ast}(x^{\ast}))$ of weight $\ge\flo$---the same type of object as
+$\mathrm{cell}(\cdot)$ (\Cref{def:catalogue}), differing only in that the
+cut is the terminus of a nontrivial propagation rather than of the rest
+contact. Hence the table's output for a process is a catalogue-grade cut
+computed under propagation. \qed
+\end{proof}
+
+\begin{corollary}[Periodic catalogue as resting table]
+\label{cor:periodic}
+The periodic catalogue of resting items \citep{mendeleev1869,scerri2007}
+is, formally, the resting catalogue (\Cref{def:catalogue}): each entry is
+the name of an item's minimum cut against the medium, itself the
+accountable output of an array of resting individuations. The causal
+propagation table extends it to arbitrary processes; the output of the box
+is a catalogue entry of the same kind, computed for the process.
+\end{corollary}
+
+\begin{proof}
+A periodic entry is a minimum-sufficient invariant of an item established
+by an array of individuating operations; by \Cref{thm:cell-is-output} this
+is $\mathrm{cell}(v)$, the resting table output. \Cref{thm:catalogue-table}
+gives the extension. \qed
+\end{proof}
+
+\begin{remark}[Working from the catalogue, not replacing it]
+\label{rem:from-catalogue}
+\Cref{cor:periodic} is the precise sense in which the system \emph{works
+from} the periodic catalogue rather than replacing it: the catalogue is the
+fixed points of individuation (cuts at rest), and the table is the
+propagation that produces fixed points. The catalogue's correctness is
+inherited, not contested; the table only adds the propagated cells the
+catalogue does not list because they are process-dependent.
+\end{remark}
+
+% =====================================================================
+\part{The Cut}
+% =====================================================================
+
+% =====================================================================
+\section{The one-use, self-blunting cut}
+\label{sec:cut}
+% =====================================================================
+
+We formalise the system's emblem: the single precise cut. We show it can
+be made once, that it blunts the cutter, and that the perfect repeatable
+cut is the forbidden $\flo=0$ object.
+
+\begin{definition}[The cut; the cutter]
+\label{def:thecut}
+A \emph{cut} is a single contact operation (\Cref{def:contact-op}): one
+committed edge, individuating two items by depositing residue $\ge\flo$.
+The \emph{cutter} is the endpoint read as instrument
+(\Cref{thm:symmetry}); its \emph{edge-capacity} at a vertex $v$ is the set
+of not-yet-committed contacts incident to $v$.
+\end{definition}
+
+\begin{theorem}[One use]
+\label{thm:one-use}
+A given cut---a given committed edge $e=\{u,v\}$---can be committed exactly
+once. Any later cut at $u$ or $v$ is a distinct edge or the same edge at a
+strictly higher committed record (\Cref{thm:monotone}), hence a different
+cut event. There is no re-commitment of the same cut.
+\end{theorem}
+
+\begin{proof}
+Committing $e$ increments the record (\Cref{def:committed}); a second
+commitment of $e$ would either be a no-op (the edge is already committed,
+so no new cut event occurs) or a distinct event at record $\rec+1$
+(\Cref{thm:monotone}), which is a different cut by the record invariant.
+Thus the same cut occurs once. \qed
+\end{proof}
+
+\begin{theorem}[Self-blunting]
+\label{thm:blunt}
+A cut deposits its residue into the cutter as much as into the cut: the
+contact $\{u,v\}$ commits a boundary edge of $u$ (the cutter) no less than
+of $v$ (the sample), by \Cref{thm:symmetry}. After the cut, the cutter's
+edge-capacity at $u$ is strictly reduced (the committed edge is removed
+from it) and the cutter's committed record has increased. Hence the cutter
+is changed by the cut: it is, in the precise sense of reduced uncommitted
+capacity and increased record, \emph{blunted}.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:symmetry} the operation is symmetric in $u,v$, so it commits a
+boundary edge of $u$ exactly as of $v$. The committed edge leaves $u$'s
+uncommitted-contact set (\Cref{def:thecut}), strictly reducing
+edge-capacity, and $\rec$ increases (\Cref{thm:monotone}). Both are
+irreversible (\Cref{thm:monotone}: the record cannot decrease; un-committing
+is a new cut). The cutter after the cut differs from the cutter before in
+capacity and record. \qed
+\end{proof}
+
+\begin{theorem}[No perfect repeatable cut]
+\label{thm:no-perfect}
+There is no cut that (i) separates two items at zero residue (a traceless
+cut) and (ii) leaves the cutter unchanged (a repeatable instrument).
+Property (i) requires $\flo=0$, forbidden by \Cref{thm:floor}; property
+(ii) requires the committed record to be unchanged by a cut, forbidden by
+\Cref{thm:monotone}. The perfect repeatable traceless cut is exactly the
+$\flo=0$ object the floor excludes.
+\end{theorem}
+
+\begin{proof}
+(i): a traceless cut deposits residue $0$, i.e.\ commits an edge of weight
+$0$, contradicting $\wt(e)\ge\flo>0$ (\Cref{thm:floor}). (ii): an
+unchanged cutter requires $\rec$ after $=\rec$ before, contradicting the
+strict increment of \Cref{thm:monotone}. Either property alone is already
+forbidden; their conjunction a fortiori. \qed
+\end{proof}
+
+\begin{remark}[Honjo Masamune: the emblem]
+\label{rem:honjo}
+The system's central operation is named for a blade that is ceremonial,
+usable once, and blunt thereafter: the single precise cut. \Cref{thm:one-use}
+is its one use; \Cref{thm:blunt} is its blunting (the residue enters the
+cutter, so the instrument that cuts is spent by cutting); \Cref{thm:no-perfect}
+is the reason it cannot exist as a repeatable working tool---the perfect
+traceless repeatable cut is the $\flo=0$ object the whole system is built on
+forbidding. What exists is not the perfect blade but the single committed,
+accountable cut: cut as cleanly as the floor allows, deposit the
+irreducible residue, and let that residue be both the cut's trace (the
+identity) and the cause of the next cut (the propagation). Every
+measurement and every reaction is such a cut (\Cref{thm:reaction-measurement}):
+one-use, self-blunting, leaving the trace that is everything there is to
+know. No theorem depends on the name.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_8_convergence_cut.png}
+    \caption{\textbf{Convergence Admissibility and the One-Use Cut.}
+    (\textbf{A})~Three-dimensional bar chart of each item's alignment to the output $x^{*}$ (cut cost to $x^{*}$ over total weight), the output bar green and the rest blue; only the output sits at the floor, the terminal accountable state of an admissible propagation.
+    (\textbf{B})~Alignment to $x^{*}$ per item with the floor alignment $\beta/\Omega$ marked (red dashed); the output (green) alone reaches the floor, so a propagation is admissible exactly when it terminates there (Theorem~\ref{thm:admissibility}).
+    (\textbf{C})~Convergence outcome for three cases---reaching the output, terminating elsewhere, and a locally arbitrary interior that nonetheless converges---with admissible (blue) and expected (orange) bars coinciding in each: admissibility tracks convergence to the output and nothing else, local steps being free.
+    (\textbf{D})~The one-use, self-blunting cut: the cutter's uncommitted capacity (red) decreases by one per cut while the committed record (green) increases by one, the two crossing as capacity is spent. A cut commits once and blunts the cutter; the perfect repeatable traceless cut ($\beta=0$, record unchanged) cannot occur (Theorem~\ref{thm:one-use}, Theorem~\ref{thm:blunt}, Theorem~\ref{thm:no-perfect}).}
+    \label{fig:panel_convergence_cut}
+\end{figure*}
+
+% =====================================================================
+\section{The master equivalence}
+\label{sec:master}
+% =====================================================================
+
+We collect the system into a single biconditional, tying every structure to
+the one fact $\flo>0$.
+
+\begin{theorem}[Master equivalence]
+\label{thm:master}
+For a contact graph in a non-completable whole, the following are
+equivalent:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item there is an identifiable item---a proper part told from the rest at
+positive cost;
+\item the floor is positive, $\flo>0$ (\Cref{thm:floor});
+\item individuation is by negation with no selector (\Cref{thm:negation}),
+identity is the invariant minimum cut and never a point
+(\Cref{thm:region}), processes are monotone non-returning residue chains
+(\Cref{thm:monotone,thm:propagator}), measurement and reaction are one
+symmetric contact operation (\Cref{thm:reaction-measurement}), the causal
+propagation table is well-defined with free representations, free interiors,
+and convergence-only admissibility (\Cref{thm:table-welldefined,%
+thm:rep-mobility,thm:path-opacity,thm:admissibility}), its outputs are
+catalogue-grade accountable cuts (\Cref{thm:catalogue-table}), and the cut
+is one-use and self-blunting with no perfect repeatable form
+(\Cref{thm:one-use,thm:blunt,thm:no-perfect});
+\item the perfect traceless repeatable cut does not exist
+(\Cref{thm:no-perfect}).
+\end{enumerate}
+Each is the same fact: that telling a thing from the rest of a
+non-completable whole costs a strictly positive, irreducible, one-use
+residue.
+\end{theorem}
+
+\begin{proof}
+$(\mathrm{i})\Rightarrow(\mathrm{ii})$: an identifiable proper part has
+positive separation cost by \Cref{thm:floor-derived,thm:floor}.
+$(\mathrm{ii})\Rightarrow(\mathrm{iii})$: each listed structure is proved
+from $\flo>0$ in the cited theorem.
+$(\mathrm{iii})\Rightarrow(\mathrm{iv})$: \Cref{thm:no-perfect} is among the
+listed consequences. $(\mathrm{iv})\Rightarrow(\mathrm{i})$: if no traceless
+cut exists then every separation costs $>0$, i.e.\ some item is told from
+the rest at positive cost---an identifiable item. The cycle closes; the
+closing sentence restates the equivalence. \qed
+\end{proof}
+
+% =====================================================================
+\section{Computational validation}
+\label{sec:validation}
+% =====================================================================
+
+Because every object is a finite weighted graph, every theorem is directly
+checkable on explicitly constructed instances. A self-contained suite
+(Python; \texttt{numpy}; \texttt{networkx} for exact max-flow minimum
+cuts) implements eleven categories, one per structural result, and writes
+its outcomes as JSON. All $847$ checks pass; the minimum cuts are computed
+exactly (Ford--Fulkerson via \texttt{networkx}~\citep{fordfulkerson1956}),
+not approximated.
+
+\begin{table}[h]
+\centering\small
+\caption{Validation of the system on finite weighted graphs. Minimum cuts
+are exact; all checks pass.}
+\label{tab:validation}
+\begin{tabular}{lll}
+\toprule
+\textbf{Category} & \textbf{Pass} & \textbf{Theorem checked}\\
+\midrule
+Floor                 & $300/300$ & \Cref{thm:floor}: $\str(v)\ge\flo$ on
+                                     $300$ random contact graphs\\
+Negation              & $200/200$ & \Cref{thm:negation}: complementation an
+                                     involution; $U$ fixed by $\co U$\\
+Identity invariant    & $101/101$ & \Cref{thm:invariant,thm:region}: cut
+                                     invariant under relabelling; region-valued\\
+Monotone record       & $4/4$     & \Cref{thm:monotone}: record strictly
+                                     increases; no return\\
+Residue propagator    & $6/6$     & \Cref{thm:propagator}: residue $>0\iff$
+                                     next cut; chain halts at $0$\\
+Contact symmetry      & $4/4$     & \Cref{thm:symmetry,thm:reaction-measurement}:
+                                     edge symmetric; reaction $=$ measurement\\
+Composition inflation & $18/18$   & \Cref{thm:trajectory-count}:
+                                     $T(n,d)=d(d+1)^{n-1}$ by enumeration\\
+Path opacity          & $3/3$     & \Cref{thm:path-opacity}: endpoint
+                                     invariants agree across interiors\\
+Representation        & $202/202$ & \Cref{thm:rep-mobility}: mean-recovery
+                                     fibre; switch commits no cut\\
+Convergence           & $3/3$     & \Cref{thm:admissibility}: admissible
+                                     $\iff$ convergent; local steps free\\
+One-use cut           & $6/6$     & \Cref{thm:one-use,thm:blunt,thm:no-perfect}:
+                                     one use; blunting; no $\flo=0$ cut\\
+\midrule
+\textbf{Total}        & $\mathbf{847/847}$ & exact min-cut backend\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three of the categories merit explicit comment, being the substantive
+rather than the bookkeeping checks. \emph{(i) The floor on $300$ random
+graphs.} For each of $300$ randomly weighted contact graphs (medium
+adjacent to every item, random item--item contacts, all weights
+$\ge\flo$), the exact minimum cut of a random item against the medium was
+computed and found to satisfy $\str(v)\ge\flo$ in every case
+(\Cref{thm:floor}): no sharp cut occurred. \emph{(ii) Identity is a
+region.} On a graph of two strongly-internally-bound item clusters joined
+to a common medium, the exact minimum cut separating one cluster from
+another places a \emph{multi-item} set on one side (a five-item side in the
+reported instance), confirming that the identity-bearing minimum cut is in
+general not realised by a singleton (\Cref{thm:region}): identity is a
+region, never a point. \emph{(iii) Composition inflation by direct
+enumeration.} For every $(n,d)$ with $n\le6$, $d\in\{1,2,3\}$ small enough
+to enumerate, the brute-force count of length-$n$ labelled trajectories
+over $d$ move-directions with a stay-option exactly equals the closed form
+$d(d+1)^{n-1}$ (\Cref{thm:trajectory-count}); larger cases inherit the
+closed form. The path-opacity, representation-mobility, and convergence
+categories likewise confirm, on constructed instances, that endpoint
+invariants are interior-independent, that mean-recovery fibres are
+nonempty with off-shell components, and that admissibility tracks
+convergence to the output and nothing else.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_5_inflation.png}
+    \caption{\textbf{Composition Inflation $T(n,d)=d(d+1)^{n-1}$.}
+    (\textbf{A})~Three-dimensional surface of $\log_{10}T(n,d)$ over trajectory length $n$ and direction count $d$ (viridis); the surface rises steeply in $n$ and steepens with $d$, the exponential proliferation of distinguishable propagation trajectories with depth.
+    (\textbf{B})~Trajectory count $T(n,d)$ on a logarithmic $y$-axis versus $n$ for $d=1,2,3$ (coloured lines), with directly enumerated counts (points) lying on the closed-form curves; enumeration and closed form agree exactly for every case computed.
+    (\textbf{C})~Enumerated count versus closed form $d(d+1)^{n-1}$ on log--log axes; all points lie on the identity diagonal (grey dashed), the exact match of the brute-force enumeration to the formula.
+    (\textbf{D})~Growth ratio $T(n,d)/T(n-1,d)$ versus $n$ for $d=1,2,3$ (coloured lines), each flat at its predicted value $d+1$ (dotted guides): the per-step branching factor is exactly $d+1$ (the $d$ moves plus the stay-option).}
+    \label{fig:panel_inflation}
+\end{figure*}
+
+\begin{remark}[Scope of the suite]
+\label{rem:validation-scope}
+The suite verifies the theorems on instances: it confirms that the floor,
+the invariance and region-valuedness of identity, the monotone record, the
+residue--propagator equivalence, the contact symmetry, the inflation
+count, path opacity, representation mobility, convergence admissibility,
+and the one-use cut all hold as proved. It is an internal-consistency and
+instance-verification check, appropriate to a system whose content is
+structural; it does not, and is not intended to, supply numerical weights
+for any concrete physical system, which would require a concrete weighting
+$\wt$ (\Cref{sec:discussion}).
+\end{remark}
+
+% =====================================================================
+\section{Discussion and scope}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{What is proved, and at what level}
+
+Every result above is a theorem about finite weighted graphs, provable from
+\Cref{def:graph} and the derived floor \Cref{thm:floor}. The system is
+qualitative-structural: it establishes \emph{that} individuation is a
+positive-cost one-use cut, \emph{that} processes are residue chains,
+\emph{that} measurement and reaction coincide, \emph{that} the table's
+output is a catalogue cell, and \emph{that} the perfect cut is forbidden.
+It does not compute numerical cut weights, reaction rates, or alignment
+values for any concrete system; those would require a concrete weighting
+$\wt$, which the framework takes as given. The relationship to quantitative
+science is that of a structural theory to its instances: the framework
+states what any finite system of individuated parts must satisfy and reads
+off the consequences; a concrete weighting supplies the numbers.
+
+\subsection{Honest limitations}
+
+We mark the load-bearing soft spots. First, \emph{the non-completability
+premise} (\Cref{def:noncompletable}) is an order condition we assume of the
+whole; the floor is derived from it but it is itself not derived here.
+Second, \emph{the alignment functional} (\Cref{def:alignment}) is one
+natural cut-based scalar; other admissible scalars exist, and the
+quantitative content of ``convergence'' depends on the choice, though the
+qualitative theorems (admissibility $\iff$ convergence, path opacity,
+representation mobility) hold for any cut-monotone alignment. Third,
+\emph{representation mobility} (\Cref{thm:rep-mobility}) is proved as a
+freedom (switching is permitted at no cut cost); which representation a
+concrete tracking step \emph{requires} is a modelling input, not derived.
+Fourth, \emph{tracking} (\Cref{thm:three-readings}) is treated as the
+resolution of causal links; the framework specifies what resolution
+achieves (entropy $\to$ information) but not the procedure by which a given
+process is resolved, which is the empirical work the table organises rather
+than performs.
+
+\subsection{The picture in one statement}
+
+A thing is told from the rest by a cut that costs a strictly positive,
+irreducible residue. The cut can be made once; it blunts the cutter; it
+leaves a trace that is the thing's identity and a residue that is the cause
+of the next cut. Processes are chains of such cuts. Measurement and
+reaction are the same cut, differing only in whether the trace is
+accounted; instrument and sample are the two ends of the one symmetric cut.
+To track an item through a process is to resolve the chain---to account for
+as many cuts as converge to the output---and the accounted propagation, the
+amalgamation, is the output: an accountable cut of the same kind as a
+resting catalogue cell. The periodic catalogue is this table at rest; the
+table is the catalogue under propagation. The perfect traceless repeatable
+cut cannot exist; that it cannot is exactly why there is anything to cut,
+to track, and to know.
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+We have laid out, entirely in finite weighted graphs, a complete system
+generated by one derived fact---that the cut individuating a part of a
+non-completable whole has strictly positive, irreducible cost $\flo>0$.
+From it follow: individuation by negation; identity as the invariant
+minimum cut, region-valued and never a point; the residue of each cut as
+the cause of the next, making processes monotone non-returning chains; the
+identity of measurement and reaction as one symmetric contact operation;
+and the causal propagation table---the map from a tracked item, inputs, and
+a process graph to the class of accountable propagations, with free
+representations, free interiors, and convergence as the sole admissibility
+criterion. The table's output is shown to be an object of the same kind as
+an entry in the resting catalogue of items, so that the periodic catalogue
+is the table evaluated at rest and the table is the catalogue propagated
+forward. The whole is the structure of the single precise cut that can be
+made once and dulls the cutter, and whose perfect traceless repeatable form
+is exactly the zero-cost cut the floor forbids. The master equivalence
+binds every structure to the one fact: to be told from the rest is to be
+cut at irreducible cost, once.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

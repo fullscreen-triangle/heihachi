@@ -1,0 +1,1612 @@
+% ============================================================================
+%  Semantic Uncertainty Propagation
+%  A self-contained theory of individuation, meaning, and comprehension-free
+%  translation in finite weighted graphs.
+%
+%  Self-contained: every object is a finite weighted graph or a construction
+%  on one; only the standard external literature is cited. Interpretation is
+%  confined to remarks on which no theorem depends.
+% ============================================================================
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- theorem environments ----
+\newtheoremstyle{sup}{6pt}{6pt}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{sup}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Premise}
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+\crefname{axiom}{Premise}{Premises}
+\Crefname{axiom}{Premise}{Premises}
+
+% ---- operators and shorthand ----
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\V}{V}
+\newcommand{\E}{E}
+\newcommand{\wt}{w}
+\newcommand{\med}{\mathsf{m}}
+\newcommand{\flo}{\beta}
+\newcommand{\cut}{\partial}
+\newcommand{\co}{\complement}
+\newcommand{\str}{\sigma}
+\newcommand{\res}{\rho}
+\newcommand{\rec}{M}
+\newcommand{\al}{a}
+\newcommand{\Om}{\Omega}
+\newcommand{\dem}{D}
+\newcommand{\colA}{A}
+\newcommand{\colB}{B}
+\newcommand{\Resp}{\mathsf{R}}
+\newcommand{\rlx}{\Phi}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\dd}{\,\mathrm{d}}
+
+\title{\textbf{Semantic Uncertainty Propagation}\\[3pt]
+\large A Self-Contained Theory of Individuation, Meaning,\\
+and Comprehension-Free Translation in Finite Weighted Graphs}
+
+\author{%
+Kundai Farai Sachikonye\\[2pt]
+\small Technical University of Munich\\
+\small Chair of Experimental Bioinformatics\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% ============================================================================
+\begin{abstract}
+\noindent
+We develop, from a single derived fact, a complete theory of meaning and its
+transfer. The fact is a strictly positive \emph{floor} $\flo>0$ on the cost of
+telling one thing from the rest of a whole that cannot be finished: identifying
+a part is comparing it against everything it is not, and against a
+non-completable whole that comparison never closes, so an irreducible residue
+remains. Every object below is a finite weighted graph or a construction on
+one. From the floor we prove, as graph theorems: that a part is fixed only by
+its negation (\emph{individuation by negation} admits no selector without
+regress); that the \emph{identity} of a part is not a label but the invariant
+minimum cut that survives every relabelling, a region of weight $\ge\flo$ and
+never a point---so identity is the \emph{least sufficient unknowability} of a
+thing, never the thing itself; that a \emph{name} is the content-free handle on
+this cut---a stash of unknowability---and the \emph{self}-name is necessarily late
+and approximate, the namer (having the largest complement) being the most expensive
+thing to individuate and forbidden by the diagonal of self-verification from naming
+itself directly, so that language begins at the individuated periphery and converges
+on the namer it never reaches; that an item must be \emph{terminated} (carry an
+attained resting cut) before it can be told apart at all; that the \emph{content}
+of a unit (its label) and its \emph{meaning} (its resting cut, and what that
+cut propagates) come apart, and that meaning cannot be extracted---reading it
+off as a value would require the reader to occupy the part's whole
+negation-structure, i.e.\ to \emph{be} it. We therefore do not try to know
+meaning; we detect when two sides \emph{share} it. We replace every imported
+uncertainty calculus---probability, fuzzy membership, Bayesian posterior---by a
+single parameter-free quantity, \emph{distance to the floor}, and define a
+\emph{bidirectional relaxation} of two columns whose fixed point, \emph{semantic
+quiescence}, we prove to \emph{constitute} identity of meaning: any difference
+of meaning is a propagable demand and quiescence is the absence of all demands,
+so the identity is certified \emph{blind}, at positive residual of form, never
+at zero; non-halting is deep untranslatability, whose honest output is to
+decline. We then prove that meaning is receiver-relative with no privileged
+value (distinct decoders register distinct cells, each correct), that a
+\emph{conversation} is propagation of uncertainty in which a response is forced
+exactly because no point-meaning can be extracted and is steered by the demand
+rather than by comprehension, and we construct the \emph{four-column
+translator}: two central translation columns and two external
+\emph{response} columns that externalise the propagation, so that translation
+becomes the test of whether two utterances start the same conversation---an
+audit of the route, not the endpoints, which a meaning-blind mechanism passes
+and a false friend fails. A master equivalence binds every structure to the one
+fact $\flo>0$. The development is offered as the structural common form beneath
+the indeterminacy of translation, radical interpretation, conversational
+implicature, and meaning-as-use; we prove everything of the abstract graph
+alone, and confine interpretation to remarks.
+\end{abstract}
+
+\noindent\textbf{Keywords:} finite weighted graph; minimum cut; individuation
+by negation; resolution floor; meaning as region; content versus meaning;
+semantic quiescence; bidirectional relaxation; distance to the floor;
+comprehension-free translation; propagation of uncertainty; conversation.
+
+\tableofcontents
+
+% ============================================================================
+\part{Foundations: the floor}
+% ============================================================================
+
+% ============================================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================================
+
+\subsection{The question}
+
+What is the meaning of an utterance, and what is it to render it faithfully in
+another tongue? Two traditions answer differently. One locates meaning in
+\emph{reference} and \emph{sense}---a sentence means by picking out conditions
+in the world \citep{frege1892}---and translation is the preservation of those
+conditions. Another locates meaning in \emph{use}---a word means by its role in
+a practice \citep{wittgenstein1953}---and translation is the matching of roles.
+Each has been pressed to a limit: that translation is \emph{indeterminate}, with
+no fact of the matter fixing one rendering over an incompatible other
+\citep{quine1960}; that interpretation is \emph{radical}, recoverable only
+holistically from behaviour \citep{davidson1973}; that what is communicated
+outruns what is said, by \emph{implicature} read off the assumption that a
+speaker is cooperating \citep{grice1975,sperberwilson1986}; and that meaning
+``ain't in the head'' \citep{putnam1975}. We do not adjudicate among these. We
+exhibit a single mathematical structure of which each is a projection, and we
+derive it---not assume it---from one fact about finitely many parts told apart
+within a whole they cannot exhaust.
+
+\subsection{The thesis}
+
+Three claims organise the paper, each proved below.
+
+\emph{First}, telling a part from the rest is never free. In a finite weighted
+graph of parts individuated within a non-completable whole, every cut separating
+a part from the rest carries weight bounded below by a strictly positive floor
+$\flo>0$ (\Cref{sec:floor}). The floor is derived: a complete identification of
+a part would have to bring the whole to bear, which a non-completable whole
+forbids, so a residue remains.
+
+\emph{Second}, the identity of a part is that residue---the invariant minimum
+cut, a \emph{region} of weight $\ge\flo$, never a point (\Cref{sec:identity}). It
+is the \emph{least sufficient unknowability} of a thing: the cheapest commitment
+of \emph{what it is not} that suffices to tell it apart. It is never the thing
+itself; to reach the thing itself (residue $0$) one would have to be it.
+Meaning, accordingly, cannot be extracted (\Cref{sec:meaning}).
+
+\emph{Third}, because meaning cannot be read, identity of meaning is detected,
+not known: two sides mean the same iff no difference can \emph{propagate}
+between them. We make propagation a graph dynamics, define its fixed point
+(\emph{quiescence}), and prove that quiescence \emph{constitutes} identity of
+meaning---certified blind, at positive residual of form
+(\Cref{sec:quiescence}). The rest of the paper turns this into a translator
+that never comprehends and a model of conversation in which a response is forced
+by the residue and steered by the demand (\Cref{sec:conversation,sec:four}).
+
+\subsection{Method}
+
+The development is austere on purpose: every object is a finite weighted graph
+or a construction on one, with no metric, no measure, and no probability except
+as a derived normalisation. The reason is to leave nothing undefined. ``The
+identity of a thing'' is a specific graph invariant; ``meaning'' is a specific
+cut; ``uncertainty'' is a specific distance; ``a proper translation'' is a
+specific fixed point. A reader who grants only finite weighted graphs can check
+every claim, and minimum cuts are computable exactly by maximum
+flow~\citep{fordfulkerson1956,menger1927}. Where a tempting claim could not be
+proved at this standard it has been removed rather than weakened, and every
+interpretive reading is confined to a remark on which no theorem depends.
+
+% ============================================================================
+\section{Contact graphs}
+\label{sec:graph}
+% ============================================================================
+
+\begin{definition}[Finite weighted graph; cut]
+\label{def:graph}
+A \emph{finite weighted graph} is a triple $\Gph=(\V,\E,\wt)$ with $\V$ a finite
+non-empty vertex set, $\E\subseteq\binom{\V}{2}$ undirected edges, and
+$\wt\colon\E\to\R_{>0}$. We take $\Gph$ connected unless stated. For
+$\varnothing\neq S\subsetneq\V$ the \emph{cut} is
+$\cut(S)=\{\{u,v\}\in\E:u\in S,\ v\notin S\}$ with weight
+$\wt(\cut(S))=\sum_{e\in\cut(S)}\wt(e)$.
+\end{definition}
+
+\begin{definition}[Contact graph; the medium]
+\label{def:contact}
+A \emph{contact graph} is a finite weighted graph with a distinguished vertex
+$\med\in\V$, the \emph{medium}, adjacent to every other vertex. The vertices
+$v\neq\med$ are the \emph{items}; an edge between two items is a \emph{contact},
+its weight the cost of the separation distinguishing them.
+\end{definition}
+
+\begin{definition}[Separation cost]
+\label{def:sepcost}
+The \emph{separation cost} of an item $v$ is the minimum weight of a cut placing
+$v$ on one side and the medium on the other,
+\[
+\str(v)\ =\ \min_{S\ni v,\ \med\notin S}\ \wt(\cut(S)),
+\]
+attained on finite $\V$; the minimising cut is the \emph{resting cut} of $v$.
+This is the $v$--$\med$ minimum cut, computable by max-flow
+\citep{fordfulkerson1956,menger1927,diestel2017}.
+\end{definition}
+
+\begin{remark}[The medium is the rest, not a background]
+\label{rem:medium}
+The medium is not a spatial container; it is the single vertex standing for
+``everything else,'' against which each item is told apart. Its adjacency to
+every item encodes that every item is, at minimum, individuated against the
+whole. No theorem uses any reading of $\med$ beyond \Cref{def:contact}.
+\end{remark}
+
+% ============================================================================
+\section{The floor, derived}
+\label{sec:floor}
+% ============================================================================
+
+We show the central constant is not assumed but forced by two facts: an item is
+a proper part, and the whole is non-completable.
+
+\begin{definition}[Expanding family; non-completable whole]
+\label{def:noncompletable}
+An \emph{expanding family} is a chain of contact graphs
+$\Gph_0\subseteq\Gph_1\subseteq\cdots$, each obtained from the last by adding
+items and contacts while retaining the medium and all prior structure. The whole
+is \emph{non-completable} if the family has no terminal stage: for every finite
+$\Gph_k$ there is $\Gph_{k+1}\supsetneq\Gph_k$. This is an order condition (no
+last stage), not a cardinality assumption.
+\end{definition}
+
+\begin{definition}[Identification residual]
+\label{def:residual}
+To \emph{identify} an item $v$ at stage $\Gph_k$ is to determine it by its
+resting cut $\cut(S^\ast(v))$ in $\Gph_k$. The identification is \emph{complete}
+if every item of the whole has been brought to bear in the cut---i.e.\ the cut
+is taken in a graph containing the whole. The \emph{identification residual}
+$\res(v)\ge0$ is the cut content a complete identification would remove that a
+finite-stage identification cannot; $\res(v)=0$ iff identification is complete.
+\end{definition}
+
+\begin{theorem}[Floor from infinitude]
+\label{thm:floor-derived}
+Let the whole be non-completable and let $v$ be a proper part ($v\neq\med$, $v$
+not exhausting $\V$). Then the identification of $v$ cannot be completed at any
+finite stage, and $\res(v)>0$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\res(v)=0$: identification is complete at some finite $\Gph_k$. By
+\Cref{def:residual} completeness means every item of the whole has entered the
+cut of $v$ against $\med$, i.e.\ the cut is computed in a graph containing the
+whole, so $\Gph_k$ contains the whole. This contradicts non-completability
+(\Cref{def:noncompletable}), which guarantees a further stage
+$\Gph_{k+1}\supsetneq\Gph_k$ with an item not in $\Gph_k$, hence not yet brought
+to bear. No finite stage completes the identification; $\res(v)>0$.
+\end{proof}
+
+\begin{theorem}[Positive floor]
+\label{thm:floor}
+There is a constant $\flo>0$ with $\wt(e)\ge\flo$ for every contact and
+$\str(v)\ge\flo$ for every item: no two items are separated at zero cost, and no
+item is individuated for free.
+\end{theorem}
+
+\begin{proof}
+Set $\flo:=\inf_v\res(v)$. Each $\res(v)>0$ (\Cref{thm:floor-derived}); the
+residual is the irreducible boundary content of $v$'s individuation, carried by
+the edges of $v$'s resting cut, so each such edge has weight $\ge\flo$. Every
+edge $\{u,v\}$ lies in $\cut(\{u\})$, so every weight is $\ge\flo$. Connectivity
+forces $\cut(S^\ast(v))\neq\varnothing$, so
+$\str(v)=\wt(\cut(S^\ast(v)))\ge\flo>0$.
+\end{proof}
+
+\begin{corollary}[No sharp cut]
+\label{cor:no-sharp}
+There is no cut of weight $0$ separating a connected contact graph into a
+nonempty item set and its nonempty complement. Every individuation deposits
+weight $\ge\flo$.
+\end{corollary}
+
+\begin{remark}[The floor is the trace of the whole on its parts]
+\label{rem:trace}
+\Cref{thm:floor-derived,thm:floor} make $\flo$ derived: it is the residue a
+non-completable whole forces on every finite part. A completable whole would
+permit $\res(v)=0$, hence sharp cuts and point-identities; the impossibility of
+finishing the comparison is exactly what makes the floor positive. We return to
+this as the master equivalence (\Cref{sec:master}); no later theorem assumes
+$\flo$, only its positivity.
+\end{remark}
+
+% ============================================================================
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_1.png}
+\caption{\textbf{The floor and granular meaning} (computed on finite weighted
+graphs; exact minimum cuts). \textbf{(A)}~Separation cost $\sigma(v)$ for every
+item of ${\sim}220$ random contact graphs versus graph size; every point lies on
+or above the floor $\flo$ (red), independent of size---no sharp cut
+(\Cref{thm:floor}). \textbf{(B)}~Distribution of $\sigma(v)/\flo$, supported
+entirely at and above $1$. \textbf{(C)}~Alignment score $\al(x,y)$ versus the
+floor $\flo/\Om$; every point lies above the diagonal, the bound
+$\al\ge\flo/\Om$ (\Cref{lem:align-floor}). \textbf{(D)}~The realised floor
+$\min_v\sigma(v)$ over graph size and $\flo$: strictly positive throughout,
+rising with $\flo$.}
+\label{fig:panel1}
+\end{figure*}
+
+\section{Individuation by negation}
+\label{sec:negation}
+% ============================================================================
+
+\begin{definition}[Selector; no privileged vertex]
+\label{def:selector}
+A \emph{selector} for an item set $U\subseteq\V$ is a rule fixing $U$ by naming
+a distinguished vertex of $U$ in advance. A determination is \emph{selector-free}
+if it names no vertex of $U$. The graph has \emph{no privileged vertex} if the
+data presented to a determining rule are invariant under the weighted
+automorphism group $\Aut(\Gph)$, so no vertex is singled out by the data alone.
+\end{definition}
+
+\begin{theorem}[Individuation by negation]
+\label{thm:negation}
+In a contact graph with no privileged vertex, any selector-free determination of
+an item set $U$ fixes $U$ as the complement of its negation set,
+$U=\V\setminus\co U$ with $\co U:=\V\setminus U$ specified first; conversely
+every admissible $\co U$ determines a unique $U$; and no selector-based rule
+fixes $U$ without invoking a further selector.
+\end{theorem}
+
+\begin{proof}
+\emph{Necessity.} To fix $U$ is to decide membership of each vertex. A positive
+rule asserting membership of a distinguished vertex must name it; with
+$\Aut(\Gph)$-invariant data no vertex is named, so the rule must supply
+one---a selector---which must in turn be fixed, either given in advance
+(excluded) or by a prior rule facing the same dichotomy. The regress halts only
+at a rule naming no vertex of $U$: the withholding of $U$ from the whole, i.e.\
+specifying $\co U$ and taking $U$ as the remainder, which names only ``the
+rest,'' supplied by $\V$. \emph{Sufficiency and uniqueness.} Complementation
+$U\mapsto\V\setminus U$ is an involution on subsets of the finite set $\V$, so
+$\co U$ determines $U$ uniquely and conversely.
+\end{proof}
+
+\begin{corollary}[An item is fixed by its non-neighbours]
+\label{cor:nonneighbours}
+A single item $v$ is determined selector-free by the partition of the rest into
+its neighbours $N(v)$ (what it contacts) and non-neighbours $\V\setminus N[v]$
+(what it neither is nor contacts), with no intrinsic mark on $v$. Its identity
+is carried by this negation structure, not by its label.
+\end{corollary}
+
+\begin{remark}[Why negation closes the regress]
+\label{rem:regress}
+A positive selector is a rule ``choose a vertex'' that must itself be chosen;
+with no privileged vertex the choice has no ground and regresses
+(\Cref{def:selector}). Complementation is the unique operation fixing a part
+using only the whole and the part's own absence---data already present once the
+graph is given. Negation, not selection, is the primitive.
+\end{remark}
+
+% ============================================================================
+\section{Identity is the invariant cut: the least sufficient unknowability}
+\label{sec:identity}
+% ============================================================================
+
+We identify what about an item is invariant across all re-encodings of the
+graph, and show it is never a label and never a point.
+
+\begin{definition}[Weighted isomorphism; relabelling]
+\label{def:iso}
+A \emph{weighted isomorphism} $\phi\colon\Gph\to\Gph'$ is a vertex bijection
+preserving the medium, edges, and weights. A \emph{relabelling} is an
+automorphism. A \emph{graph invariant} is a function equal on isomorphic graphs.
+\end{definition}
+
+\begin{theorem}[The minimum cut is the conserved invariant]
+\label{thm:invariant}
+The separation cost $\str(v)$ and the resting cut of $v$ are weighted-graph
+invariants: if $\phi\colon\Gph\to\Gph'$ is a weighted isomorphism then
+$\str_{\Gph'}(\phi v)=\str_\Gph(v)$. The vertex label of $v$ is not invariant: it
+is permuted by automorphisms.
+\end{theorem}
+
+\begin{proof}
+$\phi$ carries each $v$--$\med$ cut to a $\phi v$--$\med'$ cut of equal weight
+(weights preserved), and the correspondence on cuts has inverse $\phi^{-1}$, so
+the minima agree. Labels are permuted by any nontrivial automorphism, hence not
+invariant.
+\end{proof}
+
+\begin{theorem}[Identity is a region, never a point]
+\label{thm:region}
+The identity of an item---the invariant datum fixing it---is its resting cut, a
+set of contacts of total weight $\str(v)\ge\flo>0$. It is realised by no single
+vertex: in general the minimising side $S^\ast(v)$ is not the singleton
+$\{v\}$, and the identity cannot be reduced to a zero-content (point) datum.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:invariant} the invariant fixing $v$ is the minimum-cut value and
+its cut set, not the variable label. By \Cref{thm:floor} the cut has weight
+$\ge\flo>0$, never a point. Non-locality: take two dense item-clusters joined by
+a single $\flo$-weight contact; the minimum cut against $\med$ may separate a
+whole cluster (a side of size $>1$) at weight below $\min_v\wt(\cut(\{v\}))$, so
+the minimiser is not a singleton and the identity is borne by a region of
+contacts.
+\end{proof}
+
+\begin{definition}[Least sufficient unknowability]
+\label{def:lsu}
+The \emph{least sufficient unknowability} of an item $v$ is its separation cost
+$\str(v)$: the minimum commitment of \emph{what $v$ is not} that suffices to
+tell $v$ from the rest. It is the cheapest sufficient individuation, attained at
+the resting cut, of weight $\ge\flo$.
+\end{definition}
+
+\begin{theorem}[Identity is the least sufficient unknowability, never the thing]
+\label{thm:lsu}
+For every item $v$: \textup{(i)} $\str(v)$ is the least cost at which $v$ is
+sufficiently individuated (a smaller cut does not separate $v$ from $\med$);
+\textup{(ii)} $\str(v)\ge\flo>0$, so the identity is never the thing itself (a
+zero-cost, residue-free datum); \textup{(iii)} attaining residue $0$---``being
+$v$ itself''---would require completing the comparison of $v$ against the whole,
+forbidden by \Cref{thm:floor-derived}.
+\end{theorem}
+
+\begin{proof}
+(i) By \Cref{def:sepcost} $\str(v)$ is the minimum $v$--$\med$ cut; any cheaper
+cut fails to separate $v$ from $\med$, so does not individuate $v$. (ii) is
+\Cref{thm:floor}. (iii) residue $0$ is $\res(v)=0$, which
+\Cref{thm:floor-derived} shows requires the whole to be brought to bear, i.e.\
+the comparison completed, impossible against a non-completable whole.
+\end{proof}
+
+\begin{remark}[A name denotes a cut]
+\label{rem:name}
+A name---a label such as ``this thing''---carries no invariant; it is the
+relabellable surface. What is invariant is the resting cut, the region of
+contrasts by which the thing is told from the rest, of weight $\ge\flo$. A name
+denotes that cut at the current stage of an expanding family, converging to an
+intrinsic value it never reaches as a point (\Cref{thm:region,thm:lsu}). This is
+the precise sense in which the identity of a thing is what it is \emph{not},
+sufficiently and at least cost---never what it is.
+\end{remark}
+
+% ============================================================================
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_2.png}
+\caption{\textbf{Individuation by negation and the invariant region.}
+\textbf{(A)}~The minimum-cut minimiser side $|S^\ast(v)|$ versus cluster size $k$
+for the two-cluster construction: it equals $k>1$, so identity is a region, never
+a point (\Cref{thm:region}). \textbf{(B)}~$\sigma(v)$ after a random relabelling
+versus before: on the diagonal---identity is a relabelling invariant
+(\Cref{thm:invariant}). \textbf{(C)}~$|U|+|\complement U|$ versus $|V|$: on the
+diagonal, a part and its negation partition the whole exactly
+(\Cref{thm:negation}). \textbf{(D)}~The same in three coordinates
+$(|U|,|\complement U|,|V|)$, lying on the plane $|U|+|\complement U|=|V|$.}
+\label{fig:panel2}
+\end{figure*}
+
+\part{Termination, meaning, and propagation}
+% ============================================================================
+
+% ============================================================================
+\section{Termination: only completed items individuate}
+\label{sec:termination}
+% ============================================================================
+
+Before a part can be told apart there must be a part to tell. We isolate the
+condition---\emph{termination}---and show it is prior to everything that
+follows.
+
+\begin{definition}[Terminated and open units]
+\label{def:terminated}
+A \emph{unit} is a connected item set $U$ with the induced contact structure. It
+is \emph{terminated} if its resting cut against the medium is attained, giving a
+definite separation cost $\str(U)\ge\flo$; it is \emph{open} if no such cut is
+attained (the minimising cut does not exist as a committed boundary).
+\end{definition}
+
+\begin{theorem}[Only terminated units can be told apart or propagated]
+\label{thm:terminate}
+A unit has a defined alignment to another unit (\Cref{def:alignment} below),
+hence a defined demand to propagate (\Cref{def:demand}), only if terminated. An
+open unit has no defined cut against the medium, hence no defined alignment and
+no computable demand.
+\end{theorem}
+
+\begin{proof}
+Alignment and demand are defined through a minimum cut against the medium
+(\Cref{def:alignment,def:demand}), which requires an attained resting
+cut---termination. An open unit's separation cost is undefined; no alignment or
+demand is computable on it.
+\end{proof}
+
+\begin{construction}[Completion]
+\label{con:completion}
+A unit is terminated by committing a completion boundary: a bounded
+(``completed'') form, drawn as a cut, gives the resting cut the rest of the
+theory requires. Some completion must be applied for a unit to enter the
+development; which one is a modelling choice. \textit{(No theorem depends on the
+choice.)}
+\end{construction}
+
+\begin{remark}[Termination is the first step, and it is not free]
+\label{rem:first-step}
+\Cref{thm:terminate} marks termination as the mandatory first operation: an
+un-terminated ``distinction'' commits no boundary, hence individuates nothing
+and propagates nothing---there is no part there to tell apart. Committing the
+completion boundary deposits residue $\ge\flo$ (\Cref{cor:no-sharp}); the act of
+making a thing a definite thing already pays the floor. In linguistic terms this
+is casting an utterance into a completed, well-formed unit before it can be
+rendered; nothing downstream applies to an item that has not first been brought
+to a boundary.
+\end{remark}
+
+% ============================================================================
+\section{Content, meaning, and the impossibility of extraction}
+\label{sec:meaning}
+% ============================================================================
+
+\begin{definition}[Content versus meaning]
+\label{def:content}
+The \emph{content} of a unit is its label---its literal marks and their
+dictionary correspondents. The \emph{meaning} of a unit $U$ is its resting cut
+(\Cref{thm:region}): the region of contrasts individuating $U$ against the rest.
+Content is a name on the cell; meaning is the cell's individuation against the
+whole. They coincide only when the literal form is itself the operative
+individuation, which is not the general case (\Cref{ex:greeting}).
+\end{definition}
+
+\begin{example}[Content and meaning come apart]
+\label{ex:greeting}
+``How are you?'' has content \emph{health-inquiry} and, in greeting usage,
+meaning \emph{greeting}: its resting cut individuates it against other
+greetings, not against other health-inquiries. A rendering that preserves
+content yields the health-inquiry correspondent and misses the greeting;
+the two land on different target cells \citep{jakobson1959,nida1964}.
+\end{example}
+
+\begin{theorem}[Cognate substitution cannot reach meaning]
+\label{thm:no-cognate}
+Let two contact graphs $\Gph,\Gph'$ (two languages) carve the same space of
+senses with different weights. A content map---one sending each unit to its
+correspondent label---does not in general preserve meaning: there are units
+whose correspondent has a different resting cut from the unit's meaning. Two
+obstructions guarantee it: \textup{(i)} \emph{different carvings} (one graph
+resolves a cell where the other resolves several, so a source meaning need not
+be any single target cell); \textup{(ii)} \emph{content $\neq$ meaning} (even
+within one carving, the correspondent preserves content, which is not the
+meaning).
+\end{theorem}
+
+\begin{proof}
+(i) Let $\Gph$ resolve one cell where $\Gph'$ resolves two; the content map
+sends the source cell to one correspondent, whose resting cut individuates it
+against the \emph{other} target cell---a contrast absent from the source cell's
+cut---so the cuts differ. (ii) In \Cref{ex:greeting} the correspondent preserves
+the health-inquiry content; its resting cut individuates against
+health-inquiries while the unit's meaning individuates against greetings. In
+both cases the correspondent's meaning differs from the source meaning.
+\end{proof}
+
+\begin{theorem}[Meaning is unextractable]
+\label{thm:unextractable}
+There is no operation that reads the meaning of a unit off as a value---i.e.\ that
+resolves its resting cut to a residue-free point. Such a reading would require
+$\res(U)=0$, which by \Cref{thm:floor-derived} requires the whole to be brought
+to bear, i.e.\ the reader to occupy $U$'s entire negation-structure---to
+\emph{be} $U$, which is no longer a comparison. Hence no agent, in either
+language, reads meaning as a value.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:region,thm:lsu} the meaning is the resting cut of weight $\ge\flo$,
+and reducing it to a point is $\res(U)=0$, excluded by
+\Cref{thm:floor-derived}. Concretely, to fix $U$ exactly is to decide it against
+the totality of what it is not; the agent reading it is itself within that
+totality, so a complete reading would require it to be both the part read and
+the whole it is read against---to occupy both sides of the constituting
+partition at once. The gap that keeps them apart is the residue $\ge\flo$.
+\end{proof}
+
+\begin{remark}[The precise reading is a precise reading of content]
+\label{rem:precision}
+Optimising a rendering for precision optimises fidelity to the source
+\emph{content}---the literal marks and their correspondents. By
+\Cref{def:content} content is exactly what the meaning is not. A precise
+rendering therefore reproduces the non-meaning faithfully: an accurate
+\emph{contact} that is not the unit's significance. Precision is fidelity to the
+wrong object; the right object is the meaning, which is what the unit
+\emph{propagates} (\Cref{sec:propagation}), and which \Cref{thm:unextractable}
+forbids reading. This motivates the criterion of \Cref{sec:quiescence}; no
+theorem depends on the reading.
+\end{remark}
+
+\begin{remark}[The standing form beneath indeterminacy]
+\label{rem:quine}
+\Cref{thm:unextractable} is the structural root of the indeterminacy of
+translation \citep{quine1960} and the holism of radical interpretation
+\citep{davidson1973}: there is no fact reading meaning off a word as a value,
+because the value would be a residue-free point the floor forbids. What we add
+is that indeterminacy is not a defect to be lamented but the condition under
+which there is anything to say (\Cref{sec:conversation}); and that, though
+meaning cannot be read, identity of meaning can be \emph{detected}, which is all
+a translator needs (\Cref{sec:quiescence}).
+\end{remark}
+
+% ============================================================================
+\section{Names: stashes of unknowability, and the late self-name}
+\label{sec:names}
+
+One unit deserves separate treatment: the \emph{name}. We show a name is the
+content-free handle on an item's resting cut---a stash of unknowability---and
+that the \emph{self}-name, the name of the namer, is necessarily late and
+approximate, read directly off individuation by negation together with a
+self-contained diagonal.
+
+\subsection{A name is the cut without the content}
+
+\begin{definition}[Name]
+\label{def:name}
+A \emph{name} of an item $v$ is a token $n_v$ that fixes $v$'s cell---its resting
+cut $\mathrm{cell}(v):=\cut(S^\ast(v))$---by reference, adding no contrast of its
+own to that cut. A name individuates by pointing; it carries no descriptive
+content.
+\end{definition}
+
+\begin{theorem}[A name is a stash of unknowability, never the thing]
+\label{thm:name-stash}
+For an item $v$ with name $n_v$: \textup{(i)} $n_v$ individuates $v$ (fixes a
+unique cell) while carrying no descriptive content (it adds nothing to $v$'s
+resting cut); \textup{(ii)} what $n_v$ retrieves is $v$'s cell---the region of
+contrasts of weight $\ge\flo$ by which $v$ is told from the rest---never $v$
+itself, the residue-free invariant, which is unextractable
+(\Cref{thm:unextractable}); \textup{(iii)} hence a name is the irreducible
+minimum individuation of $v$---a floor-handle---packaging $v$'s unknowability
+($\ge\flo$ of \emph{not}-$v$) into a single referenceable token.
+\end{theorem}
+
+\begin{proof}
+(i) By \Cref{def:name} $n_v$ fixes the cell (individuates) without adding any
+contrast (no content). (ii) The cell is the resting cut, a region of weight
+$\ge\flo$ (\Cref{thm:region}), the retrievable datum; $v$ itself is the
+residue-$0$ point, forbidden and unextractable
+(\Cref{thm:lsu,thm:unextractable}). (iii) The cell is the least sufficient
+unknowability of $v$ (\Cref{def:lsu}); $n_v$ is its handle.
+\end{proof}
+
+\begin{remark}[The two routes; a name versus a description]
+\label{rem:two-routes}
+There are two selector-free ways to fix $v$: \emph{unpack} the resting cut
+explicitly (describe $v$ against everything it is not), or \emph{reference} it by
+a name. A proper name---``John''---is the limit: it makes a \emph{specific} $v$
+(maximal individuating force) while adding no description (zero content), a token
+denoting a cut without connoting it. It does not convey what $v$ is; it stashes
+\emph{what $v$ is not}, sufficiently, in one word. And what it returns is the
+retrievable cell, not $v$: what one retrieves is what one could figure out, not
+the thing. No theorem depends on the reading.
+\end{remark}
+
+\subsection{Static and dynamic irreducibles; a name is not reached by negation}
+
+\begin{definition}[Static and dynamic irreducibles]
+\label{def:static-dynamic}
+A \emph{static irreducible} is a resting cut individuated context-free---the same
+cell in every context (the catalogue cell of a fixed item, an element). A
+\emph{dynamic irreducible}, or \emph{name}, is a stash whose referenced cell is
+fixed only relative to a running context: the cell it individuates against shifts
+as the context shifts.
+\end{definition}
+
+\begin{theorem}[A name is not reached by a negation-sequence]
+\label{thm:non-derivable}
+No name is the terminus of a negation-sequence. \textup{(i)} A name-token is a
+handle (\Cref{def:name}), not a cell, so it is not in the range of the cut
+operation: no walk of committing cuts outputs the name; the name is \emph{given},
+not computed. \textup{(ii)} A name is \emph{non-compositional}: the resting cut of
+a compound name need not equal any composition of its constituents' resting cuts,
+so no walk of negations over the constituents reaches the compound's cell.
+\end{theorem}
+
+\begin{proof}
+(i) By \Cref{def:name} a name references a cell externally; the cut operation
+(\Cref{def:sepcost}) produces a cell---an edge set---never a token, so the token
+is not its output. (ii) Let $U=\{u,v\}$ be a compound whose items are densely
+joined to each other (weight $W$) but thinly to the rest (weight $\flo$ each).
+Its resting cut is the minimum $U$--$\med$ cut, of weight $2\flo$ and cut set
+$\{u\med,v\med\}$; the would-be composition of the constituents' singleton cuts
+is $\{uv,u\med\}\cup\{uv,v\med\}$, of weight $W+2\flo$ and a different edge set.
+For $W>0$ these differ, so the compound's cell is not the composition of the
+parts' cells, and no negation over the parts reaches it.
+\end{proof}
+
+\begin{remark}[The riverbed]
+\label{rem:riverbed}
+A description is the negation-sequence---``not this, not that,'' terminating at a
+cell---reachable by such steps. A name short-circuits it: ``riverbed'' is one
+element whose cell is \emph{not} ``a bed where a river sleeps''; ablating either
+word destroys the individuation, and the literal sub-senses do not compose to it
+(\Cref{thm:non-derivable}\,(ii)). One cannot \emph{derive} a name; it is handed
+over. This is why a name is a stash and not a label on a known thing: a label on
+a known thing would be computable, and a name is not. No theorem depends on the
+reading.
+\end{remark}
+
+\begin{proposition}[Contextual interchangeability]
+\label{prop:interchange}
+In a fixed context, distinct handles referencing the same cell---a name, a
+description, a circumlocution---have the same alignment to every target, hence the
+same cross-demand, hence are quiescent with one another (\Cref{thm:quiescence});
+the particular handle is immaterial, and only the referenced cell enters any
+invariant.
+\end{proposition}
+
+\begin{proof}
+Alignment is a minimum-cut weight, a function of the referenced cell and not of
+the handle (\Cref{def:alignment}); two handles on the same cell give equal
+alignment to every target, so all cross-demands agree and they are quiescent
+(\Cref{thm:quiescence}). The handle, a label, is permuted by relabelling and is
+not an invariant (\Cref{thm:invariant}).
+\end{proof}
+
+\begin{theorem}[A dynamic stash is resolved only by propagation]
+\label{thm:stash-propagation}
+The cell a name stashes cannot be recovered by decomposing the name---it is not
+reached by negation (\Cref{thm:non-derivable})---and is context-relative
+(\Cref{def:static-dynamic}, \Cref{thm:receiver}). The only handle-independent,
+context-sensitive quantity is the propagation---the cross-demand, equivalently the
+response the name invites. Hence identity of two stashes is identity of their
+propagation, tested by the four-column criterion (\Cref{thm:four}), never by
+decomposition.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:non-derivable} the stashed cell is not the terminus of a derivation
+from the token; by \Cref{thm:receiver} it is decoder/context-relative; so no
+handle-internal or context-free quantity fixes it. The cross-demand
+(\Cref{def:demand}) is handle-independent (\Cref{prop:interchange}) and
+context-sensitive, and its vanishing is identity of meaning (\Cref{thm:quiescence});
+so identity of stash is identity of propagation, which \Cref{thm:four} tests by
+the responses.
+\end{proof}
+
+\begin{remark}[Element versus name; rest versus propagation]
+\label{rem:element-name}
+A static irreducible is a cell \emph{at rest}---an element of a catalogue, the
+same in every context (``lithium'' always means lithium). A name is a cell
+\emph{under propagation}---fixed only relative to a context, and resolved only
+through how it propagates. ``Peter,'' ``a medical student at Harvard,'' and ``one
+who studies human anatomy at an institution of higher learning in Massachusetts''
+are, in a context, one dynamic stash under three handles; which handle is used is
+immaterial (\Cref{prop:interchange}), and that they stash the same thing is
+established by their starting the same conversation (\Cref{thm:stash-propagation}),
+not by any decomposition. No theorem depends on the reading.
+\end{remark}
+
+\subsection{The self-name is the diagonal}
+
+\begin{definition}[Namer; self-naming]
+\label{def:namer}
+A \emph{namer} is an agent, realised as a part of the graph, that given an item
+$X$ and a candidate constituting totality $T$ returns $\mathsf{V}(X,T)\in\{0,1\}$,
+reading $1$ iff $X$ is the part $T$ constitutes, i.e.\ iff $X=\V\setminus T$. To
+\emph{name the namer} is to evaluate $\mathsf{V}$ on the part its own verdicts
+constitute---its own negation.
+\end{definition}
+
+\begin{theorem}[No direct self-name: the diagonal]
+\label{thm:self-diagonal}
+Let $D:=\{X:\mathsf{V}(X,\co X)=0\}$. If $\mathsf{V}$ is total (returns a value on
+every part and its negation) and $D$ is itself a part on which
+$\mathsf{V}(\cdot,\co\,\cdot)$ is defined, then $\mathsf{V}(D,\co D)$ has no
+consistent value: $\mathsf{V}(D,\co D)=1$ and $\mathsf{V}(D,\co D)=0$ each entail
+the other. Hence no namer names itself directly; the self-name cannot be
+assigned at the source.
+\end{theorem}
+
+\begin{proof}
+If $\mathsf{V}(D,\co D)=1$ then $D$ is declared constituted by $\co D$; but the
+membership condition of $D$ is $\mathsf{V}(X,\co X)=0$, so $D$'s satisfying its
+own condition forces $\mathsf{V}(D,\co D)=0$. If instead $\mathsf{V}(D,\co D)=0$
+then $D$ meets its membership condition, hence is among the parts $D$ collects,
+which is the assertion $\mathsf{V}(D,\co D)=1$. Both values are self-refuting;
+none is consistent. This is the diagonal of \citet{cantor1891,russell1903}, the
+undecidability shape of \citet{godel1931,tarski1936}, and the fixed-point form of
+\citet{lawvere1969}.
+\end{proof}
+
+\begin{remark}[On the closure hypothesis]
+\label{rem:closure}
+The theorem is exactly as strong as its hypothesis that the behaviour-defined $D$
+is again a part on which $\mathsf{V}$ acts---genuine \emph{self}-application. An
+agent that names while being itself a part of the graph makes this natural: its
+verdicts leave a trace in the same whole they range over. We do not claim to
+discharge it in general; we mark it, and note that the unextractability of
+\Cref{thm:unextractable} (the floor argument) holds without it. What rides on the
+hypothesis is the sharper claim that the self-name is forbidden \emph{directly},
+hence reached only terminally.
+\end{remark}
+
+\subsection{The self-name is late, hence an approximation}
+
+\begin{theorem}[The self-name is late and approximate]
+\label{thm:self-late}
+A name is fixed by negation against the already-named (\Cref{thm:negation}). The
+namer's negation is everything it has named---the largest complement---so its
+separation cost is maximal and its individuation the most expensive. Therefore:
+\textup{(i)} the self-name cannot be first---it requires a non-empty set of prior
+names to be individuated against; \textup{(ii)} the direct self-name is forbidden
+(\Cref{thm:self-diagonal}), so the self-name is reached only \emph{terminally},
+after a periphery of other names creates the comparison; \textup{(iii)} it never
+reaches the invariant (\Cref{thm:unextractable}), so it is an
+\emph{approximation}---a floor-handle on the namer, not the namer.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:negation} an item is fixed only as the complement of its negation;
+the namer's negation is the set of everything it has named, which must therefore
+be non-empty and prior, giving (i). By \Cref{thm:self-diagonal} the namer cannot
+take itself as its own input directly, so no early, direct self-name is
+assignable; the only available determination is the indirect accumulation by
+negation against the already-named, which is terminal once that periphery exists,
+giving (ii). By \Cref{thm:unextractable,thm:name-stash} the handle never reduces
+the cut to residue $0$, giving (iii).
+\end{proof}
+
+\begin{corollary}[Names approximate an unknowability; they are not labels on
+known things]
+\label{cor:names-approx}
+Were a name a label on a \emph{known} thing, the best-known thing---the namer
+itself, the source of all knowing---would be named first. It is named last. The
+order is inverted from the label-on-a-known-thing prediction; hence names do not
+radiate outward from the best-known but accumulate inward from the individuated
+periphery, reaching toward an unknowability they never close. The self-name is
+the terminal approximation of the hardest case.
+\end{corollary}
+
+\begin{proof}
+A label on a known thing would be assignable first to the most-known; the namer
+is the most-known yet named last (\Cref{thm:self-late}\,(i,ii)); the only
+consistent reading is that the name approximates an unextractable invariant
+(\Cref{thm:self-late}\,(iii)) rather than carrying it.
+\end{proof}
+
+\begin{remark}[Language begins at the periphery]
+\label{rem:periphery}
+Interpretively, \Cref{cor:names-approx} is the founding asymmetry of language:
+the first word was a name for something that is \emph{not} the self, because one
+can name the self only against an already-named everything-else, and the
+everything-else must come first. The thing doing all the naming is the last to
+receive a name, and the name it receives---``mind,'' ``brain,'' a vapour-handle
+on the namer---is not it but a provisional floor-handle reaching toward the
+invariant it can never extract. The self-name is the linguistic instance of the
+diagonal: self-reference is the terminal operation, arrived at through everything
+else, and even then only approximately. No theorem depends on the reading.
+\end{remark}
+
+% ============================================================================
+\section{The residue is the propagator; the record is time}
+\label{sec:propagation}
+% ============================================================================
+
+We make cuts dynamic: a process is a sequence of committed cuts, the residue of
+each is what enables the next, and the count of cuts is the system's time.
+
+\begin{definition}[Committed cut; process; record]
+\label{def:process}
+A \emph{cut event} commits a contact $e\in\E$ as a realised separation. A
+\emph{process} is a finite sequence $P=(e_1,\dots,e_k)$ of distinct committing
+acts. The \emph{committed record} is $\rec(P)=k$. The \emph{residue} of $e_i$ is
+$\res_i:=\wt(e_i)\ge\flo>0$.
+\end{definition}
+
+\begin{theorem}[Residue as causal propagator]
+\label{thm:propagator}
+In a process the residue $\res_i>0$ of cut $e_i$ is necessary and sufficient for
+$e_{i+1}$ to be a distinct committing event: $e_{i+1}$ is a new cut iff the state
+after $e_i$ differs from the state before, which holds iff $\res_i>0$.
+\end{theorem}
+
+\begin{proof}
+$e_{i+1}$ is distinct iff it acts on a state changed by $e_i$. The only change
+$e_i$ makes is depositing its residue $\res_i$. If $\res_i>0$ the post-state
+carries a committed contact absent before, so $e_{i+1}$ acts on a strictly
+different configuration: distinct. If $\res_i=0$ (excluded by \Cref{thm:floor},
+argued for necessity) pre- and post-states coincide and $e_{i+1}$ has no changed
+state to act on. Thus $\res_i>0$ is necessary and sufficient.
+\end{proof}
+
+\begin{corollary}[A process is a residue chain]
+\label{cor:chain}
+A process is a chain in which each cut's residue causes the next:
+$\res_1\to e_2,\ \res_2\to e_3,\dots$; remove any $\res_i$ and the chain halts
+at step $i$.
+\end{corollary}
+
+\begin{theorem}[Monotone non-return]
+\label{thm:monotone}
+The committed record is strictly increasing along any process; no process
+decreases it. A process revisiting a configuration does not return to a prior
+state: the configuration recurs but the record has strictly grown, and the two
+states are distinguished by the record.
+\end{theorem}
+
+\begin{proof}
+Each cut event increments $\rec$ by one (\Cref{def:process}). To decrease $\rec$
+a committed contact would have to be un-committed; un-committing is itself a
+further committing act (a new cut redrawing the boundary), incrementing $\rec$.
+Hence $\rec$ is monotone. Two states with equal configuration but records
+$r<r'$ are separated by the partition ``record $\le r$'' vs ``$>r$,'' hence
+distinct: recurrence of configuration is not return of state.
+\end{proof}
+
+\begin{remark}[The record is time]
+\label{rem:time}
+\Cref{thm:monotone} attaches a monotone scalar to every process---the committed
+count---never decreasing, with equal configurations at different counts being
+different states. ``Before'' and ``after'' are the order on the record;
+the order is intrinsic to the sequence of cuts, requiring no external parameter.
+\end{remark}
+
+\begin{theorem}[Three readings of a residue]
+\label{thm:three}
+A residue $\res_i$ admits exactly three readings, by how its link to the next
+cut is resolved: \textup{(i)} \emph{time}---as the increment of the record
+(\Cref{thm:monotone}); \textup{(ii)} \emph{information}---when tracked as the
+specific cause of a specific next cut, a resolved link; \textup{(iii)}
+\emph{entropy}---when residues are present but their links are untracked, their
+aggregate is the Shannon content $H=-\sum_i p_i\log p_i$ of the unresolved-link
+distribution \citep{shannon1948,cover2006}. Tracking moves a process from
+entropy toward information; losing track moves it back.
+\end{theorem}
+
+\begin{proof}
+(i) is \Cref{thm:monotone}. (ii) a tracked link is a determinate map
+``$\res_i\mapsto e_{i+1}$''; specifying it for each $i$ specifies the chain
+exactly. (iii) with links unresolved the chain is known only through the
+distribution over which residue caused which next cut, of information content
+$H$ \citep{shannon1948}. Resolving links converts unknown distribution (entropy)
+into determinate functions (information).
+\end{proof}
+
+% ============================================================================
+\part{The uncertainty calculus and the relaxation}
+% ============================================================================
+
+% ============================================================================
+\section{Distance to the floor: the parameter-free uncertainty}
+\label{sec:distance}
+% ============================================================================
+
+We replace every imported uncertainty calculus by one derived quantity: how far
+a state is from the floor.
+
+\begin{definition}[Alignment; alignment score]
+\label{def:alignment}
+Fix a contact graph and a target unit $y$. The \emph{alignment} of a unit $x$ to
+$y$ is the minimum-cut weight separating them,
+$\str(x,y)=\min_{S\ni x,\ y\notin S}\wt(\cut(S))\in[\flo,\Om]$, where
+$\Om:=\wt(\E)$ is the total weight. The \emph{alignment score} is
+$\al(x,y):=\str(x,y)/\Om\in(0,1]$, small when $x,y$ are cheaply separated
+(nearly the same cut), large when expensively separated.
+\end{definition}
+
+\begin{lemma}[The floor bounds alignment below]
+\label{lem:align-floor}
+For distinct units $x\neq y$, $\al(x,y)\ge\flo/\Om>0$: no two distinct units are
+perfectly aligned; $\al=0$ would require $\str=0$, forbidden by \Cref{thm:floor}.
+\end{lemma}
+
+\begin{proof}
+Immediate from \Cref{thm:floor}: any $x$--$y$ cut has weight $\ge\flo$.
+\end{proof}
+
+\begin{theorem}[Distance to the floor replaces the borrowed calculus]
+\label{thm:replace}
+The quantity ordinarily carried by a probability, a fuzzy membership, or a
+Bayesian posterior---a number in $[0,1]$ recording how sure or how much---is
+carried throughout by the alignment $\al(\cdot,\cdot)$ and its distance to the
+floor $\flo/\Om$. This quantity is \textup{(i)} \emph{derived} (a minimum-cut
+weight of the graph, not a fitted parameter), \textup{(ii)} \emph{bounded below}
+by $\flo/\Om>0$ (no certainty to a point, \Cref{lem:align-floor}), and
+\textup{(iii)} \emph{parameter-free} (no prior is set, no membership tuned).
+A resolution is to within the floor, never to a point; a residual $\res\ge\flo$
+always remains.
+\end{theorem}
+
+\begin{proof}
+(i) $\al=\str/\Om$ with $\str$ an exact minimum cut (\Cref{def:alignment}). (ii)
+\Cref{lem:align-floor}. (iii) the definition fixes $\al$ from the weights alone;
+no external prior or membership function enters. The least achievable distance
+is the floor itself, so resolution stops at $\flo/\Om>0$, never at $0$.
+\end{proof}
+
+\begin{remark}[Why a derived floor, not a prior]
+\label{rem:bayes}
+The standard calculi---subjective probability \citep{definetti1937},
+its logic \citep{cox1946,jaynes2003}, fuzzy membership \citep{zadeh1965}---each
+introduce a quantity by stipulation: a prior, a membership function, a
+degree. Here the corresponding quantity is forced: it is the trace the
+non-completable whole leaves on each part (\Cref{rem:trace}), so no prior is
+set and no membership is tuned. Where an uncertainty would be \emph{posited},
+the floor is \emph{derived}. No theorem depends on the comparison.
+\end{remark}
+
+% ============================================================================
+\section{Cross-demand and bidirectional relaxation}
+\label{sec:relaxation}
+% ============================================================================
+
+\begin{definition}[Two columns; anchors and residue]
+\label{def:columns}
+A \emph{column} is a terminated unit together with its current target rendering,
+ablation-ranked into \emph{anchors}---the items whose removal most lowers the
+unit's separation cost, held fixed---and \emph{residue items}---the rest, which
+the relaxation may move. The \emph{source} is column $\colA$; a naive
+correspondent rendering (each item to its label correspondent) is the
+\emph{seed} column $\colB$.
+\end{definition}
+
+\begin{construction}[Noun anchoring]
+\label{con:noun}
+After termination (\Cref{con:completion}), take the \emph{nouns} of a unit as the
+default anchor set. Each noun is a name---a committed cut, a context-relative
+stashed cell (\Cref{thm:name-stash,def:static-dynamic})---so the material it
+stashes is \emph{sufficiently excluded} (excluded to within the floor, relative to
+the running context) and need not be propagated into; the
+relaxation moves only the residue, the relational and predicative structure
+\emph{among} the nouns. A noun is \emph{re-opened} (un-anchored) precisely when
+its cross-demand is positive---when its stash does not transfer (a carving
+mismatch, \Cref{thm:no-cognate}, or a false friend)---anchors being stable but
+reclassifiable (\Cref{thm:relax-mono}).
+\end{construction}
+
+\begin{remark}[The nouns are the catalogue; the relations are the propagation]
+\label{rem:noun-catalogue}
+\Cref{con:noun} gives the relaxation a grammatical first pass: the nouns demarcate
+a \emph{boundary of material not to consider}---already stashed, sufficiently
+excluded---and the relaxation works only on what propagates, the structure among
+them. ``The bank approved the loan'' and ``the loan approved the bank'' share
+their noun-stashes but differ in relation, hence in meaning: the meaning lives in
+the residue, not the stashes. A sentence is then its noun-stashes---\emph{dynamic}
+irreducibles (\Cref{def:static-dynamic}), fixed only relative to the running
+context---together with its propagation (the relations among them); the static
+catalogue, the context-free cells, is the limiting element-like case
+(\Cref{rem:element-name}). Exclusion is
+\emph{sufficient}, never perfect: each noun keeps its own form-residual $\ge\flo$,
+checked at quiescence. No theorem depends on the reading.
+\end{remark}
+
+\begin{definition}[Reverse propagation; cross-demand]
+\label{def:demand}
+A \emph{reverse propagation} of column $X$ into the other language is a walk in
+the shared medium (the single uncarved whole both languages individuate, joined
+by contacts wherever a cell of one is individuable against a cell of the other)
+from each residue cell of $X$ to a cell of the other language, holding $X$'s
+anchors fixed; each step commits residue $\ge\flo$ and the cause of the next step
+is the residue deposited by the last. The \emph{cross-demand}
+$\dem_{\colA\to\colB}$ is the change required to make $\colB$ consistent with
+$\colA$'s reverse-image, measured as the summed above-floor alignment gap
+\[
+\dem_{\colA\to\colB}=\!\!\sum_{i\in\mathrm{res}(\colB)}\!\!
+\bigl(\al(\colB_i,\rlx_{\colA\to\colB}(\colA)_i)-\tfrac{\flo}{\Om}\bigr)\ge0,
+\]
+and $\dem_{\colB\to\colA}$ symmetrically. A column is \emph{satisfied from the
+other} when that direction's cross-demand is zero.
+\end{definition}
+
+\begin{definition}[Relaxation; quiescence; proper translation]
+\label{def:relax}
+The \emph{relaxation} alternates $\rlx_{\colA\to\colB}$ (update $\colB$'s residue
+to satisfy $\colA$, then re-ablate) and $\rlx_{\colB\to\colA}$, and iterates. The
+pair is \emph{quiescent}---a \emph{fixed point}---when both cross-demands vanish,
+$\dem_{\colA\to\colB}=\dem_{\colB\to\colA}=0$. A translation is \emph{proper}
+iff quiescent.
+\end{definition}
+
+\begin{theorem}[Monotone, floor-bounded relaxation]
+\label{thm:relax-mono}
+Along the relaxation the total committed residue is non-decreasing (each update
+commits cuts $\ge\flo$ and none is withdrawn, by \Cref{thm:monotone}) and is
+bounded below by $\flo$ per maintained contact; after the anchors stabilise
+(finitely many updates, since each column has finitely many items) the
+cross-demands are non-increasing.
+\end{theorem}
+
+\begin{proof}
+Each update is a reverse propagation committing cuts $\ge\flo$; by monotone
+non-return (\Cref{thm:monotone}) the committed total never decreases. Anchors,
+being the finitely many maximal-ablation items, are re-classified at most until
+their ranking stabilises, after finitely many updates. Thereafter each update
+only moves residue toward satisfying the other side's demand, which by
+\Cref{def:demand} reduces that direction's cross-demand or leaves it unchanged.
+\end{proof}
+
+\begin{theorem}[Dichotomy: quiescence or non-halting]
+\label{thm:dichotomy}
+The relaxation either reaches quiescence in finitely many steps, or it does not
+halt. After anchor stabilisation the cross-demands are non-increasing and bounded
+below by $0$, hence convergent; if the limit is $0$ over a finite state space the
+infimum is attained at a finite step (quiescence); if the limit is a positive
+constant the demands never vanish and the relaxation does not halt.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:relax-mono} the demands are non-increasing and $\ge0$, so
+convergent. The state space (finitely many residue assignments over finitely
+many cells) is finite, so a $0$ limit is attained at a finite step. A positive
+limit is never reached, and each update still requires a change on the other
+side. These are the only cases. The relaxation is a contraction toward the fixed
+point or it has none, in the sense of \citep{banach1922,tarski1955}.
+\end{proof}
+
+% ============================================================================
+\section{Quiescence constitutes identity of meaning}
+\label{sec:quiescence}
+% ============================================================================
+
+\begin{theorem}[Quiescence is identity of meaning, certified blind]
+\label{thm:quiescence}
+If $(\colA,\colB)$ is quiescent then $\colA$ and $\colB$ have the same meaning,
+and conversely a difference of meaning makes them non-quiescent; hence
+\[
+\text{quiescence}\ \Longleftrightarrow\ \text{identity of meaning},
+\]
+and the equivalence holds without any party knowing the meaning.
+\end{theorem}
+
+\begin{proof}
+\emph{Quiescent $\Rightarrow$ identical.} Suppose quiescent yet differing in
+meaning. A meaning-difference is a resting-cut difference: a contrast
+individuating $\colA$ that does not individuate $\colB$, or conversely.
+Reverse-translate $\colA$ into $\colB$ (\Cref{def:demand}); where $\colA$'s
+meaning carries a contrast $\colB$ lacks, the reverse-image places a cell
+$\colB$'s residue does not match, so
+$\al(\colB_i,\rlx_{\colA\to\colB}(\colA)_i)>\flo/\Om$ there, whence
+$\dem_{\colA\to\colB}>0$---contradicting quiescence. \emph{Difference
+$\Rightarrow$ non-quiescent.} The same construction yields a positive
+cross-demand. \emph{Blind.} The argument refers only to cross-demands, which are
+alignment gaps---minimum-cut weights---computed without resolving any cell to a
+value (\Cref{thm:unextractable}); the meaning is never read. Identity is
+certified by the \emph{absence of a propagable difference}, not by inspection.
+\end{proof}
+
+\begin{theorem}[Form survives: quiescence at positive residual]
+\label{thm:form}
+A proper translation is quiescent at residual $\res\ge\flo>0$, never at
+$\res=0$: the two sides have identical meaning and irreducibly different form,
+$\res$ being the form-residue that does not cross-propagate at quiescence.
+\end{theorem}
+
+\begin{proof}
+Every maintained contact carries weight $\ge\flo$ (\Cref{thm:floor}); the two
+columns are distinct carvings (\Cref{thm:no-cognate}), so even at identity of
+meaning each retains its own form-cells, individuated at cost $\ge\flo$ that the
+other cannot absorb without becoming the same language. Thus the residual is
+$\ge\flo>0$, and it is form, not meaning (cross-demands are zero). $\res=0$ would
+be a zero-cost identity of expression, forbidden by \Cref{cor:no-sharp}.
+\end{proof}
+
+\begin{theorem}[Two untranslatabilities; the honest decline]
+\label{thm:two-kinds}
+A unit fails to translate in exactly two ways, distinguished by the relaxation:
+\textup{(i)} \emph{shallow}---the relaxation halts but no single target cell is
+at floor distance, resolved at quiescence by a composite (gloss) or a borrowing
+(a difference of carving); \textup{(ii)} \emph{deep}---the relaxation does not
+halt, so no fixed point exists and the carvings admit no mutual semantic
+equilibrium. On a deeply untranslatable unit the correct output is to
+\emph{decline}---to report that no proper translation exists---rather than emit a
+non-quiescent (meaning-divergent) rendering.
+\end{theorem}
+
+\begin{proof}
+(i) If quiescent, the meanings are identical (\Cref{thm:quiescence}); identity is
+realised by a single floor-distance cell, or by the minimal composite whose joint
+cell reaches floor distance, or by a borrowing when none does (decided by
+computing single- and composite-cell alignments at the fixed point). (ii) If
+non-halting, the cross-demands are bounded below by a positive constant
+(\Cref{thm:dichotomy}); a nonzero cross-demand is a meaning-difference
+(\Cref{thm:quiescence}), so a difference persists under every update---no
+assignment makes the meanings identical. Any emitted rendering would be
+non-quiescent, i.e.\ meaning-divergent; declining is the only output consistent
+with properness.
+\end{proof}
+
+\begin{remark}[Why this is the criterion, not precision]
+\label{rem:criterion}
+A precision-seeker halts when the target matches the source content; the
+relaxation halts when no meaning-difference can propagate (\Cref{rem:precision}).
+``How are you?'' relaxes to the target greeting, not the health-inquiry
+correspondent: reverse-translating the greeting demands no health-inquiry, so the
+pair is quiescent at the greeting. The precision-seeker halts early, at content;
+the relaxation halts at meaning. No theorem depends on the example.
+\end{remark}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_3.png}
+\caption{\textbf{Propagation, the monotone record, and the relaxation.}
+\textbf{(A)}~The committed record $M$ along a walk (blue), strictly increasing;
+red marks revisited vertices---recurrence of position is not return of state
+(\Cref{thm:monotone}). \textbf{(B)}~Cross-demand $D$ along the relaxation: one
+instance reaches $0$ (quiescence, teal), one plateaus at the floor (non-halt
+$\to$ decline, orange) (\Cref{thm:dichotomy,thm:two-kinds}). \textbf{(C)}~Residual
+above floor for several seeds, each descending to $0$. \textbf{(D)}~The demand
+surface $D(\text{step},D_0)$: monotone descent to the floor.}
+\label{fig:panel3}
+\end{figure*}
+
+% ============================================================================
+\part{Conversation and the four-column translator}
+% ============================================================================
+
+% ============================================================================
+\section{Receiver-relativity: no privileged meaning}
+\label{sec:receiver}
+% ============================================================================
+
+\begin{definition}[Receiver; registered cell]
+\label{def:receiver}
+A \emph{receiver} is a contact graph (a decoder of percepts into individuated
+cells). The \emph{cell a unit registers} in a receiver is the cell of that
+receiver's graph the unit lands in---its individuation against \emph{that}
+receiver's rest.
+\end{definition}
+
+\begin{theorem}[Distinct receivers register distinct cells, each correct]
+\label{thm:receiver}
+The same unit registers different cells in receivers with different decoder
+graphs, and each registration is a correct individuation at that receiver's
+floor. No registration is privileged as ``the'' meaning; there is no
+point-meaning of which the registrations are approximations.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:receiver} the registered cell is the unit's resting cut in the
+receiver's graph; different graphs give different cuts (a sparse graph
+individuates the unit against few contrasts---a thin cell; a dense graph against
+many---a rich cell). Each is the minimum-cut individuation in its own graph, so
+each is a correct (floor-attaining) individuation there. Were there a privileged
+point-meaning, a registration differing from it would be incorrect; but each
+registration is the correct individuation in its own graph, and by
+\Cref{thm:unextractable} no point-meaning exists to be approximated. Hence none
+is privileged.
+\end{proof}
+
+\begin{remark}[The Harvard student]
+\label{rem:harvard}
+``A medical student at Harvard'' registers, in a small child's sparse graph, the
+thin cell \emph{a student}; in a recruiter's dense graph it registers a rich
+cell whose contrasts propagate---\emph{not} a dropout, \emph{not} below the top
+percentile, \emph{not} idle. Both register a meaning; neither is the meaning. The
+propagated contrasts are not in the content (``not necessary'') yet are present
+(the residue $\ge\flo$ that propagates). This is conversational implicature
+\citep{grice1975,sperberwilson1986} and meaning-externalism \citep{putnam1975}
+in one structure: what is communicated is the receiver's individuation of the
+unit against its own rest, not a value in the words. No theorem depends on the
+reading.
+\end{remark}
+
+% ============================================================================
+\section{Conversation as propagation of uncertainty}
+\label{sec:conversation}
+% ============================================================================
+
+\begin{definition}[Conversation]
+\label{def:conversation}
+A \emph{conversation} between two receivers is a process (\Cref{def:process}) in
+which each terminates an utterance into a cell, and the residue of each
+utterance is the cause of the next. There is no ledger of cells to satisfy in
+order and no pre-fixed terminal cell; the participants are uncertain and do not
+hold in advance the cell they will reach.
+\end{definition}
+
+\begin{theorem}[A response is forced by the absence of a point-meaning]
+\label{thm:response}
+In a conversation, because no utterance's meaning can be extracted as a value
+(\Cref{thm:unextractable}), the exchange cannot terminate at a known cell; a
+response is required, and is exactly the non-vanishing cross-demand---the residue
+not yet relaxed to quiescence (\Cref{def:relax}). Were a point-meaning available,
+no response would be required (the value would already be held); its
+unavailability is what forces the next utterance.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:unextractable} the utterance's meaning is not a value any party
+holds. By \Cref{def:relax} two terminated cells are at rest only when both
+cross-demands vanish; until then $\dem>0$, and reducing a positive cross-demand
+requires a move on the other side---a response (\Cref{def:demand}). If instead a
+point-meaning were held, the relaxation would have nothing to propagate and the
+pair would be at rest with no response demanded; this is the excluded $\res=0$
+case (\Cref{thm:form}). Hence a response is forced exactly by the positivity of
+the residual.
+\end{proof}
+
+\begin{theorem}[Steering is by the demand, not the meaning]
+\label{thm:steer}
+The next utterance is determined by the propagation of uncertainty---the standing
+cross-demand, i.e.\ what further individuation is required to reduce
+it---and not by the meaning, which need not be read. Comprehension is optional:
+the next move is a function of the residual gap alone.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:relax} the only quantity governing the update is the cross-demand;
+by \Cref{thm:unextractable} the meaning is not available to govern it, and by
+\Cref{thm:quiescence} identity (and so the stopping condition) is itself read off
+the demand, not the meaning. Hence the selection of the next utterance is a
+function of the cross-demand---what is still required---and is independent of any
+comprehended value. The demand is the selector of the next step
+(\Cref{cor:nonneighbours}: what is required is read from the negation structure,
+not from a label).
+\end{proof}
+
+\begin{remark}[Uncertainty is the condition for there being anything to say]
+\label{rem:condition}
+\Cref{thm:response} inverts the usual picture: uncertainty is not noise to be
+removed on the way to communication but the condition of communication. A unit
+with no residual ($\res=0$) propagates nothing, demands no response, and is the
+forbidden floor-zero object (\Cref{cor:no-sharp}); an utterance that expects no
+response is no utterance. The same floor that forbids perfect alignment
+(\Cref{lem:align-floor}) is what makes there be anything to say. This is the
+conversational reading of bounded rationality \citep{simon1955}: a finite
+participant proceeds by propagating uncertainty, not by holding values it cannot
+have.
+\end{remark}
+
+% ============================================================================
+\section{The four-column translator}
+\label{sec:four}
+% ============================================================================
+
+Meaning is unextractable, but its \emph{propagation} is observable: we cannot
+read the meaning, but we can generate what a unit would say next---its
+response---and responses are comparable across languages. We make this an extra
+relaxation layer.
+
+\begin{construction}[Four columns]
+\label{con:four}
+Given a source unit, form four columns:
+\begin{itemize}[leftmargin=1.3em,itemsep=1pt]
+\item \emph{central}: source $\colA$ and target seed $\colB$ (\Cref{def:columns});
+\item \emph{external}: a plausible \emph{response} $\Resp(\colA)$ generated for
+$\colA$ in its language, and $\Resp(\colB)$ for $\colB$ in its language, by the
+demand-driven next-utterance of \Cref{thm:steer}.
+\end{itemize}
+The relaxation runs across all four: $\colA\leftrightarrow\colB$ (translation),
+$\colA\!\to\!\Resp(\colA)$ and $\colB\!\to\!\Resp(\colB)$ (each unit generates the
+conversation it would start), and $\Resp(\colA)\leftrightarrow\Resp(\colB)$ (do
+the two start the same conversation?).
+\end{construction}
+
+\begin{theorem}[The four-column criterion]
+\label{thm:four}
+The four-column system is quiescent iff \textup{(a)} $\colA,\colB$ are quiescent
+(same meaning) and \textup{(b)} $\Resp(\colA),\Resp(\colB)$ are quiescent (same
+invited response). Quiescence of the whole certifies identity of meaning by the
+\emph{route}---the responses agree---not merely by the endpoints---the content
+agrees---and is computed without reading any meaning.
+\end{theorem}
+
+\begin{proof}
+Quiescence of the system is the simultaneous vanishing of all four directions'
+cross-demands (\Cref{def:relax}), which is exactly (a) and (b). Each is identity
+of meaning of its pair by \Cref{thm:quiescence}, computed blind. (a) is identity
+of the units; (b) is identity of what they propagate---the responses they
+demand. The conjunction certifies that the two units \emph{start the same
+conversation}, which by \Cref{thm:response,thm:steer} is the propagated meaning.
+\end{proof}
+
+\begin{theorem}[Route-audit: the four-column system catches the false friend]
+\label{thm:false-friend}
+Let $\colA,\colB$ be content-aligned units that nonetheless differ in meaning---a
+\emph{false friend} (aligned endpoints, divergent interior). Then the central
+relaxation may rest near quiescence on content while the external relaxation does
+not: $\Resp(\colA)$ and $\Resp(\colB)$ have positive cross-demand, so the
+four-column system is non-quiescent and the difference is exposed. An
+endpoint-only criterion (content match) does not detect it; the response columns
+do.
+\end{theorem}
+
+\begin{proof}
+A false friend has $\colA,\colB$ landing on locally matched cells (small central
+content gap) but different resting cuts (the meanings differ, by hypothesis). By
+\Cref{thm:quiescence} the meaning-difference is a positive cross-demand; it
+surfaces in what the units propagate, i.e.\ in the responses they invite, so
+$\Resp(\colA)\neq\Resp(\colB)$ in meaning and
+$\dem_{\Resp(\colA)\to\Resp(\colB)}>0$ (\Cref{thm:quiescence}). The four-column
+demand is then positive (\Cref{thm:four}) though the central content gap is
+small. The response layer audits the route through the propagated meaning, which
+the endpoint content cannot.
+\end{proof}
+
+\begin{theorem}[Comprehension-free sufficiency]
+\label{thm:compfree}
+The four-column translator reaches the result of a meaning-dependent translator
+without comprehension: it renders a unit by the response it invites (the
+propagated meaning), exactly as a meaning-dependent translator does, while never
+reading any meaning. The responses need not be correct---there is no correct
+response (\Cref{thm:receiver})---only plausible propagations; by path-independence
+which one is generated does not matter, only whether the response columns reach
+quiescence.
+\end{theorem}
+
+\begin{proof}
+A meaning-dependent translator renders ``How are you?'' as a greeting because it
+routes through the response the utterance invites (\Cref{rem:criterion}). The
+four-column system does the same by \Cref{thm:four}(b): quiescence of the
+response columns is identity of the invited responses, which is identity of the
+propagated meaning---the meaning-dependent translator's target. All quantities
+are cross-demands, computed blind (\Cref{thm:quiescence}). The responses enter
+only through their pairwise cross-demand; two plausible responses to the same
+unit reverse-translate to the same demand on the other side, so the particular
+response is immaterial---only the convergence of the response columns is used.
+\end{proof}
+
+\begin{remark}[Two columns for the statement, four for its propagation]
+\label{rem:fourgen}
+Two columns translate the \emph{statement} (its content relaxed against the
+target); four translate the statement \emph{and what it propagates} (its meaning,
+externalised as the response it invites). The construction generalises: a second
+response turn is six columns, a tree of turns is the full conversation. The
+minimal propagation-aware translator is the four-column one, and it is exactly
+the upgrade from an endpoint-audit (does the content match?) to a route-audit
+(does it start the same conversation?). No theorem depends on the reading.
+\end{remark}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_4.png}
+\caption{\textbf{Route-audit, names, and the master equivalence.}
+\textbf{(A)}~Central (content) demand versus response demand: proper pairs (blue)
+sit at the origin, false friends (orange) have near-zero central demand---invisible
+to an endpoint check---but large response demand, caught by the four-column
+route-audit (\Cref{thm:false-friend}). \textbf{(B)}~A compound's cut $\sigma(U)$
+(blue, flat at $2\flo$) versus the composition of its constituents' cuts (orange,
+rising): names are non-compositional (\Cref{thm:non-derivable}).
+\textbf{(C)}~The realised floor $\min_v\sigma$ versus $\flo$: positive for
+$\flo>0$, vanishing (a sharp cut, red) only at $\flo=0$---the master equivalence
+(\Cref{thm:master}). \textbf{(D)}~The same non-compositionality in three
+coordinates $(W,\sigma(U),\text{composition})$.}
+\label{fig:panel4}
+\end{figure*}
+
+% ============================================================================
+\section{The master equivalence, scope, and conclusion}
+\label{sec:master}
+% ============================================================================
+
+\begin{theorem}[Master equivalence]
+\label{thm:master}
+For a contact graph in a non-completable whole, the following are equivalent:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.0em,itemsep=1pt]
+\item there is an identifiable item---a proper part told from the rest at
+positive cost;
+\item the floor is positive, $\flo>0$ (\Cref{thm:floor});
+\item individuation is by negation without selector (\Cref{thm:negation}),
+identity is the invariant minimum cut and never a point---the least sufficient
+unknowability (\Cref{thm:region,thm:lsu}), meaning is unextractable
+(\Cref{thm:unextractable}), processes are monotone non-returning residue chains
+(\Cref{thm:propagator,thm:monotone}), uncertainty is distance to the floor
+(\Cref{thm:replace}), and proper translation is the bidirectional relaxation to
+quiescence, identity of meaning certified blind at positive residual of form
+(\Cref{thm:quiescence,thm:form});
+\item the perfect, traceless, point-meaning---a residue-free reading of a
+thing---does not exist (\Cref{thm:unextractable}).
+\end{enumerate}
+Each is the same fact: telling a thing from the rest of a non-completable whole
+costs a strictly positive, irreducible residue, which is at once the thing's
+identity and what it propagates.
+\end{theorem}
+
+\begin{proof}
+$(\mathrm{i})\Rightarrow(\mathrm{ii})$: an identifiable proper part has positive
+separation cost (\Cref{thm:floor-derived,thm:floor}).
+$(\mathrm{ii})\Rightarrow(\mathrm{iii})$: each listed structure is proved from
+$\flo>0$ in the cited theorem.
+$(\mathrm{iii})\Rightarrow(\mathrm{iv})$: \Cref{thm:unextractable} is among the
+consequences. $(\mathrm{iv})\Rightarrow(\mathrm{i})$: if no residue-free reading
+exists then every individuation costs $>0$, i.e.\ some thing is told from the
+rest at positive cost---an identifiable item. The cycle closes.
+\end{proof}
+
+\subsection{Computational validation}
+
+Because every object is a finite weighted graph and every minimum cut is
+computable exactly by maximum flow \citep{fordfulkerson1956,menger1927}, each
+theorem is checkable on explicitly constructed and randomly drawn instances. A
+self-contained suite---an exact Edmonds--Karp max-flow / minimum-cut backend with
+no external library, run under a fixed seed---implements one check per result and
+records its outcomes. Across twenty categories it performed $4696$ individual
+checks: the floor on every item of hundreds of random contact graphs; the
+involution of negation; the invariance of the minimum cut under relabelling; the
+region-valuedness of identity (the minimiser side non-singleton); the alignment
+bound $\al\ge\flo/\Om$; the strict monotonicity of the committed record; the
+residue--propagator equivalence; the entropy and information readings; the
+equivalence of quiescence and an identical resting cut; the positive
+form-residual; the relaxation dichotomy with decline on non-halting;
+receiver-relativity; the four-column route-audit catching a false friend that an
+endpoint check misses; the non-derivability and non-compositionality of names;
+contextual interchangeability; the master floor / no-sharp-cut equivalence; and
+the inconsistency of the self-name diagonal. \emph{All $4696$ checks passed}, with
+minimum cuts computed exactly. The suite is a check against error and a display of
+the quantitative shape of each result, not a substitute for the proofs, which hold
+for every finite weighted graph in a non-completable whole.
+
+\subsection{Scope}
+
+Every result is a theorem about finite weighted graphs, provable from
+\Cref{def:graph} and the derived floor \Cref{thm:floor}, with minimum cuts
+computable exactly by maximum flow \citep{fordfulkerson1956,menger1927}; the
+theorems are therefore checkable on explicitly constructed instances. The system
+is qualitative-structural: it establishes \emph{that} individuation is a
+positive-cost cut, \emph{that} identity is the least sufficient unknowability,
+\emph{that} meaning is unextractable yet shareable, \emph{that} quiescence
+constitutes identity of meaning, and \emph{that} a four-column relaxation
+certifies it by route. It does not compute numerical cut weights, demands, or
+alignments for any concrete language, which would require a concrete weighting.
+One hypothesis beyond the graphs is used: that the whole is non-completable
+(\Cref{def:noncompletable})---an order condition, not a cardinality posit, and
+exactly what forces the floor; absent it, the floor may vanish and the
+development is not compelled. Interpretive readings---of cells as meanings, of
+residue as propagated significance, of the medium as the world, of receivers as
+agents, of the response layer as a conversation---are confined to remarks on
+which no theorem depends, and a reasonable reader will recognise that finitely
+many bounded parts of many kinds satisfy the premise; we prove everything of the
+abstract graph alone, and material that could not be proved at this standard has
+been omitted.
+
+\subsection{Conclusion}
+
+From a single derived fact---that telling a part from the rest of a
+non-completable whole costs a strictly positive, irreducible floor---an entire
+theory of meaning follows. A thing's identity is what it is \emph{not},
+committed at least sufficient cost: a region, never the thing itself, for to be
+the thing itself one would have to exhaust the inexhaustible. A \emph{name} is
+that cut handed back as a token---an irreducible, content-free stash of what a
+thing is not---and the namer, with the largest complement, names itself last and
+only approximately, so language begins at the periphery and converges on the
+source it never reaches. Meaning is that
+identity together with what it propagates as a cause; it cannot be read, because
+reading it would be being it, but identity of meaning can be \emph{detected}, by
+the absence of any difference that would propagate. Translation is then not the
+transfer of a content but the relaxation of two sides to semantic
+quiescence---the silence of all demands---reached at positive residual of form,
+and where no fixed point exists, declined rather than faked. Conversation is the
+same propagation kept open: a response is forced precisely because no meaning can
+be extracted, and is steered by the demand, not by comprehension. The
+four-column translator externalises the propagation as the response a unit
+invites, turning translation into the test of whether two utterances start the
+same conversation---a route-audit a meaning-blind mechanism passes and a false
+friend fails. Uncertainty, throughout, is not the obstacle to meaning but its
+condition: the floor that forbids perfect alignment is the floor that makes there
+be anything to say, and a finite system that does not need to understand is
+sufficient, because identity of meaning is the silence of all demands, and that
+silence can be reached, and recognised, blind.
+
+% ============================================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% ============================================================================
+
+\end{document}
