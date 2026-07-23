@@ -5,7 +5,7 @@
 %  Self-contained. Every object is a finite weighted graph or a construction
 %  on one. Only standard external literature is cited.
 % ============================================================================
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,twocolumn,a4paper]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -81,7 +81,7 @@
 \newcommand{\eps}{\varepsilon}
 \newcommand{\bigOh}{\mathcal{O}}
 
-\title{\textbf{Searching Continuous Audio as a Whole Item:\\[3pt]
+\title{\textbf{Search Algorithms for Electronic Dance Music Set List Generation: \\[3pt]
 A Sequence-Individuation Algorithm for Radio, Mixes, and Sets}}
 
 \author{%
@@ -129,8 +129,14 @@ stream is, and generating a stream in the style of a known item, are the same
 computation run in opposite directions). We give the full algorithm---acquisition
 of least-sufficient handles, sequence signature construction, and a
 gap-tolerant alignment that returns an accounted match together with an explicit
-unresolved residual---prove its correctness and $\bigOh(\cdot)$ complexity, and
-specify an evaluation protocol. The result is a music search that operates at
+unresolved residual---prove its correctness and $\bigOh(\cdot)$ complexity,
+validate every structural result numerically on exact minimum cuts and exact
+sequence alignment, and specify an evaluation protocol. The validation makes the
+one contingent claim explicit: the whole-item search is cheaper than per-track
+fingerprinting only by the \emph{nameable fraction} of the stream (a measured
+mean of $3.1\times$, not the worst-case guarantee), because the opening
+constituent, having no resolved neighbour, always faces the full pool. The result
+is a music search that operates at
 the granularity of the listening experience: you search for the \emph{set}, not
 for every song in it.
 \end{abstract}
@@ -270,6 +276,11 @@ the contact graph---read in opposite directions. One implementation serves both
 \item \textbf{The full system and its evaluation protocol}
   (\Cref{sec:algorithm,sec:evaluation}): end-to-end pseudocode, complexity, and
   a reproducible measurement design.
+\item \textbf{Numerical validation} (\Cref{sec:validation}): a reproducible,
+  seeded suite that verifies all $14$ structural results by exact computation on
+  constructed and random instances, and quantifies the single contingent claim---%
+  the whole-item saving is proportional to the nameable fraction, with a measured
+  mean of $3.1\times$ rather than the worst-case bound.
 \end{enumerate}
 
 \subsection{Method and scope}
@@ -500,6 +511,24 @@ hence not yet brought to bear. Therefore no finite stage completes the
 identification, and $\res(v)>0$.
 \end{proof}
 
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_1_floor.png}
+\caption{\textbf{The resolution floor and name-first economy}
+(\Cref{sec:floor}). (A) Over $500$ random contact graphs, the distinction cost
+$\str(v)$ sits on or above the floor plane $z=\flo$ for every constituent---no
+point falls below. (B) The ratio $\str(v)/\flo$ is supported entirely at or above
+$1$ across $300$ graphs and $2511$ cut checks, with measured minimum
+$\str(v)/\flo=1.0010$ and \emph{zero} cuts below the floor
+(\Cref{thm:floor}). (C) Identity is region-valued: on two-cluster graphs the
+minimum cut separates a whole cluster, so the minimising side is non-singleton in
+$100\%$ of $200$ trials (mean side size $3.9$), confirming
+\Cref{cor:no-point}. (D) Acoustic invocations equal the residual size exactly
+across streams of increasing unnamed fraction ($400/400$ trials, acoustic calls
+$=r$), realising \Cref{cor:name-first}.}
+\label{fig:floor}
+\end{figure*}
+
 \begin{theorem}[Positive resolution floor]
 \label{thm:floor}
 There is a constant $\flo>0$ with $\wt(e)\ge\flo$ for every contact $e$ and
@@ -508,13 +537,20 @@ zero cost, and no constituent is identified for free.
 \end{theorem}
 
 \begin{proof}
-Set $\flo:=\inf_v\res(v)$. By \Cref{thm:floor-derived} each $\res(v)>0$; the
-residual is the irreducible boundary content of $v$'s identification, carried by
-the edges of $v$'s resting cut, so each such edge has weight at least the
-per-constituent residual, hence at least $\flo$. Every contact $\{u,v\}$ is a
-boundary edge of the identification of $u$ (it lies in $\cut(\{u\})$), so every
-weight satisfies $\wt(e)\ge\flo$. Connectivity forces
-$\cut(S^{\ast}(v))\neq\varnothing$, so $\str(v)=\wt(\cut(S^{\ast}(v)))\ge\flo>0$.
+Set $\flo:=\min_v\res(v)$, the minimum taken over the constituents $v\neq\med$.
+The vertex set $\V$ is finite (\Cref{def:graph}), so this is a minimum over a
+\emph{finite} set of strictly positive reals---each $\res(v)>0$ by
+\Cref{thm:floor-derived}---and is therefore attained and strictly positive,
+$\flo>0$. (The infimum over the non-completable pool need never be taken: at any
+fixed stage $\Gph_k$ the floor is the minimum over the finitely many
+constituents present, and each $\res(v)>0$ is guaranteed by non-completability
+regardless of stage.) The residual is the irreducible boundary content of $v$'s
+identification, carried by the edges of $v$'s resting cut, so each such edge has
+weight at least the per-constituent residual, hence at least $\flo$. Every
+contact $\{u,v\}$ is a boundary edge of the identification of $u$ (it lies in
+$\cut(\{u\})$), so every weight satisfies $\wt(e)\ge\flo$. Connectivity forces
+$\cut(S^{\ast}(v))\neq\varnothing$, so
+$\str(v)=\wt(\cut(S^{\ast}(v)))\ge\flo>0$.
 \end{proof}
 
 \begin{corollary}[No exact identification]
@@ -692,6 +728,25 @@ re-encoding; the pattern is thus the re-encoding-invariant identity of the item.
 \end{enumerate}
 \end{theorem}
 
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_2_signature.png}
+\caption{\textbf{The signature individuates; the content set does not}
+(\Cref{sec:signature}). (A) For $600$ pairs of items with \emph{identical}
+content sets, the alignment cost between the two orderings is generically
+positive---content coincidence does not force signature coincidence
+(\Cref{thm:signature}(ii)). (B) The induced sequence pattern is invariant under
+handle re-encoding: the pattern hash is unchanged by relabelling in $400/400$
+trials (\Cref{thm:signature}(i)). (C) The mean ambiguity set $\abs{A(v)}$
+collapses with context length $\ell$, from the \emph{full pool} at $\ell=0$
+(mean $69.0$) to $22.6$ at $\ell=1$ and near $1$ from $\ell=2$
+(\Cref{prop:context})---the light curves are individual pools, the heavy curve
+their mean. (D) A content-set matcher declares shared-content distractor pairs
+identical while the signature matcher separates them, across item lengths
+(\Cref{thm:signature}(ii)).}
+\label{fig:signature}
+\end{figure*}
+
 \begin{proof}
 (i) A re-encoding $\pi$ is a bijection on handles preserving equality
 (\Cref{def:reencode}); applying it position-wise to $\sig$ yields $\pi(\sig)$,
@@ -706,9 +761,22 @@ $\{\!\{x,y\}\!\}$ but different signatures. They are not related by a re-encodin
 a re-encoding acts identically on both positions, so it cannot map the string
 $(x,y)$ to $(y,x)$ (that would require $\pi(x)=y$ at position $1$ and
 $\pi(x)=x$ at position $2$, contradicting that $\pi$ is a single function of the
-handle, not of the position). The construction extends to any $n\ge2$ with at
-least two distinct handles by permuting two of the positions. Hence a shared
-content set does not fix the item.
+handle, not of the position).
+
+The same argument settles any $n\ge2$, including signatures with repeated
+handles, where a re-encoding might \emph{a priori} map one ordering to another.
+Take any signature with at least two distinct handles, pick positions $i,j$
+carrying \emph{distinct} handles $x\neq y$, and swap them, holding every other
+position fixed: this yields a second signature with the same content set. Suppose
+a re-encoding $\pi$ carried the first to the second. Since $\pi$ acts on handles
+globally---one function of the handle, independent of position---and the two
+signatures agree at every position except $i,j$, $\pi$ must fix the handle at
+each agreeing position, in particular $\pi(x)=x$ and $\pi(y)=y$ wherever $x$ or
+$y$ recurs outside $\{i,j\}$; yet at the swapped positions it would need
+$\pi(x)=y$ and $\pi(y)=x$. A single function cannot both fix and transpose
+$\{x,y\}$, so no re-encoding relates them (and if $x,y$ recur nowhere else, the
+$n=2$ argument applies verbatim to the pair). Hence a shared content set does not
+fix the item, for every $n\ge2$.
 
 (iii) If two items have signatures agreeing up to a re-encoding $\pi$, then
 applying $\pi$ makes the strings equal position-wise, so their
@@ -721,6 +789,25 @@ the multiplicities and first-appearance orders agree), extended arbitrarily
 elsewhere, and $\pi$ carries one signature to the other. Hence agreement up to
 re-encoding $\iff$ same pattern.
 \end{proof}
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_2_signature.png}
+\caption{\textbf{The signature individuates; the content set does not}
+(\Cref{sec:signature}). (A) For $600$ pairs of items with \emph{identical}
+content sets, the alignment cost between the two orderings is generically
+positive---content coincidence does not force signature coincidence
+(\Cref{thm:signature}(ii)). (B) The induced sequence pattern is invariant under
+handle re-encoding: the pattern hash is unchanged by relabelling in $400/400$
+trials (\Cref{thm:signature}(i)). (C) The mean ambiguity set $\abs{A(v)}$
+collapses with context length $\ell$, from the \emph{full pool} at $\ell=0$
+(mean $69.0$) to $22.6$ at $\ell=1$ and near $1$ from $\ell=2$
+(\Cref{prop:context})---the light curves are individual pools, the heavy curve
+their mean. (D) A content-set matcher declares shared-content distractor pairs
+identical while the signature matcher separates them, across item lengths
+(\Cref{thm:signature}(ii)).}
+\label{fig:signature}
+\end{figure*}
 
 \begin{corollary}[Why one author is not replaceable by another]
 \label{cor:not-replaceable}
@@ -757,38 +844,63 @@ label---provides.
 \Cref{sec:floor} left the ambiguity set $A(v)$ abstract. In a stream it is small,
 which is what makes least-sufficient identification cheap.
 
-\begin{proposition}[Contextual narrowing of the ambiguity set]
+\begin{proposition}[Contextual narrowing of the ambiguity set, from position two]
 \label{prop:context}
-For a constituent $u_i$ occupying position $i$ of an item, the ambiguity set
-relevant to placing it in the signature is at most the set of constituents
-consistent with its position given the already-placed neighbours---bounded, in a
-sequence model that conditions on the previous $\ell$ placed handles, by the
-number of pool constituents that plausibly follow that context. This is in
-general far smaller than the whole pool, so a coarse handle (often the name
-alone) is sufficient (\Cref{def:lsi}), and \Cref{thm:sufficiency} caps the
-resolution needed.
+Resolve constituents left to right, so that when position $i$ is placed the
+handles at positions $1,\dots,i-1$ are already fixed. For $i\ge2$ the ambiguity
+set relevant to placing $u_i$ in the signature is at most the set of constituents
+consistent with position $i$ given its resolved left context---bounded, in a
+sequence model that conditions on the previous $\ell$ placed handles
+($1\le\ell\le i-1$), by the number of pool constituents that plausibly follow
+that context. This is in general far smaller than the whole pool, so a coarse
+handle (often the name alone) is sufficient (\Cref{def:lsi}), and
+\Cref{thm:sufficiency} caps the resolution needed. \textbf{The narrowing does not
+apply to position $1$}, nor to any position whose entire left context is
+unresolved: with no placed neighbour to condition on, $A(u_1)$ is the full pool,
+$A(u_1)=\V\setminus\{\med\}$, and $u_1$ requires the most expensive handle its
+recogniser can supply.
 \end{proposition}
 
 \begin{proof}
-Placement of $u_i$ in the signature requires distinguishing it only from
-alternatives that could occupy position $i$ given the context, i.e.\ from
-$A(u_i)=\{v:\ v\ \text{is a plausible occupant of position}\ i\}$. Any handle
-separating $u_i$ from this set is sufficient (\Cref{def:lsi}); since $A(u_i)$ is
-a subset of the pool determined by the local context, it is bounded by the number
-of context-consistent constituents, which for a conditioning length $\ell\ge1$ is
-typically a small fraction of the pool. The least sufficient identifier is then
-correspondingly cheap, and by \Cref{thm:sufficiency} no finer resolution is
-needed for placement.
+The resolution is sequential and the dependency is acyclic: $A(u_i)$ is narrowed
+using the handles at positions $<i$, which were fixed at earlier steps, so the
+construction is a left-to-right recursion with no circularity---each step uses
+only already-committed placements, never its own. For $i\ge2$, placement of
+$u_i$ requires distinguishing it only from alternatives that could occupy
+position $i$ given the resolved context, i.e.\ from
+$A(u_i)=\{v:\ v\ \text{is a plausible occupant of position}\ i\ \text{given}\
+\hand_{i-\ell},\dots,\hand_{i-1}\}$. Any handle separating $u_i$ from this set is
+sufficient (\Cref{def:lsi}); since $A(u_i)$ is a subset of the pool determined by
+the local context, it is bounded by the number of context-consistent
+constituents, which for a conditioning length $\ell\ge1$ is typically a small
+fraction of the pool. The base of the recursion is position $1$, which has no
+left neighbour: no context is available to condition on, so the set of plausible
+occupants is unconstrained and $A(u_1)=\V\setminus\{\med\}$, the whole pool. By
+\Cref{cor:name-first} a name is then sufficient only if it separates $u_1$ from
+the entire pool; failing that, $u_1$ falls to acoustic resolution. The same holds
+for any interior position whose left context is itself unresolved (an unnamed run
+reaching back to the start). For every position with a resolved context of length
+$\ge1$, the least sufficient identifier is correspondingly cheap, and by
+\Cref{thm:sufficiency} no finer resolution is needed for placement.
 \end{proof}
 
-\begin{remark}[Neighbours do the work a fingerprint would]
+\begin{remark}[Neighbours do the work a fingerprint would---from the second track on]
 \label{rem:neighbours}
 \Cref{prop:context} is why searching the \emph{whole item} is cheaper per
 constituent than searching each track in isolation: a track alone must be
 distinguished from the entire pool (large $A$, expensive handle), but a track
-\emph{in a stream} must be distinguished only from the few that fit its context
-(small $A$, cheap handle). The sequence supplies, for free, most of the
-individuation a standalone fingerprint would have to compute.
+\emph{in a stream}, \emph{once its predecessors are placed}, must be
+distinguished only from the few that fit its context (small $A$, cheap handle).
+The sequence supplies, for free, most of the individuation a standalone
+fingerprint would have to compute---for every constituent but the first. The
+first constituent (and any constituent hanging off an unresolved left run) is the
+one exception: it faces the whole pool and is priced accordingly. This single
+worst-case constituent is what \Cref{cor:cheaper} carries as an additive
+$c_{\mathrm{ac}}$ term, and is separately visible in the validation
+(\Cref{sec:validation}): the measured mean ambiguity set collapses from the full
+pool at context length $\ell=0$ to near one already at $\ell=2$, quantifying
+exactly how much the neighbours do and how much the boundary constituent does
+not benefit.
 \end{remark}
 
 % ============================================================================
@@ -896,6 +1008,22 @@ cost $\le\eps\Om$, the minimum does too, and $\sig$ is admissible regardless of
 how wrong any single position is.
 \end{proof}
 
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_3_matching.png}
+\caption{\textbf{Convergence-only admissibility} (\Cref{sec:matching}). (A) The
+alignment score over the (misrecognition fraction, $\eps$) plane, with the
+admissibility plane $z=\eps$: a query is admissible exactly where its score
+surface lies under the plane. (B) The measured admissibility boundary---a query
+is admitted iff its misrecognised fraction is below $\eps$---traced for three
+tolerances, confirming \Cref{cor:partial}. (C) The recovered residual equals the
+injected error count exactly ($400/400$ trials on the diagonal), so the residual
+is precisely the mis-placed positions (\Cref{prop:residual}). (D) Alignment
+scores of degraded self-queries (teal) separate cleanly from random-pair scores
+(red), the separation that makes retrieval work.}
+\label{fig:matching}
+\end{figure*}
+
 \begin{corollary}[Partial recognition suffices]
 \label{cor:partial}
 If a fraction $f$ of a query's $n$ constituents are correctly handled and the
@@ -992,31 +1120,73 @@ and asks for a new signature $\sig$ that is an admissible match to $\sig^{\ast}$
 built from the available pool.
 \end{definition}
 
-\begin{theorem}[Search--match duality]
+That analysis and synthesis \emph{share an objective} is immediate from
+\Cref{def:queries}: both are instances of $\min\,\algn(\sig,\sig^{\ast})$
+subject to $\algn\le\eps$ (\Cref{def:admissible}), differing only in which of
+$\sig,\sig^{\ast}$ is bound. We state this first as a bare observation, then
+prove the content that does not follow from the definition alone: that a
+\emph{single dynamic program}---one $\bigOh(nN)$ alignment table---solves both,
+so the two tasks share not just an objective but a computation.
+
+\begin{remark}[Shared objective]
+\label{rem:shared-objective}
+Analysis (\Cref{def:queries}, fix $\sig$, search targets) and synthesis (fix
+$\sig^{\ast}$, search constructible $\sig$) minimise the same
+$\algn(\sig,\sig^{\ast})$ under the same tolerance test. This is a restatement of
+\Cref{def:queries} and carries no content beyond it; the substance is
+\Cref{thm:duality} below.
+\end{remark}
+
+\begin{theorem}[Search--match duality: one dynamic program, two directions]
 \label{thm:duality}
-Analysis and synthesis are the same alignment problem read in opposite
-directions. Precisely, both seek a signature $\sig$ and a target $\sig^{\ast}$
-minimising $\algn(\sig,\sig^{\ast})$ (\Cref{def:score}); analysis fixes $\sig$
-(the observed stream) and searches over targets $\sig^{\ast}$ in a library,
-while synthesis fixes $\sig^{\ast}$ (the desired style) and searches over
-constructible $\sig$ over the available pool. The objective, the alignment
-operator, and the admissibility criterion are identical; only the free variable
-differs.
+The alignment dynamic program of \Cref{def:alignment} computes, in a single
+$\bigOh(nN)$ filling of its cost table $d$, the solution to both directions:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Analysis} reads the completed table \emph{forward} to the corner
+$d[n,N]$: the value is the recognition score $\algn(\sig,\sig^{\ast})$, and its
+traceback is the accounted match of \Cref{def:accounted}.
+\item \textbf{Synthesis} reads the \emph{same} table's traceback \emph{backward}
+as a construction recipe: each match cell prescribes emitting the target handle
+$\sig^{\ast}[j]$ from the available pool, each gap cell prescribes an insertion
+or omission, so the optimal alignment path \emph{is} an ordered selection from
+the pool realising a $\sig$ with $\algn(\sig,\sig^{\ast})$ minimal. Constructing
+$\sig$ toward $\sig^{\ast}$ and recognising $\sig$ as $\sig^{\ast}$ traverse one
+path in opposite directions.
+\end{enumerate}
+Hence analysis and synthesis are not merely the same objective but the same
+$\bigOh(nN)$ computation, and their costs are equal up to the $\bigOh(1)$ per-cell
+work of emitting versus reading a handle.
 \end{theorem}
 
 \begin{proof}
-Both queries are instances of $\min\ \algn(\sig,\sig^{\ast})$ subject to
-$\algn\le\eps$ (\Cref{def:admissible}). In analysis, $\sig$ is given (the
-recognised stream) and the minimisation ranges over the finite library of targets
-$\{\sig^{\ast}_1,\dots\}$, returning the best-aligned target---recognition. In
-synthesis, $\sig^{\ast}$ is given (the style) and the minimisation ranges over
-signatures $\sig$ realisable as ordered selections from the available pool,
-returning a best-aligned constructible sequence---generation. The alignment
-operator $\algn$ (\Cref{def:alignment,def:score}) and the tolerance test
-(\Cref{def:admissible}) are the same in both; the problems are related by
-exchanging which of $\sig,\sig^{\ast}$ is bound and which is free, i.e.\ by
-reading the same alignment forward (construct $\sig$ toward $\sig^{\ast}$) or
-backward (recognise $\sig$ as $\sig^{\ast}$).
+Fix $\sig^{\ast}=(q_1,\dots,q_N)$. In analysis, $\sig=(p_1,\dots,p_n)$ is given
+and the dynamic program of \Cref{def:alignment} fills $d[i,j]$, the min-cost
+alignment of the prefixes $p_{1..i}$ and $q_{1..j}$, with the recurrence
+$d[i,j]=\min\{d[i-1,j-1]+c_{ij},\,d[i-1,j]+\delta,\,d[i,j-1]+\delta\}$,
+$c_{ij}\in\{0,\mu\}$; the corner $d[n,N]$ is $\mathrm{cost}(\sig,\sig^{\ast})$ and
+its traceback yields the matched/residual partition (\Cref{def:accounted}). This
+is (i).
+
+For (ii), synthesis fixes $\sig^{\ast}$ and asks for a constructible
+$\sig$---an ordered selection of handles from the available pool $\mathcal{P}$---
+minimising $\algn(\sig,\sig^{\ast})$. The optimum is obtained by the \emph{same}
+recurrence with the substitution cost redefined against the pool:
+$c'_{ij}=0$ if the pool contains a handle equal to $q_j$ (emit it, a match) and
+$\mu$ otherwise (emit the nearest available, a substitution), gaps costing
+$\delta$ as before. When $\mathcal{P}$ contains every target handle---the
+generative case of interest, building a set in a known style from an ample
+library---$c'_{ij}=0$ for all $j$, the recurrence coincides cell-for-cell with the
+analysis recurrence run against $\sig^{\ast}$ itself, and its traceback is a path
+whose match cells enumerate, in order, the handles to emit. Reading that path
+from $[0,0]$ to $[n,N]$ emits $\sig$; reading it from $[n,N]$ to $[0,0]$ recovers
+the alignment of a given $\sig$ to $\sig^{\ast}$. The table, the recurrence, and
+the traceback are identical; only the interpretation of a cell---``emit
+$q_j$'' (synthesis) versus ``read $p_i$ against $q_j$'' (analysis)---differs, at
+$\bigOh(1)$ per cell. Both therefore cost $\bigOh(nN)$ and are the same
+computation traversed in opposite directions. (When $\mathcal{P}$ omits some
+target handle, synthesis pays the $\mu$ for that position exactly as analysis
+pays $\mu$ for a substitution, preserving the correspondence with an added
+constant per missing handle.)
 \end{proof}
 
 \begin{corollary}[Shared implementation]
@@ -1059,7 +1229,7 @@ plus a residual.
 
 \subsection{Stage 1: acquisition of least-sufficient handles}
 
-\begin{algorithm}[h]
+\begin{algorithm}[!htbp]
 \caption{\textsc{Acquire}: stream $\to$ signature}
 \label{alg:acquire}
 \begin{algorithmic}[1]
@@ -1072,7 +1242,7 @@ plus a residual.
   \State $\hand_i \gets \textsc{Name}(u_i)$
     \Comment{cheap symbolic handle: title/artist}
   \State $A_i \gets \textsc{Context}(\hand_{i-\ell},\dots,\hand_{i-1})$
-    \Comment{ambiguity set (\Cref{prop:context})}
+    \Comment{ambiguity set; $A_1=$ full pool (\Cref{prop:context})}
   \If{$\hand_i = \bot$ \textbf{or} $\textsc{Insufficient}(\hand_i, A_i)$}
     \State $\hand_i \gets \textsc{Acoustic}(u_i)$
       \Comment{descend only on the residual (\Cref{cor:name-first})}
@@ -1090,7 +1260,11 @@ predicate $\textsc{Insufficient}(\hand,A)$ holds when the handle fails to
 separate the constituent from its context-narrowed ambiguity set $A$
 (\Cref{def:lsi}). Only then is the expensive $\textsc{Acoustic}$ recogniser
 invoked. By \Cref{cor:name-first} this invokes acoustics on exactly the residual
-positions and no others.
+positions and no others. The first constituent is a boundary case: $\textsc{Context}$
+returns the full pool for $A_1$ (no left neighbour narrows it,
+\Cref{prop:context}), so $u_1$ is named only if its name separates it from the
+whole pool and otherwise falls to $\textsc{Acoustic}$---the one position that
+never benefits from the sequence and is always at risk of the acoustic cost.
 
 \subsection{Stage 2: indexing}
 
@@ -1101,7 +1275,7 @@ positions containing them \citep{manning2008} supports candidate retrieval, so a
 query need not be aligned against every library item but only against those
 sharing enough handles.
 
-\begin{algorithm}[h]
+\begin{algorithm}[!htbp]
 \caption{\textsc{Index}: library of items $\to$ searchable index}
 \label{alg:index}
 \begin{algorithmic}[1]
@@ -1119,7 +1293,7 @@ sharing enough handles.
 
 \subsection{Stage 3: matching}
 
-\begin{algorithm}[h]
+\begin{algorithm}[!htbp]
 \caption{\textsc{Match}: query signature $\to$ (accounted match, residual)}
 \label{alg:match}
 \begin{algorithmic}[1]
@@ -1196,8 +1370,12 @@ per constituent. Then:
 \begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
 \item \textbf{Acquisition} costs
 $\bigOh\!\bigl(n\,c_{\mathrm{sym}} + r\,c_{\mathrm{ac}}\bigr)$, where $r\le n$ is
-the number of residual (unnamed or insufficient) constituents; acoustic cost is
-paid only on the residual (\Cref{cor:name-first}), not on all $n$.
+the number of residual constituents; acoustic cost is paid only on the residual
+(\Cref{cor:name-first}), not on all $n$. The residual always includes the first
+constituent unless its name separates it from the whole pool
+(\Cref{prop:context}), so $r\ge 1$ in the generic case where the opening track is
+an ID or a pool-ambiguous name; the position-$1$ boundary contributes an additive
+$c_{\mathrm{ac}}$ that does not vanish with stream length.
 \item \textbf{Indexing} costs $\bigOh(LN)$ time and space.
 \item \textbf{Matching} costs $\bigOh(\abs{C}\,nN)$ time via the alignment
 dynamic program over candidates, reducible by the inverted-index candidate filter
@@ -1223,25 +1401,71 @@ handles are selective, reducing the align-against-all bound $\bigOh(LnN)$
 accordingly.
 \end{proof}
 
-\begin{corollary}[The whole-item search is cheaper than per-track search]
+\begin{corollary}[Whole-item search is cheaper by the nameable fraction---a
+contingent, not structural, saving]
 \label{cor:cheaper}
 Recognising a stream by \Cref{alg:acquire} costs
 $\bigOh(n\,c_{\mathrm{sym}}+r\,c_{\mathrm{ac}})$, whereas fingerprinting every
-constituent independently costs $\bigOh(n\,c_{\mathrm{ac}})$. Since
-$c_{\mathrm{sym}}\ll c_{\mathrm{ac}}$ and $r\le n$ (typically $r\ll n$), the
-whole-item search is cheaper by a factor approaching $c_{\mathrm{ac}}/
-c_{\mathrm{sym}}$ when most constituents are nameable.
+constituent independently costs $\bigOh(n\,c_{\mathrm{ac}})$. Writing
+$\phi:=(n-r)/n$ for the \emph{nameable fraction}, the exact saving factor is
+\[
+\frac{n\,c_{\mathrm{ac}}}{n\,c_{\mathrm{sym}}+r\,c_{\mathrm{ac}}}
+\;=\;\frac{1}{(c_{\mathrm{sym}}/c_{\mathrm{ac}})+(1-\phi)},
+\]
+which is $>1$ iff $\phi>c_{\mathrm{sym}}/c_{\mathrm{ac}}$, ranges up to
+$c_{\mathrm{ac}}/c_{\mathrm{sym}}$ as $\phi\to1$ (nearly everything nameable), and
+degrades to $1$ (\emph{no saving}) as $\phi\to0$: in the worst case $r=n$ (every
+constituent unnamed or name-colliding, the opening track always among them by
+\Cref{prop:context}), the whole-item cost is $n\,c_{\mathrm{sym}}+n\,c_{\mathrm{ac}}
+=\bigOh(n\,c_{\mathrm{ac}})$, the same order as per-track. The saving is thus
+\emph{proportional to the nameable fraction $\phi$}, an empirical property of the
+stream and recogniser, and is not a worst-case structural guarantee.
 \end{corollary}
 
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_4_duality.png}
+\caption{\textbf{Duality and the contingent saving} (\Cref{sec:duality,%
+sec:algorithm}). (A) The saving factor
+$1/((c_{\mathrm{sym}}/c_{\mathrm{ac}})+(1-\phi))$ over (stream length, nameable
+fraction $\phi$): it rises with $\phi$ and is \emph{independent of length},
+exactly as \Cref{cor:cheaper} predicts. (B) At fixed length the saving curve runs
+from $1\times$ (no saving) at $\phi=0$ up toward the $c_{\mathrm{ac}}/
+c_{\mathrm{sym}}=20\times$ ceiling at $\phi=1$; the measured mean over random
+streams is $3.1\times$. (C) The alignment dynamic program's measured runtime
+tracks the $\propto n^2$ guide (empirical doubling ratios $3.7$--$4.4$ against the
+predicted $4.0$), confirming $\bigOh(nN)$ (\Cref{thm:complexity}). (D) The
+analysis and synthesis scores coincide on the diagonal in $300/300$ trials---the
+one dynamic program computes both directions (\Cref{thm:duality}).}
+\label{fig:duality}
+\end{figure*}
+
 \begin{proof}
-Compare $n\,c_{\mathrm{sym}}+r\,c_{\mathrm{ac}}$ against $n\,c_{\mathrm{ac}}$: the
-difference is $n\,c_{\mathrm{ac}}-n\,c_{\mathrm{sym}}-r\,c_{\mathrm{ac}}=
-(n-r)c_{\mathrm{ac}}-n\,c_{\mathrm{sym}}$, positive whenever
-$(n-r)c_{\mathrm{ac}}>n\,c_{\mathrm{sym}}$, i.e.\ whenever the nameable fraction
-$(n-r)/n$ exceeds $c_{\mathrm{sym}}/c_{\mathrm{ac}}$, which holds broadly since
-$c_{\mathrm{sym}}/c_{\mathrm{ac}}$ is small. The saving grows with the nameable
-fraction and the cost ratio.
+The saving factor is the quotient of the two costs, and rearranging
+$n\,c_{\mathrm{sym}}+r\,c_{\mathrm{ac}}=n\,c_{\mathrm{ac}}\bigl((c_{\mathrm{sym}}/
+c_{\mathrm{ac}})+(1-\phi)\bigr)$ gives the stated form. It exceeds $1$ exactly
+when $(c_{\mathrm{sym}}/c_{\mathrm{ac}})+(1-\phi)<1$, i.e.\ when
+$\phi>c_{\mathrm{sym}}/c_{\mathrm{ac}}$. As $\phi\to1$ the denominator
+$\to c_{\mathrm{sym}}/c_{\mathrm{ac}}$ and the factor $\to c_{\mathrm{ac}}/
+c_{\mathrm{sym}}$; as $\phi\to0$ (so $r\to n$) the denominator $\to
+1+c_{\mathrm{sym}}/c_{\mathrm{ac}}\to1$ and the factor $\to1$. The whole-item
+search never costs \emph{more} than per-track (the denominator adds only the
+small $c_{\mathrm{sym}}/c_{\mathrm{ac}}$ overhead), but its advantage vanishes
+continuously as the nameable fraction falls, so the saving is contingent on
+$\phi$ and bounded by the cost ratio.
 \end{proof}
+
+\begin{remark}[The saving is measured, not promised]
+\label{rem:phi-empirical}
+Because the saving factor is exactly $1/\bigl((c_{\mathrm{sym}}/c_{\mathrm{ac}})+
+(1-\phi)\bigr)$, its value on any corpus is fixed by the nameable fraction
+$\phi$ that corpus and recogniser actually achieve---never by the calculus. The
+validation (\Cref{sec:validation}) measures this directly: over randomly drawn
+streams the \emph{mean} saving is a modest $3.1\times$ (not the $c_{\mathrm{ac}}/
+c_{\mathrm{sym}}=20\times$ ceiling), with instances near $\phi=0.065$ that save
+essentially nothing---precisely the worst-case regime this corollary now names
+rather than hides.
+\end{remark}
 
 \begin{remark}[Where the savings come from]
 \label{rem:savings}
@@ -1292,6 +1516,22 @@ This single example exercises every result: content non-identity
 (\Cref{thm:signature}), least-sufficient handles with acoustic descent only on
 the residual (\Cref{cor:name-first,prop:residual}), and convergence-only
 admissibility absorbing local errors (\Cref{thm:admissibility}).
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_5_worked_example.png}
+\caption{\textbf{End-to-end behaviour on \Cref{ex:two-mixes}}. (A) The alignment
+score of a degraded capture of Mix~1 to Mix~1, as a function of injected gaps and
+substitutions: the surface rises smoothly, so partial degradation stays
+admissible. (B) The degraded capture $\sig=(A,B,\bot,D',E)$ scores $0.4$ to
+Mix~1 and $0.8$ to Mix~2---correctly identified despite two of five constituents
+wrong. (C) The realised minimum $\str$ tracks the floor $\flo$ across $400$
+random graphs, all on or above the line. (D) The admissibility phase map
+$\{\text{misrec}\le\eps\}$, the operating region of \Cref{thm:admissibility}.}
+\label{fig:worked}
+\end{figure*}
+
+% ============================================================================
 
 % ============================================================================
 \section{Evaluation protocol}
@@ -1359,8 +1599,12 @@ queries.
 
 \begin{remark}[What the protocol tests, and what it cannot]
 \label{rem:eval-scope}
-The protocol measures the realisation of the framework by concrete recognisers;
-it does not test the theorems, which are proved. In particular the proved
+This protocol is distinct from the numerical validation of \Cref{sec:validation}.
+The validation instance-checks the theorems by exact computation on synthetic
+graphs and signatures---confirming they hold where they must and quantifying the
+one contingent constant (the nameable fraction). This evaluation protocol instead
+measures the realisation of the framework by \emph{concrete} recognisers on
+\emph{real} streams; it does not test the theorems, which are proved. The proved
 guarantees---floor positivity, signature invariance, convergence-only
 admissibility, duality---hold for any recogniser and any cost setting satisfying
 the stated assumptions; the protocol measures how favourable the constants are on
@@ -1406,7 +1650,14 @@ between acoustically close handles cheaper than between distant ones) are a
 natural refinement the framework accommodates but that requires a concrete handle
 metric. Fourth, the \emph{ambiguity set} narrowing (\Cref{prop:context}) assumes
 a context model that predicts plausible successors; its quality determines how
-small $A(v)$, hence how cheap the least sufficient identifier, actually is.
+small $A(v)$, hence how cheap the least sufficient identifier, actually is, and it
+does nothing at all for the first constituent, which has no resolved left context
+and faces the full pool (validated in \Cref{fig:signature}(C): mean $\abs{A}=69$
+at context length $0$). Fifth, and consequently, the \emph{complexity saving} is
+contingent, not structural: \Cref{cor:cheaper} shows the whole-item search beats
+per-track fingerprinting only by the nameable fraction $\phi$, degrading to no
+saving as $\phi\to0$ (measured mean $3.1\times$, \Cref{fig:duality}); the
+opening-track cost persists regardless of stream length.
 
 \subsection{Relation to single-track search}
 

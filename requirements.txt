@@ -43,3 +43,11 @@ flask>=2.3.0
 flask-cors>=4.0.0
 flask-limiter>=3.5.0
 werkzeug>=2.3.0
+requests>=2.31.0
+
+# URL-resolve worker (whole-item / DJ-set resolution):
+#   yt-dlp acquires audio from YouTube/SoundCloud links.
+#   Acoustic identification of residual segments also needs the system
+#   Chromaprint tool `fpcalc` on PATH (apt: libchromaprint-tools /
+#   brew: chromaprint) and a free ACOUSTID_API_KEY (https://acoustid.org).
+yt-dlp>=2024.1.0

@@ -1,0 +1,129 @@
+\begin{thebibliography}{19}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Cano et~al.(2005)Cano, Batlle, Kalker, and Haitsma]{cano2005review}
+Pedro Cano, Eloi Batlle, Ton Kalker, and Jaap Haitsma.
+\newblock A review of audio fingerprinting.
+\newblock \emph{Journal of VLSI Signal Processing Systems}, 41\penalty0
+  (3):\penalty0 271--284, 2005.
+
+\bibitem[Cormen et~al.(2009)Cormen, Leiserson, Rivest, and Stein]{cormen2009}
+Thomas~H. Cormen, Charles~E. Leiserson, Ronald~L. Rivest, and Clifford Stein.
+\newblock \emph{Introduction to Algorithms}.
+\newblock MIT Press, 3rd edition, 2009.
+
+\bibitem[Elizalde et~al.(2023)Elizalde, Deshmukh, Al~Ismail, and
+  Wang]{elizalde2023clap}
+Benjamin Elizalde, Soham Deshmukh, Mahmoud Al~Ismail, and Huaming Wang.
+\newblock {CLAP}: Learning audio concepts from natural language supervision.
+\newblock In \emph{IEEE International Conference on Acoustics, Speech and
+  Signal Processing (ICASSP)}, pages 1--5, 2023.
+
+\bibitem[Foote(2000)]{foote2000segmentation}
+Jonathan Foote.
+\newblock Automatic audio segmentation using a measure of audio novelty.
+\newblock \emph{Proceedings of IEEE International Conference on Multimedia and
+  Expo (ICME)}, 1:\penalty0 452--455, 2000.
+
+\bibitem[Ford and Fulkerson(1956)]{fordfulkerson1956}
+L.~R. Ford and D.~R. Fulkerson.
+\newblock Maximal flow through a network.
+\newblock \emph{Canadian Journal of Mathematics}, 8:\penalty0 399--404, 1956.
+
+\bibitem[Grosche et~al.(2012)Grosche, M{\"u}ller, and
+  Serr{\`a}]{grosche2012review}
+Peter Grosche, Meinard M{\"u}ller, and Joan Serr{\`a}.
+\newblock Audio content-based music retrieval.
+\newblock \emph{Dagstuhl Follow-Ups}, 3:\penalty0 157--174, 2012.
+
+\bibitem[Haitsma and Kalker(2002)]{haitsma2002fingerprint}
+Jaap Haitsma and Ton Kalker.
+\newblock A highly robust audio fingerprinting system.
+\newblock In \emph{Proceedings of the 3rd International Conference on Music
+  Information Retrieval (ISMIR)}, pages 107--115, Paris, France, 2002.
+
+\bibitem[Levenshtein(1966)]{levenshtein1966}
+Vladimir~I. Levenshtein.
+\newblock Binary codes capable of correcting deletions, insertions and
+  reversals.
+\newblock \emph{Soviet Physics Doklady}, 10\penalty0 (8):\penalty0 707--710,
+  1966.
+
+\bibitem[Manning et~al.(2008)Manning, Raghavan, and Sch{\"u}tze]{manning2008}
+Christopher~D. Manning, Prabhakar Raghavan, and Hinrich Sch{\"u}tze.
+\newblock \emph{Introduction to Information Retrieval}.
+\newblock Cambridge University Press, 2008.
+
+\bibitem[McCallum et~al.(2022)McCallum, Korzeniowski, Oramas, Gouyon, and
+  Ehmann]{mccallum2022supervised}
+Matthew~C. McCallum, Filip Korzeniowski, Sergio Oramas, Fabien Gouyon, and
+  Andreas~F. Ehmann.
+\newblock Supervised and unsupervised learning of audio representations for
+  music understanding.
+\newblock \emph{Proceedings of the 23rd International Society for Music
+  Information Retrieval Conference (ISMIR)}, 2022.
+
+\bibitem[Menger(1927)]{menger1927}
+Karl Menger.
+\newblock Zur allgemeinen kurventheorie.
+\newblock \emph{Fundamenta Mathematicae}, 10\penalty0 (1):\penalty0 96--115,
+  1927.
+
+\bibitem[Needleman and Wunsch(1970)]{needleman1970}
+Saul~B. Needleman and Christian~D. Wunsch.
+\newblock A general method applicable to the search for similarities in the
+  amino acid sequence of two proteins.
+\newblock \emph{Journal of Molecular Biology}, 48\penalty0 (3):\penalty0
+  443--453, 1970.
+
+\bibitem[Paulus et~al.(2010)Paulus, M{\"u}ller, and
+  Klapuri]{paulus2010structure}
+Jouni Paulus, Meinard M{\"u}ller, and Anssi Klapuri.
+\newblock Audio-based music structure analysis.
+\newblock \emph{Proceedings of the 11th International Society for Music
+  Information Retrieval Conference (ISMIR)}, pages 625--636, 2010.
+
+\bibitem[Schwarz and Fourer(2018)]{schwarz2018dj}
+Diemo Schwarz and Dominique Fourer.
+\newblock Methods and datasets for {DJ}-mix reverse engineering.
+\newblock In \emph{Proceedings of the 14th International Symposium on Computer
+  Music Multidisciplinary Research (CMMR)}, 2018.
+
+\bibitem[Six and Leman(2014)]{six2014panako}
+Joren Six and Marc Leman.
+\newblock {Panako}: A scalable acoustic fingerprinting system handling
+  time-scale and pitch modification.
+\newblock In \emph{Proceedings of the 15th International Society for Music
+  Information Retrieval Conference (ISMIR)}, pages 259--264, Taipei, Taiwan,
+  2014.
+
+\bibitem[Smith and Waterman(1981)]{smith1981}
+Temple~F. Smith and Michael~S. Waterman.
+\newblock Identification of common molecular subsequences.
+\newblock \emph{Journal of Molecular Biology}, 147\penalty0 (1):\penalty0
+  195--197, 1981.
+
+\bibitem[Sonnleitner et~al.(2016)Sonnleitner, Arzt, and
+  Widmer]{sonnleitner2016landmark}
+Reinhard Sonnleitner, Andreas Arzt, and Gerhard Widmer.
+\newblock Landmark-based audio fingerprinting for {DJ} mix monitoring.
+\newblock In \emph{Proceedings of the 17th International Society for Music
+  Information Retrieval Conference (ISMIR)}, pages 185--191, New York, NY,
+  2016.
+
+\bibitem[Stoer and Wagner(1997)]{stoer1997mincut}
+Mechthild Stoer and Frank Wagner.
+\newblock A simple min-cut algorithm.
+\newblock \emph{Journal of the ACM}, 44\penalty0 (4):\penalty0 585--591, 1997.
+
+\bibitem[Wang(2003)]{wang2003shazam}
+Avery Wang.
+\newblock An industrial-strength audio search algorithm.
+\newblock In \emph{Proceedings of the 4th International Conference on Music
+  Information Retrieval (ISMIR)}, pages 7--13, Baltimore, MD, 2003.
+
+\end{thebibliography}

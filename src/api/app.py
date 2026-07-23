@@ -10,6 +10,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from werkzeug.exceptions import RequestEntityTooLarge
 from .routes import api_bp
+from .resolve_routes import resolve_bp
 from .config import APIConfig
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,8 @@ def create_app(config_class=APIConfig):
     
     # Register blueprints
     app.register_blueprint(api_bp, url_prefix='/api/v1')
+    # URL-resolve (whole-item / DJ-set acoustic descent) endpoints
+    app.register_blueprint(resolve_bp, url_prefix='/api/v1')
     
     # Error handlers
     @app.errorhandler(RequestEntityTooLarge)
@@ -84,6 +87,8 @@ def create_app(config_class=APIConfig):
                 'semantic_emotions': '/api/v1/semantic/emotions',
                 'semantic_text': '/api/v1/semantic/text-analysis',
                 'semantic_stats': '/api/v1/semantic/stats',
+                'resolve': '/api/v1/resolve',
+                'resolve_job': '/api/v1/resolve/jobs/{job_id}',
                 'jobs': '/api/v1/jobs/{job_id}',
                 'health': '/health'
             },

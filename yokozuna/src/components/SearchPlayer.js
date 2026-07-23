@@ -5,6 +5,11 @@ import { LiquidDistortion, LiquidSlider } from './LiquidDistortion'
 import { useSpotify } from '../hooks/useSpotify'
 import { useTrackObserver } from '../hooks/useTrackObserver'
 import { useLibrary } from '../lib/LibraryProvider'
+import SetResolver from './SetResolver'
+import { addSet, matchSet } from '../lib/setIndex'
+
+// A pasted continuous-item link (99% of resolve requests): YouTube or SoundCloud.
+const LINK_RE = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|soundcloud\.com)\//i
 
 const LOCAL_PLAYLIST = [
     { id: 'local-1', name: 'Feed the Machine', artist: 'Black Sun Empire & Noisia', src: '/audio/BSE_NOISA_Feed_the_Machine.mp3', albumArt: '/albums/black-sun-empire-feed-the-machine.jpg' },
@@ -40,6 +45,42 @@ function SearchPlayerUI() {
     const [volumeVal, setVolumeVal] = useState(1)
     const indexRef = useRef(-1)
 
+    // Continuous-item (set) resolution state
+    const [resolvedSet, setResolvedSet] = useState(null)
+    const [resolvingSet, setResolvingSet] = useState(false)
+    const [setMatch, setSetMatch] = useState(null)
+
+    // Resolve a pasted SoundCloud/YouTube link as a whole item: acquire its
+    // signature (/api/resolve), match it against the local set-index, and store
+    // it. This is the paper's Acquire + Match, end to end.
+    const resolveLink = useCallback(async (url) => {
+        setResolvingSet(true)
+        setResolvedSet(null)
+        setSetMatch(null)
+        setSearchResults([])
+        try {
+            // Match the incoming signature against prior sets BEFORE storing it,
+            // so a re-resolve of the same link finds its earlier self.
+            const res = await fetch('/api/resolve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'resolution failed')
+
+            const match = matchSet(data)
+            setResolvedSet(data)
+            setSetMatch(match)
+            addSet(data) // grow the index (seed-from-resolved-links)
+        } catch (err) {
+            console.error('Set resolution failed:', err)
+            setResolvedSet({ error: err.message, signature: [], residual: [] })
+        } finally {
+            setResolvingSet(false)
+        }
+    }, [])
+
     // Observe audio data every frame
     useEffect(() => {
         if (audioData.isPlaying) observer.observe(audioData)
@@ -56,7 +97,14 @@ function SearchPlayerUI() {
     // Search handler — AI-powered when ensemble has data
     const handleSearch = useCallback(async (e) => {
         e?.preventDefault()
-        if (!searchQuery.trim()) return
+        const q = searchQuery.trim()
+        if (!q) return
+
+        // A pasted link is a whole-item resolve request, not a track search.
+        if (LINK_RE.test(q)) {
+            resolveLink(q)
+            return
+        }
 
         setSearching(true)
         setAiExplanation('')
@@ -119,7 +167,7 @@ function SearchPlayerUI() {
         } finally {
             setSearching(false)
         }
-    }, [searchQuery, spotify.authenticated])
+    }, [searchQuery, spotify.authenticated, resolveLink])
 
     // Play a track
     const playTrack = useCallback(async (track, index, list) => {
@@ -218,24 +266,24 @@ function SearchPlayerUI() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder={spotify.authenticated ? 'Describe what you want to hear...' : 'Connect Spotify to search'}
-                            disabled={!spotify.authenticated}
+                            placeholder={
+                                spotify.authenticated
+                                    ? 'Describe what you want to hear, or paste a mix/set link…'
+                                    : 'Paste a SoundCloud or YouTube set link…'
+                            }
                             className="flex-1 px-4 py-2.5 rounded-full bg-white/10 border border-white/20
                                 text-white text-sm placeholder:text-white/30 outline-none
-                                focus:border-white/40 focus:bg-white/15 transition-all
-                                disabled:opacity-40 disabled:cursor-not-allowed"
+                                focus:border-white/40 focus:bg-white/15 transition-all"
                         />
-                        {spotify.authenticated && (
-                            <button
-                                type="submit"
-                                disabled={searching || !searchQuery.trim()}
-                                className="px-5 py-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/30
-                                    text-emerald-300 text-sm font-medium hover:bg-emerald-500/30 transition-all
-                                    disabled:opacity-40"
-                            >
-                                {searching ? '...' : 'Search'}
-                            </button>
-                        )}
+                        <button
+                            type="submit"
+                            disabled={searching || resolvingSet || !searchQuery.trim()}
+                            className="px-5 py-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/30
+                                text-emerald-300 text-sm font-medium hover:bg-emerald-500/30 transition-all
+                                disabled:opacity-40"
+                        >
+                            {searching || resolvingSet ? '...' : 'Search'}
+                        </button>
                     </form>
 
                     {/* Spotify auth button */}
@@ -309,6 +357,23 @@ function SearchPlayerUI() {
                             </button>
                         ))}
                     </div>
+                )}
+
+                {/* Resolved set (whole-item signature) */}
+                {(resolvingSet || resolvedSet) && (
+                    resolvedSet?.error ? (
+                        <div className="max-w-2xl mx-auto mt-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                            <p className="text-red-300/80 text-xs">{resolvedSet.error}</p>
+                        </div>
+                    ) : (
+                        <SetResolver
+                            resolved={resolvedSet}
+                            resolving={resolvingSet}
+                            match={setMatch}
+                            onClose={() => { setResolvedSet(null); setSetMatch(null) }}
+                            onPlay={(r) => r?.url && window.open(r.url, '_blank')}
+                        />
+                    )
                 )}
             </div>
 
