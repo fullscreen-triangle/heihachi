@@ -1,0 +1,25 @@
+-- recall.mma
+-- Finding work you already made. The exclusions are the specification:
+-- twenty versions were rejected, and what they were rejected FOR is the
+-- only description of the survivor that was ever precise.
+
+floor 0.02                 -- nothing here resolves finer
+
+seek reese_growl
+  not    { thin, undistorted, mono }
+  toward { region(that_2019_growl) }
+  via    { rung spectral   at 0.45
+        >> rung annotation at 0.30
+        >> rung model      at 0.55 }
+  until  closure
+  otherwise decline
+  yield  found
+
+observe found as result
+assert result.residue >= 0.02
+  emit "residue fell below the declared floor"
+
+-- The three rungs fail in unrelated ways, which is the point: spectral
+-- measures the material, annotation recalls what was written at the time,
+-- and model reads the accumulated graph. Three prompts to one model would
+-- be one rung, and the checker would refuse the program.
