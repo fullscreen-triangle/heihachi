@@ -1,0 +1,9 @@
+{
+  "chunks_on_node": 2,
+  "distinct_nodes": 1,
+  "emissions": 2,
+  "experiment": "kernel_convergence",
+  "passed": true,
+  "same_object": true,
+  "suite": "kernel"
+}

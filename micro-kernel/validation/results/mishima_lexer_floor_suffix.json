@@ -1,0 +1,8 @@
+{
+  "experiment": "mishima_lexer_floor_suffix",
+  "passed": true,
+  "positive_accepted": 2,
+  "refused": 3,
+  "suite": "mishima",
+  "zero_floor_attempts": 3
+}

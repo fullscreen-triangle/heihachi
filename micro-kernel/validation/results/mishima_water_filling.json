@@ -1,0 +1,17 @@
+{
+  "allocation": [
+    2.125,
+    0.875,
+    0.0
+  ],
+  "budget": 3.0,
+  "experiment": "mishima_water_filling",
+  "marginal_spread": 5.551115123125783e-17,
+  "passed": true,
+  "served": [
+    0,
+    1
+  ],
+  "suite": "mishima",
+  "total_spent": 3.0
+}

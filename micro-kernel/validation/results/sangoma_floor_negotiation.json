@@ -1,0 +1,9 @@
+{
+  "coarse_program_runs": true,
+  "experiment": "sangoma_floor_negotiation",
+  "fine_program_runs": false,
+  "names_both": true,
+  "passed": true,
+  "refusal": "floor 0.001 finer than back end can resolve (0.01); refused before execution",
+  "suite": "sangoma"
+}

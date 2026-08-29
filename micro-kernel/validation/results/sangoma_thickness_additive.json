@@ -1,0 +1,12 @@
+{
+  "experiment": "sangoma_thickness_additive",
+  "never_decreases": true,
+  "passed": true,
+  "stage_thicknesses": [
+    0.02,
+    0.03,
+    0.05
+  ],
+  "suite": "sangoma",
+  "total": 0.1
+}

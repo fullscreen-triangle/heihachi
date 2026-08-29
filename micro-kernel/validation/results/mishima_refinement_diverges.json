@@ -1,0 +1,24 @@
+{
+  "cost_diverges": true,
+  "cost_ratio_first_to_last": 10000.0,
+  "costs": [
+    10.0,
+    100.0,
+    1000.0,
+    10000.0,
+    99999.99999999999
+  ],
+  "experiment": "mishima_refinement_diverges",
+  "ladder_composite": 0.968136,
+  "ladder_cost": 8,
+  "ladder_rungs": 8,
+  "passed": true,
+  "suite": "mishima",
+  "thicknesses": [
+    0.1,
+    0.01,
+    0.001,
+    0.0001,
+    1e-05
+  ]
+}

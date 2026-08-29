@@ -1,0 +1,14 @@
+{
+  "classes": [
+    "dub",
+    "vip"
+  ],
+  "contested_status": "declined",
+  "convergent_classes": [
+    "one"
+  ],
+  "convergent_status": "converged",
+  "experiment": "mishima_decline_is_typed",
+  "passed": true,
+  "suite": "mishima"
+}

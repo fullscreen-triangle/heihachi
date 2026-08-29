@@ -1,0 +1,14 @@
+{
+  "beats_every_below_mean_repetition": true,
+  "distinct_composite": 0.8267,
+  "experiment": "mishima_diversify",
+  "mean_rung_power": 0.4333,
+  "passed": true,
+  "repeated": {
+    "0.3": 0.657,
+    "0.45": 0.8336,
+    "0.55": 0.9089
+  },
+  "strongest_repetition_wins": true,
+  "suite": "mishima"
+}

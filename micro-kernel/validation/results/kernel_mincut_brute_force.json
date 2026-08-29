@@ -1,0 +1,8 @@
+{
+  "experiment": "kernel_mincut_brute_force",
+  "max_abs_difference": 8.881784197001252e-16,
+  "mismatches": 0,
+  "passed": true,
+  "suite": "kernel",
+  "trials": 300
+}

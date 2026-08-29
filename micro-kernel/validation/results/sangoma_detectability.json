@@ -1,0 +1,31 @@
+{
+  "experiment": "sangoma_detectability",
+  "passed": true,
+  "rows": [
+    {
+      "extent": 1.0,
+      "observable": true,
+      "tau": 0.1,
+      "thickness": 0.1
+    },
+    {
+      "extent": 1.0,
+      "observable": true,
+      "tau": 0.5,
+      "thickness": 0.5
+    },
+    {
+      "extent": 1.0,
+      "observable": false,
+      "tau": 1.0,
+      "thickness": 1.0
+    },
+    {
+      "extent": 1.0,
+      "observable": false,
+      "tau": 2.0,
+      "thickness": 2.0
+    }
+  ],
+  "suite": "sangoma"
+}

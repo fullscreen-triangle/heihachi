@@ -1,0 +1,8 @@
+{
+  "attempts": 3,
+  "experiment": "kernel_floor_positivity",
+  "passed": true,
+  "positive_accepted": true,
+  "refused": 3,
+  "suite": "kernel"
+}

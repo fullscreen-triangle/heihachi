@@ -1,0 +1,12 @@
+{
+  "emitted_nodes": 2,
+  "experiment": "kernel_non_propagation",
+  "passed": true,
+  "rejections_performed": 0,
+  "suite": "kernel",
+  "trajectory": [
+    "downstream",
+    "heard"
+  ],
+  "unheard_in_trajectory": false
+}

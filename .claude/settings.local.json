@@ -11,6 +11,6 @@
   },
   "env": {
     "ANTHROPIC_BASE_URL": "https://compat.bitagent.dev",
-    "ANTHROPIC_CUSTOM_HEADERS": "x-gateway-credential:gw_976160ff6f8ecdf3947abd3eceedf116f310ed0281bc7e2b4e833c440eab5a10"
+    "ANTHROPIC_CUSTOM_HEADERS": "x-gateway-credential:gw_136f942bb9853fe55066b5c0c1434bd8616748d43c756287608a42d9ab5257ea"
   }
 }

@@ -1,0 +1,1255 @@
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+% ─── Packages ─────────────────────────────────────────────────────────
+\usepackage[margin=2.0cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,
+            citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{cleveref}
+
+% ─── Page Style ───────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Mishima: Recalling Authored Work by Propagation}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+% ─── Theorem Environments ─────────────────────────────────────────────
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{principle}[theorem]{Principle}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ─── Custom Commands ──────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Rpos}{\R_{>0}}
+\newcommand{\flo}{\beta}
+\newcommand{\med}{\mathcal{M}}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\cut}{\operatorname{cut}}
+\newcommand{\wt}{w}
+\newcommand{\res}{\varrho}
+\newcommand{\pot}{\kappa}
+\newcommand{\aln}{\sigma}
+\newcommand{\rec}{\mu}
+\newcommand{\Om}{\Omega}
+\newcommand{\Reached}{\mathcal{C}}
+
+% ─── Listings ─────────────────────────────────────────────────────────
+\lstdefinestyle{mma}{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape\color{gray!80!black},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{gray!50},
+  morekeywords={floor,module,probe,commit,seek,not,toward,via,until,
+                closure,converge,otherwise,decline,yield,ladder,rung,at,
+                observe,assert,emit,let,as,when}
+}
+\lstset{style=mma}
+
+\captionsetup{font=small,labelfont=bf}
+
+% ══════════════════════════════════════════════════════════════════════
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\begin{center}
+
+{\LARGE\bfseries Mishima: Recalling Authored Work by Propagation\\[4pt]
+A Language in which a Search States What It Excludes,\\
+and Ends in Closure or Honest Decline}
+
+\vspace{12pt}
+
+{\large Kundai Farai Sachikonye}
+
+\vspace{6pt}
+
+{\small\itshape Independent Researcher \\[0.3em]
+\texttt{kundai.sachikonye@wzw.tum.de}}
+
+\vspace{6pt}{\small August 2026}
+
+\vspace{16pt}
+
+\begin{minipage}{0.92\textwidth}
+\textbf{Abstract.}
+We specify \emph{mishima}, a language for asking questions of an accumulated
+record of music production. Its subject is the request a producer cannot
+currently make of any tool: \emph{find the thing I made before, the one that
+sounded like this and not like those, and tell me what was essential to it}. We
+argue that such a request is not vague but negatively specified, and we make the
+negation syntactically obligatory: a search that does not state what it excludes
+is rejected at parse time, because a region individuated against nothing is not a
+region. The language's cost model counts commitments rather than instructions, so
+that exploring an enormous space while committing rarely is inexpensive however
+long the exploration. We prove that a single distinction cannot be sharpened
+without bound---the cost of thinning a separator diverges while its return is
+bounded---and therefore that fine resolution must be reached by composing
+ordinary distinctions in series, a \emph{ladder} whose composite power is
+$1-\prod_i(1-\pot_i)$ and which saturates exactly when $\sum_i \pot_i$ diverges.
+Measured over four thousand rungs, a divergent power sequence drives the residual
+gap to $2.5\times10^{-4}$ while a convergent one leaves it at $0.29$, a
+separation of three orders of magnitude. We give a termination criterion---%
+\emph{closure}, that every uninvoked probe lands where the search has already
+been---and prove it strictly stronger than any confidence threshold; over five
+registries a fixed threshold was satisfied after a single probe in every case
+while closure required the whole registry, and every registry terminated
+contested. Contested termination is a typed value carrying the irreconcilable
+readings found, not an error, because a system holding no expectation cannot
+adjudicate between them. We give the complete lexical and context-free grammar
+for the \texttt{.mma} file, a type system carrying resolution and power in the
+type, a small-step semantics, and static diagnostics that reject an incoherent
+ladder before it runs. A prototype front end and sixteen deterministic
+experiments accompany the paper. Nothing outside this paper is required to read
+it.
+\end{minipage}
+
+\vspace{8pt}
+\noindent\textbf{Keywords:}
+domain-specific language, music production, negation, resolution ladder,
+closure, honest decline, water-filling, type system, provenance
+
+\vspace{18pt}
+\end{center}
+\end{@twocolumnfalse}
+]
+
+%──────────────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{The question a producer cannot ask}
+
+Suppose a producer wants the bass sound they made two years ago. Not a similar
+one---that one, or something that extends it. What can they do?
+
+They can open old sessions and listen. This works and is what everyone does, and
+it scales as badly as it sounds. They can search filenames, which requires that
+the name recorded the thing they now want, which it did not, because at the time
+they did not know they would want it. They can send a bounce to a similarity
+service and receive back other people's records that resemble it, which is a
+different question.
+
+None of these is a failure of tooling to be fixed by a better index. The
+difficulty is prior: \emph{the material does not record what was decided}. A
+bounce is the output of a chain of decisions with every trace of the decisions
+removed; a session file is the terminal state of those decisions with the
+sequence removed. Neither contains the relation between what was tried and what
+was kept, and it is the relation that a later question is about.
+
+Mishima assumes that relation has been recorded---by a runtime specified
+separately, and summarised self-containedly in \S\ref{sec:substrate}---and is the
+language for asking questions of it. This paper is about the asking.
+
+\subsection{Why the question is negatively specified}
+
+``The sound I am looking for'' is routinely described as vague. We think this is
+a mistake about the grammar of such requests, and correcting it is what gives the
+language its central syntactic rule.
+
+When a producer rejects twenty versions and keeps the twenty-first, they have not
+merely selected. They have drawn twenty boundaries, each one an act of
+individuation: \emph{not that}. The kept version is specified by those rejections
+far more precisely than by any positive description, because the positive
+descriptions available---``warmer,'' ``nastier,'' ``more forward''---name
+directions rather than regions. The rejections name the region.
+
+So the request is not underspecified. It is specified negatively, and the
+specification was thrown away, because sessions record survivors and not
+exclusions.
+
+Mishima therefore makes the exclusion obligatory. A \texttt{seek} without a
+\texttt{not} clause is refused by the parser, not by the type checker
+(\Cref{prop:mandatory-not}), on the grounds that a region individuated against
+nothing has not been specified at all.
+
+\subsection{Counting commitments, not instructions}
+
+Conventional languages count instructions: a program is expensive because it
+executes many. Mishima counts \emph{commitments}, and the distinction reflects
+what production actually costs.
+
+Auditioning is cheap. A producer can sweep a filter for an hour, deposit nothing,
+and be exactly where they started. Committing is expensive: bouncing a version,
+building the next layer on it, resampling it so that everything downstream now
+depends on it. The expense is not the time spent but the fact that the decision
+is thereafter load-bearing.
+
+Under this model the optimisation target inverts. A program is not good because
+it runs fast; it is cheap because it commits rarely. A search that explores an
+enormous space of past work while committing three times is inexpensive, however
+long its trajectory. \S\ref{sec:cost} makes this precise.
+
+\subsection{Contributions}
+
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+\item The obligatory negation and its justification (\S\ref{sec:individuation}).
+\item The divergence of refinement cost, and the consequent necessity of
+  composing ordinary distinctions (\S\ref{sec:nesting}).
+\item The composition law, its saturation dichotomy, and the exact depth required
+  to reach a target (\S\ref{sec:nesting}).
+\item The triangle result: three mutually supporting rungs are necessary and
+  sufficient for robustness to the loss of any one (\S\ref{sec:coherence}).
+\item Closure, its strict superiority to a confidence threshold, and the
+  two-outcome termination theorem (\S\ref{sec:closure}).
+\item Allocation of effort by water-filling, with the knapsack variant for
+  probes that are all-or-nothing (\S\ref{sec:allocation}).
+\item The complete grammar of \texttt{.mma}, a type system, and static
+  diagnostics (\S\ref{sec:grammar}--\S\ref{sec:types}).
+\item A prototype and sixteen validating experiments (\S\ref{sec:validation}).
+\end{enumerate}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Substrate}
+\label{sec:substrate}
+%──────────────────────────────────────────────────────────────────────
+
+We restate, self-containedly, the minimum structure mishima runs on.
+
+\begin{definition}[Contact graph, medium, cut, residue, floor]
+\label{def:substrate}
+A \emph{contact graph} is $\Gph=(V,E,\wt)$ with $V$ finite and non-empty, $E$ a
+set of unordered pairs, and $\wt\colon E\to\Rpos$; graph terminology follows
+\citet{diestel2010graph}. A distinguished vertex $\med$, the \emph{medium}, is
+adjacent to every other vertex; the rest are \emph{items}. For $S$ containing an
+item and omitting $\med$, the \emph{cut} is
+$\cut(S)=\{\{u,v\}\in E: u\in S, v\notin S\}$ and the \emph{residue} is
+$\res(S)=\sum_{e\in\cut(S)}\wt(e)$. The \emph{floor} is $\flo=\min_{e\in E}\wt(e)$
+and the \emph{total} is $\Om=\sum_{e\in E}\wt(e)$.
+\end{definition}
+
+In a production record the items are authored things---a bass patch, a bounce, a
+processing move---and an edge weight is the cost of telling two of them apart. The
+medium stands for everything not yet distinguished.
+
+\begin{lemma}[Positive floor, positive residue]
+\label{lem:floor}
+$\flo>0$, and every cut as in \Cref{def:substrate} satisfies $\res(S)\ge\flo>0$.
+\end{lemma}
+
+\begin{proof}
+$\flo$ is the minimum of a finite non-empty set of positive reals. Since $S$
+contains an item $v$ and omits $\med$, and $\{v,\med\}\in E$, the cut is
+non-empty and its weight is a sum of terms each at least $\flo$.
+\end{proof}
+
+\begin{definition}[Alignment]
+\label{def:alignment}
+Fix a target $x^{\star}$. The \emph{alignment} of an item $x$ to $x^{\star}$ is
+its normalised separation cost,
+\[
+  a(x,x^{\star}) \;=\; \frac{\aln(x,x^{\star})}{\Om},
+  \qquad
+  \aln(x,x^{\star}) = \min_{S\ni x,\ x^{\star}\notin S}\res(S),
+\]
+computable by maximum flow \citep{ford1956maximal,edmonds1972theoretical}.
+\end{definition}
+
+Alignment measures distance-to-target as separation cost: an item far from the
+target is expensive to separate from it; an item at the target is separated only
+at the floor.
+
+\begin{lemma}[Alignment is floor-bounded]
+\label{lem:alignfloor}
+For all $x$, $a(x,x^{\star})\ge\flo/\Om>0$.
+\end{lemma}
+
+\begin{proof}
+Immediate from \Cref{lem:floor} applied to the minimising cut.
+\end{proof}
+
+\begin{remark}[Uncertainty without a prior]
+\label{rem:no-prior}
+The quantity ordinarily carried by a probability or a posterior---a number in
+$[0,1]$ recording how sure one is---is carried here by $a(\cdot,\cdot)$ and its
+distance to $\flo/\Om$. It is derived rather than posited: an exact
+minimum-cut weight, bounded below by a positive constant, with no prior to set
+and no membership function to tune. Where a standard calculus \emph{posits} an
+uncertainty, the floor \emph{forces} one.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Individuation by Negation}
+\label{sec:individuation}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Region, exclusion]
+\label{def:region}
+A \emph{region} is a set of items together with the cut individuating it from the
+remainder. An \emph{exclusion} is a region declared not to be the target.
+\end{definition}
+
+\begin{proposition}[A region requires an exclusion]
+\label{prop:mandatory-not}
+A search specifying a target but no exclusion has not specified a region. The
+parser therefore rejects a \texttt{seek} lacking a \texttt{not} clause, and
+rejects an empty exclusion list.
+\end{proposition}
+
+\begin{proof}
+By \Cref{def:region} a region is individuated by a cut, and by
+\Cref{def:substrate} a cut is a partition into a side and its complement. A
+declaration naming only a side, with the complement left implicit and empty,
+determines no partition: every item lies on the named side, the cut is empty, and
+by \Cref{lem:floor} no such cut exists over a graph containing the medium. The
+declaration therefore fails to denote.
+\end{proof}
+
+\begin{remark}[Why this is a parse error and not a type error]
+\label{rem:parse-not-type}
+The distinction is deliberate. A type error is a claim about the meaning of a
+well-formed program; a missing \texttt{not} clause makes the program ill-formed,
+because the construct it would inhabit is not a search over a smaller region but
+a search over no region at all. Placing the rule in the grammar means the
+producer meets it while writing rather than after running, which is where a rule
+about specification belongs.
+\end{remark}
+
+\begin{example}[A recall, written out]
+\label{ex:recall}
+The exclusions here are the twenty rejected versions, in the only form that
+survived: the properties the producer decided against.
+
+\begin{lstlisting}
+seek reese_growl
+  not    { thin, undistorted, mono }
+  toward { region(that_2019_growl) }
+\end{lstlisting}
+\end{example}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Why Ladders}
+\label{sec:nesting}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{A single distinction cannot be sharpened without bound}
+
+\begin{definition}[Refinement cost]
+\label{def:refinecost}
+Let $\Gamma(t)$ be the cost of realising a separator of thickness $t>0$. We
+require $\Gamma$ non-increasing in $t$ with $\Gamma(t)\to\infty$ as
+$t\to0^{+}$: making a distinction arbitrarily sharp is arbitrarily expensive.
+\end{definition}
+
+The divergence is required of $\Gamma$ rather than derived, and it is not an
+arbitrary requirement. Maintaining $N$ mutually distinguishable states inside a
+fixed range forces the mean gap between them to $D/N$, so buying a factor of two
+in sharpness costs a factor of two in states, and the cost of the mechanism
+holding them apart grows at least as fast.
+
+\begin{theorem}[Refinement halts above zero]
+\label{thm:refine}
+Let the return from thinning a separator be bounded above by the extent $\Lambda$
+of the space being resolved. Then the marginal return per unit cost tends to zero
+as $t\to0^{+}$, and any agent with a positive threshold on marginal return halts
+at a strictly positive thickness.
+\end{theorem}
+
+\begin{proof}
+Total return is bounded by $\Lambda$ regardless of $t$, so the return available
+from any further thinning is at most $\Lambda$ minus what has been obtained,
+which is non-increasing in the thinning already performed. Cost, by
+\Cref{def:refinecost}, diverges. The ratio of a bounded non-increasing numerator
+to a divergent denominator tends to zero, so it falls below any positive
+threshold at some $t^{\ast}>0$.
+\end{proof}
+
+The experiment \texttt{mishima\_refinement\_diverges} exhibits the divergence
+directly: thicknesses $10^{-1}$ through $10^{-5}$ cost $10$ through $10^{5}$, a
+ratio of $10^{4}$ across the sweep.
+
+\subsection{Rungs and ladders}
+
+\begin{definition}[Rung, power, ladder]
+\label{def:rung}
+A \emph{rung} is a move that closes some of the distance from the current item to
+the target. Its \emph{power} is
+\[
+  \pot(\gamma,x,x^{\star})
+  \;=\;
+  \frac{a(x,x^{\star}) - a(\gamma(x),x^{\star})}
+       {a(x,x^{\star}) - \flo/\Om}\;\in\;[0,1],
+\]
+inert at $\pot=0$ and absolute at $\pot=1$. A \emph{ladder} is a finite sequence
+of rungs composed in series, written $\gamma_1 \gg \cdots \gg \gamma_n$.
+\end{definition}
+
+\begin{theorem}[Composition is multiplicative in the residual]
+\label{thm:multiplicative}
+A ladder of rungs with powers $\pot_1,\dots,\pot_n$ has composite power
+\[
+  \pot_{\mathrm{total}} \;=\; 1-\prod_{i=1}^{n}\left(1-\pot_i\right).
+\]
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:rung} a rung of power $\pot_i$ leaves a fraction $1-\pot_i$ of the
+above-floor gap unclosed. Applying rungs in series multiplies the surviving
+fractions, so the fraction remaining after $n$ rungs is $\prod_i(1-\pot_i)$ and
+the fraction closed is its complement.
+\end{proof}
+
+The experiment \texttt{mishima\_composition\_law} checks the implementation
+against a direct product over four cases, with greatest absolute difference below
+$10^{-12}$.
+
+\begin{corollary}[Saturation dichotomy]
+\label{cor:saturation}
+The residual gap $\prod_i(1-\pot_i)$ tends to zero if and only if
+$\sum_i \pot_i$ diverges.
+\end{corollary}
+
+\begin{proof}
+Taking logarithms, $\log\prod_i(1-\pot_i)=\sum_i\log(1-\pot_i)$. For
+$\pot_i\in[0,1)$ we have $-\log(1-\pot_i)\ge \pot_i$ and, for $\pot_i$ bounded
+away from one, $-\log(1-\pot_i)\le C\pot_i$ for a constant $C$. The sum therefore
+diverges to $-\infty$---equivalently the product tends to zero---exactly when
+$\sum_i\pot_i$ diverges. This is the Borel--Cantelli dichotomy in the form given
+by \citet{borel1909probabilites}.
+\end{proof}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Saturation over $4000$ rungs
+(\texttt{mishima\_saturation\_dichotomy}).}
+\label{tab:saturation}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Power sequence & $\sum\pot_i$ & Residual gap \\
+\midrule
+Harmonic, $\pot_i = 1/(i{+}2)$   & divergent  & $2.50\times10^{-4}$ \\
+Geometric, $\pot_i = 2^{-(i+1)}$ & convergent & $2.89\times10^{-1}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{corollary}[Required depth]
+\label{cor:depth}
+To reach composite power $\pot^{\star}<1$ using rungs of power $\pot$ requires
+\[
+  n^{\star} \;=\;
+  \left\lceil \frac{\log(1-\pot^{\star})}{\log(1-\pot)} \right\rceil
+\]
+rungs, and this is exact rather than indicative.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:multiplicative} with equal powers the composite is $1-(1-\pot)^n$;
+solving $1-(1-\pot)^n\ge\pot^{\star}$ for $n$ gives the stated ceiling.
+\end{proof}
+
+The experiment \texttt{mishima\_depth\_closed\_form} compares the closed form
+against incrementing $n$ until the composite clears the target, over twenty
+combinations of target and per-rung power, and finds agreement in every case.
+
+\begin{remark}[The ladder is the computation]
+\label{rem:ladder-is}
+\Cref{thm:refine} and \Cref{thm:multiplicative} together say that fine resolution
+is reached by paying many ordinary costs in series rather than one divergent cost
+at a single boundary. This is not scaffolding for the search; it is the search.
+The production analogue is exact and familiar: a sound that survives ten passes
+of resampling and mangling is not the product of one perfect operation but of ten
+ordinary ones, and no amount of care applied to any single stage substitutes for
+the sequence.
+\end{remark}
+
+\begin{corollary}[Diversify, against the mean]
+\label{cor:diversify}
+A ladder of distinct rungs attains strictly greater composite power than
+repetition of any one of its rungs whose power lies below the ladder's mean.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:multiplicative} the composite is determined by
+$\prod_i(1-\pot_i)$, and by the arithmetic--geometric mean inequality applied to
+the factors $1-\pot_i$, replacing the set by $n$ copies of a member with
+$\pot<\bar\pot$ increases the product and hence decreases the composite.
+\end{proof}
+
+\begin{remark}[The stronger claim is false]
+\label{rem:diversify-honest}
+It is tempting to state \Cref{cor:diversify} as ``distinct rungs beat any
+repetition,'' and that is not true. Repeating the \emph{strongest} rung of a set
+can beat the mixed ladder: for powers $\{0.45,0.30,0.55\}$ the ladder attains
+$0.8267$ while three copies of $0.55$ attain $0.9089$. The experiment
+\texttt{mishima\_diversify} records this counterexample rather than suppressing
+it. What the corollary licenses is the comparison against the mean, which is
+weaker and true. The practical reading is that a ladder buys robustness rather
+than raw power---for which see \Cref{thm:triangle}.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Coherence}
+\label{sec:coherence}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Support relation]
+\label{def:support}
+Rung $\gamma_i$ \emph{supports} $\gamma_j$ if the region $\gamma_i$ reaches is
+one from which $\gamma_j$'s power is realisable. The support relation is a
+directed graph on the rungs of a ladder.
+\end{definition}
+
+\begin{theorem}[Triangle]
+\label{thm:triangle}
+A ladder survives the loss of any single rung if and only if its support relation
+contains a directed cycle of length at least three. In particular a chain is
+fragile and a mutually supporting pair is not sufficient.
+\end{theorem}
+
+\begin{proof}
+($\Leftarrow$) If a directed cycle of length $k\ge3$ is present, removing one
+rung leaves a directed path through the remaining $k-1\ge2$, so every surviving
+rung is still reached and the ladder is still traversable.
+($\Rightarrow$) Suppose no cycle of length $\ge3$ exists. Then the support
+relation is either acyclic or contains only $2$-cycles. If acyclic, it has a
+topological order and removing the first rung disconnects everything downstream
+of it. If it contains a $2$-cycle $\{\gamma_i,\gamma_j\}$ and no longer cycle,
+removing $\gamma_i$ leaves $\gamma_j$ supported only by the rung just removed.
+Either way some single removal breaks the ladder.
+\end{proof}
+
+\begin{remark}[Two agreeing is not a check]
+\label{rem:two-agree}
+A $2$-cycle is mutual definition between exactly two rungs with no independent
+third party. In a recall this is the situation where a spectral measurement and a
+stored annotation agree because the annotation was written from the measurement;
+their agreement is not evidence. The requirement of three is what makes agreement
+informative, and it is checkable statically from the signs of the support
+relation alone---no magnitudes are needed.
+\end{remark}
+
+The experiment \texttt{mishima\_triangle} confirms that a chain and a pair are
+both fragile and a three-cycle is not.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Closure and Decline}
+\label{sec:closure}
+%──────────────────────────────────────────────────────────────────────
+
+A search over a production record cannot terminate by matching an expectation,
+because if an expectation were available the search would be unnecessary. We give
+a criterion that requires none.
+
+\begin{definition}[Reached set]
+\label{def:reached}
+At a given stage the \emph{reached set} $\Reached$ of a search is the collection
+of regions attainable by some admissible ladder from the seed using the rungs
+invoked so far, partitioned into classes under indistinguishability at the
+endpoints.
+\end{definition}
+
+\begin{definition}[Closure]
+\label{def:closure}
+A search is \emph{closed} at a stage if, for every rung available but not yet
+invoked, extending by that rung adds no new class to $\Reached$.
+\end{definition}
+
+\begin{theorem}[Closure is strictly stronger than a threshold]
+\label{thm:closure-stronger}
+There exist records and thresholds $\theta\in(0,1)$ such that a search's terminal
+alignment satisfies $\theta$ while the search is not closed: an uninvoked rung is
+available whose ladder reaches a region in a distinct class.
+\end{theorem}
+
+\begin{proof}
+Construct a record with two disjoint clusters $A$ and $B$, each internally dense
+and each joined to the medium by a single rung, $\gamma_A$ and $\gamma_B$, of
+equal weight. A ladder using $\gamma_A$ alone terminates at a representative
+$x^{\star}_A\in A$, whose alignment to itself is $\flo/\Om$ by
+\Cref{lem:alignfloor} and therefore satisfies any threshold. Yet $\gamma_B$,
+uninvoked, reaches $x^{\star}_B\in B$; as vertex sets with independent internal
+structure their minimum cuts against the medium differ, so the two lie in
+distinct classes. The threshold is met while closure fails.
+\end{proof}
+
+\begin{remark}[The failure this names]
+\label{rem:why-threshold}
+\Cref{thm:closure-stronger} formalises a failure familiar to anyone who has
+searched their own archive. One line of enquiry reports high confidence purely
+because it is internally consistent---as any single cluster is, having only
+internal contacts and one to the medium---while an independent second line would
+reach an entirely different answer. Closure requires that every available rung be
+checked to land in an already-reached class before stopping. It is not that the
+current answer looks confident; it is that the space of answers has stopped
+producing new destinations.
+\end{remark}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Closure against a fixed confidence threshold $\theta=0.9$, over five
+registries (\texttt{mishima\_closure\_beats\_threshold}).}
+\label{tab:closure}
+\begin{tabular}{@{}rrrl@{}}
+\toprule
+Registry & Threshold met & Closure at & Outcome \\
+\midrule
+$3$ & after $1$ probe & $3$ probes & declined \\
+$4$ & after $1$ probe & $4$ probes & declined \\
+$5$ & after $1$ probe & $5$ probes & declined \\
+$6$ & after $1$ probe & $6$ probes & declined \\
+$8$ & after $1$ probe & $8$ probes & declined \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{theorem}[Convergent closure or honest decline]
+\label{thm:decline}
+Every search over a finite rung registry terminates in exactly one of two states:
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+\item \textbf{Convergent closure}: $\Reached$ stabilises to a single class, whose
+  representative is reported;
+\item \textbf{Contested closure (honest decline)}: $\Reached$ stabilises with
+  more than one class, and the search reports that no single sufficient answer
+  exists, together with the classes found.
+\end{enumerate}
+No search over a finite registry runs forever without reaching one of these.
+\end{theorem}
+
+\begin{proof}
+The registry is finite, so the set of ladders from the seed is finite and
+$\Reached$---a partition of a finite set of reachable regions---is finite. It
+grows only by adding classes and can do so at most finitely often; once each
+remaining rung has been tried against every present class, no rung adds a class
+and \Cref{def:closure} is satisfied by exhaustion in finitely many steps. If the
+stabilised $\Reached$ has one class, (i) obtains; if more, no class is licensed
+over the others, since each is internally indistinguishable while they disagree
+mutually, and (ii) obtains. The cases are exhaustive and mutually exclusive.
+\end{proof}
+
+\begin{remark}[Decline is not failure]
+\label{rem:decline-value}
+A contested closure reports a fact about the record: several irreconcilable
+regions were reached and nothing in the available rungs distinguishes them.
+Reporting one and suppressing the others would be a stronger claim than the
+search supports. For a producer this is the more useful outcome: told that a
+sound could be either of two things and named the measurement that would separate
+them, they know what to listen for. A threshold-stopping procedure discards
+exactly this information.
+\end{remark}
+
+The experiment \texttt{mishima\_decline\_is\_typed} exhibits both outcomes: a
+registry reaching two classes terminates contested carrying both, while one
+reaching a single class converges.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Allocating Effort}
+\label{sec:allocation}
+%──────────────────────────────────────────────────────────────────────
+
+A search has finite effort and many rungs it might invoke.
+
+\begin{definition}[Yield]
+\label{def:yield}
+Rung $i$ given effort $a_i\ge0$ returns yield $y_i(a_i)$, non-decreasing and
+concave, with $\sum_i a_i = E$ the total effort available.
+\end{definition}
+
+\begin{theorem}[Allocation is water-filling]
+\label{thm:waterfill}
+The allocation maximising total yield satisfies, for a single scalar price
+$\lambda\ge0$,
+\[
+  y_i'(a_i^{\star}) = \lambda \ \text{ where } a_i^{\star}>0,
+  \qquad
+  y_i'(0) \le \lambda \ \text{ where } a_i^{\star}=0,
+\]
+with $\sum_i a_i^{\star}=E$.
+\end{theorem}
+
+\begin{proof}
+Maximising a sum of concave functions under a linear budget constraint is a
+convex program; the stated conditions are its Karush--Kuhn--Tucker conditions
+\citep{boyd2004convex}, with $\lambda$ the multiplier on the budget. Concavity
+makes them sufficient as well as necessary.
+\end{proof}
+
+\begin{corollary}[Effort is refused, not rationed]
+\label{cor:engaged}
+Effort goes to exactly those rungs whose marginal yield at zero exceeds the
+price, and none to the rest. The price is a single readable scalar recording how
+loaded the search is.
+\end{corollary}
+
+The experiment \texttt{mishima\_water\_filling} allocates a budget of $3$ across
+three rungs, spends the budget to within $10^{-3}$, equalises the marginal yields
+of the served rungs to within $10^{-3}$, and gives nothing to the weakest.
+
+\begin{remark}[When concavity fails]
+\label{rem:knapsack}
+Concavity is the one premise here that is a claim about the rungs rather than
+about the structure allocating among them, and audio rungs frequently violate it.
+A stem separator returns nothing usable below some effort and a great deal above
+it: a threshold, not a concave curve. Where that holds, the correct formulation
+is a knapsack, admitting rungs in decreasing order of
+\[
+  \varrho_i \;=\; \frac{1}{c_i}\,\log\frac{\Om}{\Om-\flo_i},
+\]
+which the experiment \texttt{mishima\_knapsack\_priority} confirms ranks a cheap
+strong rung above a dear strong one and a cheap weak one.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{The Cost Model}
+\label{sec:cost}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Probe and commit]
+\label{def:probecommit}
+To \emph{probe} is to traverse the record and arrive at a region: a fact about
+the trajectory, drawing no boundary. To \emph{commit} is to individuate a region
+so that it can be named, stored and built upon: an act depositing residue at
+least $\flo$.
+\end{definition}
+
+\begin{theorem}[Cost is the commitment count]
+\label{thm:cost}
+The cost of a mishima computation is the number of commitments it makes, and is
+independent of the number of probes it performs.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:probecommit} a probe draws no cut and so deposits no residue; by
+\Cref{lem:floor} each commitment deposits at least $\flo$. Total residue is
+therefore $\sum$ over commitments alone, in which no term indexed by a probe
+appears.
+\end{proof}
+
+\begin{remark}[What this licenses, and what it does not]
+\label{rem:cost-honest}
+\Cref{thm:cost} is a statement about residue, not about wall-clock time. A search
+performing a million probes takes longer than one performing ten, and an
+implementation must still care. What the theorem says is that the long search has
+not made the record any less sharp, whereas ten careless commitments have. The
+engineering question it recommends is therefore not how to search faster but
+where to commit, and the answer to the second question does not follow from the
+first.
+\end{remark}
+
+\begin{corollary}[Auditioning is free]
+\label{cor:audition}
+A producer who sweeps a parameter for an hour and commits nothing has left the
+record exactly as they found it.
+\end{corollary}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Grammar}
+\label{sec:grammar}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{Lexical structure}
+
+Source is UTF-8 with extension \texttt{.mma}. Comments run from \texttt{--} to
+end of line. The language is not layout-sensitive.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Token classes.}
+\label{tab:tokens}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Class & Definition \\
+\midrule
+\textsc{Ident} & \texttt{[A-Za-z\_][A-Za-z0-9\_]*}, not a keyword \\
+\textsc{Num}   & \texttt{-?[0-9]+(.[0-9]+)?([eE][+-]?[0-9]+)?} \\
+\textsc{Str}   & double-quoted, standard escapes \\
+\textsc{Op}    & \texttt{>> := <= >= == != \{ \} ( ) , : . < > \#} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Keywords: \texttt{floor}, \texttt{module}, \texttt{probe}, \texttt{commit},
+\texttt{seek}, \texttt{not}, \texttt{toward}, \texttt{via}, \texttt{until},
+\texttt{closure}, \texttt{converge}, \texttt{otherwise}, \texttt{decline},
+\texttt{yield}, \texttt{ladder}, \texttt{rung}, \texttt{at}, \texttt{observe},
+\texttt{assert}, \texttt{emit}, \texttt{let}, \texttt{as}, \texttt{when}.
+
+A numeric literal may carry an explicit resolution by the suffix
+\texttt{value\#floor}, for example \texttt{6.0\#0.5}. A literal without one
+inherits the ambient floor. \emph{There is no way to write a literal of zero
+resolution}: the lexer rejects a non-positive floor suffix, which the experiment
+\texttt{mishima\_lexer\_floor\_suffix} confirms over three attempts.
+
+\subsection{Context-free grammar}
+
+\begin{lstlisting}[caption={Mishima grammar (EBNF).},label={lst:ebnf}]
+program   ::= { decl }
+decl      ::= floorDecl | moduleDecl | stmt
+floorDecl ::= "floor" num
+moduleDecl::= "module" ident "{" { decl } "}"
+
+stmt      ::= bind | seek | observe | assert | expr
+bind      ::= [ "let" ] ident ":=" expr
+
+seek      ::= "seek" ident
+                "not"    "{" exclList "}"
+                "toward" "{" expr "}"
+              [ "via"    "{" ladder "}" ]
+                "until"  admit
+              [ "otherwise" "decline" ]
+                "yield"  ident
+
+ladder    ::= rungExpr { ">>" rungExpr }
+rungExpr  ::= "rung" ident [ "at" num ]
+            | ident "(" [ argList ] ")"
+
+admit     ::= "closure" | "converge" | cond
+
+expr      ::= "probe"  "(" expr ")"
+            | "commit" "(" expr ")"
+            | "ladder" "{" ladder "}"
+            | ident | num | str | "(" expr ")"
+
+observe   ::= "observe" expr [ "as" ident ]
+assert    ::= "assert" cond [ "emit" str ]
+exclList  ::= expr { "," expr }
+argList   ::= arg { "," arg }
+arg       ::= [ ident ":" ] expr
+cond      ::= expr relop expr
+relop     ::= "<" | ">" | "<=" | ">=" | "==" | "!="
+num       ::= NUM [ "#" NUM ]
+\end{lstlisting}
+
+The \texttt{not} clause is mandatory: a \texttt{seek} lacking one is rejected at
+parse time (\Cref{prop:mandatory-not}), as is an empty exclusion list. The
+\texttt{via} clause is optional; when omitted the checker derives a ladder from
+the registry until the composite power meets the target
+(\Cref{thm:multiplicative}).
+
+\subsection{Worked program}
+
+\begin{lstlisting}[caption={A complete mishima program.},label={lst:example}]
+-- recall.mma
+floor 0.02                 -- nothing here resolves finer
+
+seek reese_growl
+  not    { thin, undistorted, mono }
+  toward { region(that_2019_growl) }
+  via    { rung spectral   at 0.45
+        >> rung annotation at 0.30
+        >> rung model      at 0.55 }
+  until  closure
+  otherwise decline
+  yield  found
+
+observe found as result
+assert result.residue >= 0.02
+  emit "residue fell below the declared floor"
+\end{lstlisting}
+
+The ladder has composite power
+$1-(1-0.45)(1-0.30)(1-0.55)=1-0.55\times0.70\times0.45=0.82675$, closing about
+$82.7\%$ of the above-floor gap. Three rungs of differing kind are used rather
+than three of one, so that the support structure can form a triangle
+(\Cref{thm:triangle}); the experiment
+\texttt{mishima\_parses\_worked\_example} recovers exactly this figure from the
+source.
+
+\begin{remark}[The three rungs are deliberately unlike]
+\label{rem:three-unlike}
+\texttt{spectral} measures the material, \texttt{annotation} recalls what was
+written at the time, and \texttt{model} reads the accumulated graph. They fail in
+unrelated ways, which is what \Cref{rem:two-agree} requires. Three prompts to one
+model would be one rung, not three.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Type System}
+\label{sec:types}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Types]
+\label{def:types}
+\[
+  \tau ::= \textsf{Region} \mid \textsf{Rung} \mid \textsf{Ladder}
+        \mid \textsf{Path} \mid \textsf{Scalar} \mid \textsf{Result}
+\]
+where $\textsf{Result}$ is the sum
+$\textsf{Converged}(\textsf{Path})+\textsf{Declined}(\{\textsf{Region}\})$.
+\end{definition}
+
+\begin{definition}[Judgement]
+\label{def:judgement}
+The typing judgement, in the style of \citet{pierce2002types}, is
+\[
+  \Gamma \vdash e : \tau \,@\, \flo \,/\, \pot,
+\]
+read: in context $\Gamma$, expression $e$ has type $\tau$, is individuated at
+resolution $\flo>0$, and carries power $\pot\in[0,1]$. Scalars carry $\pot=0$.
+\end{definition}
+
+\subsection{Rules}
+
+\[
+\frac{\Gamma \vdash n \quad \flo > 0}
+     {\Gamma \vdash n\#\flo : \textsf{Scalar} \,@\, \flo \,/\, 0}
+\ \textsc{(Lit)}
+\]
+
+\[
+\frac{\Gamma \vdash e : \textsf{Region} \,@\, \flo \,/\, \pot}
+     {\Gamma \vdash \texttt{probe}(e) : \textsf{Region} \,@\, \flo \,/\, 0}
+\ \textsc{(Probe)}
+\]
+
+\[
+\frac{\Gamma \vdash e : \textsf{Region} \,@\, \flo \,/\, \pot \quad \flo > 0}
+     {\Gamma \vdash \texttt{commit}(e) : \textsf{Path} \,@\, \flo \,/\, \pot}
+\ \textsc{(Commit)}
+\]
+
+\[
+\frac{\Gamma \vdash \gamma_i : \textsf{Rung} \,@\, \flo \,/\, \pot_i}
+     {\Gamma \vdash \gamma_1 \gg \cdots \gg \gamma_n :
+      \textsf{Ladder} \,@\, \flo \,/\, 1-\prod_i(1-\pot_i)}
+\ \textsc{(Comp)}
+\]
+
+\[
+\frac{\begin{array}{c}
+       \Gamma \vdash N : \{\textsf{Region}\} \quad N \neq \emptyset \\
+       \Gamma \vdash t : \textsf{Region} \quad
+       \Gamma \vdash L : \textsf{Ladder} \,@\, \flo \,/\, \pot
+      \end{array}}
+     {\Gamma \vdash \texttt{seek}\ x\ \texttt{not}\ N\ \texttt{toward}\ t\
+       \texttt{via}\ L : \textsf{Result} \,@\, \flo \,/\, \pot}
+\ \textsc{(Seek)}
+\]
+
+Rule \textsc{(Probe)} is the type-level statement that probing closes no distance
+and deposits nothing. Rule \textsc{(Commit)} carries the power through and yields
+a $\textsf{Path}$, the type of things that have cost something. The side
+condition $\flo>0$ appears in every value-introducing rule, and the premise
+$N\neq\emptyset$ enforces \Cref{prop:mandatory-not} at the type level as well as
+in the grammar.
+
+\begin{theorem}[No zero-resolution value]
+\label{thm:no-zero}
+There is no well-typed mishima expression of a region-denoting type with
+resolution $0$.
+\end{theorem}
+
+\begin{proof}
+Every value-introducing rule carries the side condition $\flo>0$, and no rule
+lowers the resolution annotation of an already-typed value: \textsc{(Comp)}
+alters only the power, and \textsc{(Probe)} and \textsc{(Commit)} carry $\flo$
+through unchanged. By induction on the derivation every region-denoting value
+satisfies $\flo>0$.
+\end{proof}
+
+\subsection{Static diagnostics}
+
+\begin{proposition}[Coherence diagnostic]
+\label{prop:cohdiag}
+A \texttt{via} ladder of length one or two declaring \texttt{until closure} is
+rejected at compile time.
+\end{proposition}
+
+\begin{proof}
+By \Cref{thm:triangle} a robust support structure requires a cycle of length at
+least three, which a ladder of fewer than three rungs cannot contain. The check
+needs only the rung count and the signs of the support relation, both available
+statically.
+\end{proof}
+
+\begin{proposition}[Saturation diagnostic]
+\label{prop:satdiag}
+If a \texttt{seek} declares a target requiring composite power $\pot^{\star}$ and
+its ladder attains less, the program is rejected with the attainable power and
+the required depth named.
+\end{proposition}
+
+\begin{proof}
+Composite power is computable from the rung powers, which \textsc{(Comp)} records
+in the type, and the depth follows from \Cref{cor:depth}. Both comparisons are
+therefore decidable statically.
+\end{proof}
+
+\begin{principle}[Every refusal carries a remedy]
+\label{prin:remedy}
+A diagnostic states the rule that fired, what is wrong, and what to do about it.
+A refusal with no way forward is a dead end, and the checker emits none.
+\end{principle}
+
+The experiment \texttt{mishima\_coherence\_diagnostic} confirms that ladders of
+length one and two are refused while a ladder of three is accepted, and
+\texttt{mishima\_floor\_negotiation} confirms that every diagnostic carries a
+non-empty remedy.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Operational Semantics}
+\label{sec:semantics}
+%──────────────────────────────────────────────────────────────────────
+
+A configuration is $\langle e, \Sigma, \rec\rangle$: an expression, an evidence
+store recording the regions committed so far, and a monotone counter $\rec$
+recording commitments.
+
+\[
+\frac{}{\langle \texttt{probe}(e), \Sigma, \rec\rangle \to
+        \langle v_{\textsf{Region}}, \Sigma, \rec\rangle}
+\ \textsc{(E-Probe)}
+\]
+
+\[
+\frac{}{\langle \texttt{commit}(e), \Sigma, \rec\rangle \to
+        \langle v_{\textsf{Path}}, \Sigma\oplus e, \rec+1\rangle}
+\ \textsc{(E-Commit)}
+\]
+
+\[
+\frac{\Reached \text{ stable},\ |\Reached| = 1}
+     {\langle \texttt{seek}\dots, \Sigma, \rec\rangle \to
+      \langle \textsf{Converged}(p), \Sigma, \rec + k\rangle}
+\ \textsc{(E-Close)}
+\]
+
+\[
+\frac{\Reached \text{ stable},\ |\Reached| > 1}
+     {\langle \texttt{seek}\dots, \Sigma, \rec\rangle \to
+      \langle \textsf{Declined}(\Reached), \Sigma, \rec + k\rangle}
+\ \textsc{(E-Decline)}
+\]
+
+Note that \textsc{(E-Probe)} leaves both $\Sigma$ and $\rec$ unchanged while
+\textsc{(E-Commit)} advances both: this is \Cref{thm:cost} as a reduction rule.
+
+\begin{theorem}[Progress and preservation]
+\label{thm:soundness}
+If $\Gamma\vdash e:\tau\,@\,\flo\,/\,\pot$ then either $e$ is a value or there is
+$\langle e',\Sigma',\rec'\rangle$ with
+$\langle e,\Sigma,\rec\rangle\to\langle e',\Sigma',\rec'\rangle$; and in the
+latter case $\Gamma\vdash e':\tau\,@\,\flo'\,/\,\pot'$ with $\flo'\ge\flo$ and
+$\rec'\ge\rec$.
+\end{theorem}
+
+\begin{proof}
+By induction on the typing derivation, in the syntactic style of
+\citet{wright1994syntactic}. Progress: each non-value form is the subject of
+exactly one reduction rule whose premises are discharged by the typing premises,
+and by \Cref{thm:decline} the \texttt{seek} form always reduces, since a finite
+registry stabilises. Preservation: each rule's conclusion has the type its
+premise assigns, resolution is carried through unchanged or increased, and
+$\rec$ is incremented only by \textsc{(E-Commit)}.
+\end{proof}
+
+\begin{corollary}[No stuck state]
+\label{cor:nostuck}
+A well-typed mishima program does not get stuck, and every value it produces
+carries a positive resolution.
+\end{corollary}
+
+%──────────────────────────────────────────────────────────────────────
+\section{On Models as Rungs}
+\label{sec:models}
+%──────────────────────────────────────────────────────────────────────
+
+A rung may be a spectral measurement, a stored annotation, a deterministic rule,
+or an inference by a trained model. Nothing in \Cref{def:rung} or in any result
+above distinguishes these cases, because no definition refers to anything but a
+rung's action on items and the alignment it closes.
+
+\begin{proposition}[Rung kind is invisible]
+\label{prop:kind-invisible}
+Two rungs of equal power and cost are interchangeable in every result of this
+paper.
+\end{proposition}
+
+\begin{proof}
+Immediate: power and cost are the only rung attributes appearing in
+\Cref{thm:multiplicative}, \Cref{thm:waterfill}, \Cref{thm:triangle} or
+\Cref{thm:decline}.
+\end{proof}
+
+The experiment \texttt{mishima\_probe\_kind\_invisible} substitutes a model
+inference for a spectral measurement of equal power and obtains an identical
+outcome.
+
+\begin{remark}[What a model may and may not do here]
+\label{rem:model-bounded}
+\Cref{prop:kind-invisible} is a licence and a limit. A model may serve as a rung,
+and the language will neither privilege nor discount it. What the language does
+not offer is any way for a model to adjudicate: there is no construct in which a
+model's output overrides a contested closure, because by \Cref{thm:decline} the
+contested outcome reports a fact about the record---that several irreconcilable
+regions were reached---and no rung can make that fact untrue. A model that
+disagrees with the other rungs produces a decline naming the disagreement, which
+is the correct report.
+\end{remark}
+
+\begin{remark}[Classification of rungs is scheduling, not semantics]
+\label{rem:kind-scheduling}
+Distinguishing rungs by kind remains useful for allocation, since expected cost
+and latency differ and \Cref{thm:waterfill} consumes both. It carries no weight
+in the theory.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Prototype and Validation}
+\label{sec:validation}
+%──────────────────────────────────────────────────────────────────────
+
+A prototype accompanies this paper: a lexer, an LL(1) recursive-descent parser, a
+checker implementing the static diagnostics, and the ladder and closure
+machinery, in \texttt{hkcore.py} with experiments in \texttt{exp\_mishima.py}. It
+uses the Python standard library only. The full suite across all three papers
+reports \textbf{40 run, 40 passed, 0 failed} in $0.16$\,s, of which sixteen
+experiments belong to this paper. Each fixes its seed; re-running reproduces
+every record bit-identically.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Experiments for this paper.}
+\label{tab:experiments}
+\begin{tabular}{@{}lp{4.2cm}@{}}
+\toprule
+Experiment & Establishes \\
+\midrule
+\texttt{lexer\_floor\_suffix} & no zero-resolution literal; 3 refusals \\
+\texttt{parses\_worked\_example} & \Cref{lst:example} yields $\pot=0.8267$ \\
+\texttt{mandatory\_not} & \Cref{prop:mandatory-not} at parse time \\
+\texttt{composition\_law} & \Cref{thm:multiplicative}; error $<10^{-12}$ \\
+\texttt{diversify} & \Cref{cor:diversify} and its counterexample \\
+\texttt{saturation\_dichotomy} & \Cref{cor:saturation}; 3 orders apart \\
+\texttt{depth\_closed\_form} & \Cref{cor:depth}; 20/20 agree \\
+\texttt{refinement\_diverges} & \Cref{thm:refine}; cost ratio $10^{4}$ \\
+\texttt{triangle} & \Cref{thm:triangle}; chain and pair fragile \\
+\texttt{coherence\_diagnostic} & \Cref{prop:cohdiag}; 1 and 2 refused \\
+\texttt{closure\_beats\_threshold} & \Cref{thm:closure-stronger}; 5 registries \\
+\texttt{decline\_is\_typed} & \Cref{thm:decline}; both outcomes \\
+\texttt{water\_filling} & \Cref{thm:waterfill}; spread $<10^{-3}$ \\
+\texttt{knapsack\_priority} & \Cref{rem:knapsack}; ranking correct \\
+\texttt{probe\_kind\_invisible} & \Cref{prop:kind-invisible} \\
+\texttt{floor\_negotiation} & \Cref{prin:remedy}; every remedy non-empty \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[A negative result, recorded]
+\label{rem:negative}
+\texttt{mishima\_diversify} began as a check of the claim that distinct rungs beat
+every repetition. That claim is false, and the experiment was rewritten to record
+the counterexample rather than the claim. We state this because a suite that
+never contradicts its paper is not evidence of anything; see
+\Cref{rem:diversify-honest}.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Related Notions}
+\label{sec:related}
+%──────────────────────────────────────────────────────────────────────
+
+\emph{Retrieval.} Similarity search over audio embeddings
+\citep{casey2008content} answers ``what resembles this?'' Mishima answers a
+different question---``what did I do, and what was essential to it?''---and the
+difference is not one of quality. A retrieval system ranks candidates by
+proximity; \Cref{thm:decline} declines to rank when the record does not license a
+single answer.
+
+\emph{Query languages over provenance.} Provenance query languages
+\citep{davidson2008provenance} share the concern with recovering how a result
+arose. The departure is the termination criterion: closure quantifies over
+uninvoked rungs (\Cref{def:closure}) rather than over recorded facts, and so can
+report that the record has stopped producing new destinations.
+
+\emph{Anytime algorithms.} The literature on anytime computation
+\citep{zilberstein1996using} supplies the idea that a computation should be
+interruptible with a usable partial answer. \Cref{thm:decline} sharpens the
+stopping rule: the correct condition is non-resolution against the floor rather
+than budget exhaustion, and a search that has not resolved should decline rather
+than report its best guess.
+
+\emph{Convex allocation.} \Cref{thm:waterfill} is the standard water-filling
+solution \citep{boyd2004convex}, here applied to attention across rungs rather
+than to power across channels.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Limits}
+\label{sec:limits}
+%──────────────────────────────────────────────────────────────────────
+
+\emph{The record must exist.} Mishima queries a graph of authored decisions and
+cannot construct one retrospectively. A producer with ten years of bounces and no
+record has nothing for it to read, and \S\ref{sec:intro} argues the reconstruction
+is not available. The language is worth adopting only prospectively.
+
+\emph{Powers must be supplied.} \Cref{def:rung} takes a rung's power as given.
+Calibrating what a spectral measurement or an annotation actually closes, in a
+particular archive, is a measurement problem this paper does not solve, and a
+badly calibrated registry gives a well-typed program that reaches the wrong
+place.
+
+\emph{Set semantics, not probabilistic.} A rung that is wrong beyond its declared
+resolution can empty the reached set, and the language reports this as a
+degenerate decline rather than down-weighting the offending rung. This is a
+deliberate choice (\Cref{rem:no-prior}) with a real cost: there is no graceful
+degradation under a systematically miscalibrated rung.
+
+\emph{Nothing here evaluates music.} The language finds and relates; it holds no
+expectation and issues no verdict. A search that declines has said something
+true about the record, not something about the material's quality.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+%──────────────────────────────────────────────────────────────────────
+
+We have specified a language whose central syntactic rule is that a search must
+say what it excludes, on the grounds that a region individuated against nothing
+is not a region (\Cref{prop:mandatory-not}); whose cost model counts commitments
+rather than instructions, so that exploration is free and the engineering
+question becomes where to commit (\Cref{thm:cost}); whose resolution is reached by
+composing ordinary distinctions rather than sharpening one, because sharpening
+diverges (\Cref{thm:refine}, \Cref{thm:multiplicative}); and which terminates on
+closure rather than confidence, reporting a typed decline when the record
+supports no single answer (\Cref{thm:closure-stronger},
+\Cref{thm:decline}).
+
+What this offers a producer is the ability to ask, of their own accumulated work,
+a question they cannot presently ask of anything: not \emph{what resembles this}
+but \emph{what did I do, what was essential to it, and where does the evidence
+disagree with itself}. The last of those is the one a threshold would have
+thrown away, and we think it is frequently the most useful.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

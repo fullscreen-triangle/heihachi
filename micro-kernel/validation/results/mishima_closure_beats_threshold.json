@@ -1,0 +1,60 @@
+{
+  "declined": 5,
+  "experiment": "mishima_closure_beats_threshold",
+  "passed": true,
+  "registries": 5,
+  "rows": [
+    {
+      "classes": [
+        "A",
+        "B"
+      ],
+      "closure_after": 3,
+      "registry": 3,
+      "status": "declined",
+      "threshold_met_after": 1
+    },
+    {
+      "classes": [
+        "A",
+        "B"
+      ],
+      "closure_after": 4,
+      "registry": 4,
+      "status": "declined",
+      "threshold_met_after": 1
+    },
+    {
+      "classes": [
+        "A",
+        "B"
+      ],
+      "closure_after": 5,
+      "registry": 5,
+      "status": "declined",
+      "threshold_met_after": 1
+    },
+    {
+      "classes": [
+        "A",
+        "B"
+      ],
+      "closure_after": 6,
+      "registry": 6,
+      "status": "declined",
+      "threshold_met_after": 1
+    },
+    {
+      "classes": [
+        "A",
+        "B"
+      ],
+      "closure_after": 8,
+      "registry": 8,
+      "status": "declined",
+      "threshold_met_after": 1
+    }
+  ],
+  "suite": "mishima",
+  "threshold_always_earlier": true
+}

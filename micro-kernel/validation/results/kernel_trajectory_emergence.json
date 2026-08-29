@@ -1,0 +1,8 @@
+{
+  "distinct_trajectories": 6,
+  "experiment": "kernel_trajectory_emergence",
+  "multivalued": true,
+  "passed": true,
+  "runs": 36,
+  "suite": "kernel"
+}

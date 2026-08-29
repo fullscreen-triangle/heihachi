@@ -1,0 +1,10 @@
+{
+  "coarse_backend_rules": [
+    "rule:floor-negotiation"
+  ],
+  "experiment": "mishima_floor_negotiation",
+  "fine_backend_rules": [],
+  "passed": true,
+  "remedy_present": true,
+  "suite": "mishima"
+}

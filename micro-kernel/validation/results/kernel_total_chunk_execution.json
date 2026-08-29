@@ -1,0 +1,13 @@
+{
+  "all_fired": true,
+  "chunks": 4,
+  "experiment": "kernel_total_chunk_execution",
+  "fired": [
+    "first",
+    "raises",
+    "third",
+    "fourth"
+  ],
+  "passed": true,
+  "suite": "kernel"
+}

@@ -1,0 +1,15 @@
+{
+  "anomalies_recorded": 1,
+  "emissions": 2,
+  "experiment": "kernel_no_exit_code",
+  "passed": true,
+  "report_keys": [
+    "anomalies",
+    "emissions",
+    "induced_edges",
+    "nodes_executed",
+    "record"
+  ],
+  "suite": "kernel",
+  "verdict_keys_exposed": []
+}

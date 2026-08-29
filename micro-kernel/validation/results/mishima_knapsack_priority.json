@@ -1,0 +1,15 @@
+{
+  "experiment": "mishima_knapsack_priority",
+  "passed": true,
+  "priorities": {
+    "cheap_strong": 0.35667,
+    "cheap_weak": 0.05129,
+    "dear_strong": 0.07133
+  },
+  "ranking": [
+    "cheap_strong",
+    "dear_strong",
+    "cheap_weak"
+  ],
+  "suite": "mishima"
+}

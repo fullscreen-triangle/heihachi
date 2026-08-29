@@ -1,0 +1,24 @@
+{
+  "elapsed_seconds": 0.104,
+  "failed": 0,
+  "failures": [],
+  "passed": 40,
+  "run": 40,
+  "suites": {
+    "kernel": {
+      "experiments": 11,
+      "failed": 0,
+      "passed": 11
+    },
+    "mishima": {
+      "experiments": 16,
+      "failed": 0,
+      "passed": 16
+    },
+    "sangoma": {
+      "experiments": 13,
+      "failed": 0,
+      "passed": 13
+    }
+  }
+}

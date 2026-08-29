@@ -1,0 +1,8 @@
+{
+  "experiment": "sangoma_target_required",
+  "passed": true,
+  "rules": [
+    "rule:target-required"
+  ],
+  "suite": "sangoma"
+}

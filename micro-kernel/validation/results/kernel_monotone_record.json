@@ -1,0 +1,13 @@
+{
+  "decreases": 0,
+  "experiment": "kernel_monotone_record",
+  "final_record": 403,
+  "memoised": false,
+  "passed": true,
+  "repeat_records": [
+    401,
+    402,
+    403
+  ],
+  "suite": "kernel"
+}

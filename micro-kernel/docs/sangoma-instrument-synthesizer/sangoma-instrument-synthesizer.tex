@@ -1,0 +1,939 @@
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+% ─── Packages ─────────────────────────────────────────────────────────
+\usepackage[margin=2.0cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,
+            citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{cleveref}
+
+% ─── Page Style ───────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Sangoma: Declaring an Instrument by its Target}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+% ─── Theorem Environments ─────────────────────────────────────────────
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{principle}[theorem]{Principle}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ─── Custom Commands ──────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Rpos}{\R_{>0}}
+\newcommand{\flo}{\beta}
+\newcommand{\thick}{t}
+\newcommand{\pot}{\kappa}
+\newcommand{\Om}{\Omega}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\wt}{w}
+\newcommand{\cut}{\operatorname{cut}}
+\newcommand{\res}{\varrho}
+\newcommand{\med}{\mathcal{M}}
+
+% ─── Listings ─────────────────────────────────────────────────────────
+\lstdefinestyle{sgn}{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape\color{gray!80!black},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{gray!50},
+  morekeywords={floor,medium,species,source,motion,construct,stage,chain,
+                assemble,from,target,via,rung,at,observe,assert,emit,let,as,
+                ceiling,expresses,couples,by}
+}
+\lstset{style=sgn}
+
+\captionsetup{font=small,labelfont=bf}
+
+% ══════════════════════════════════════════════════════════════════════
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\begin{center}
+
+{\LARGE\bfseries Sangoma: Declaring an Instrument by its Target\\[4pt]
+A Constructor Language in which Unreachability is a Diagnostic,\\
+not a Rendering Failure}
+
+\vspace{12pt}
+
+{\large Kundai Farai Sachikonye}
+
+\vspace{6pt}
+
+{\small\itshape Independent Researcher \\[0.3em]
+\texttt{kundai.sachikonye@wzw.tum.de}}
+
+\vspace{6pt}{\small August 2026}
+
+\vspace{16pt}
+
+\begin{minipage}{0.92\textwidth}
+\textbf{Abstract.}
+We specify \emph{sangoma}, a language for building sounds by declaring what the
+finished sound must satisfy rather than by naming the steps that produce it. The
+argument for the target form is that a procedure both over-determines and
+under-determines: many chains reach the same sound, so naming one excludes the
+rest, and a chain that cannot reach its intended sound gives no warning until it
+has been rendered. A sangoma program instead states the properties required and
+the resolution at which each is asserted, and the compiler answers a question no
+procedure poses---\emph{is this reachable at this resolution?} If it is, a chain
+is emitted; if not, the program is refused before rendering and the refusal names
+the depth that would be required, $\lceil\log(1-\pot^{\star})/\log(1-\pot)\rceil$
+rungs at the strongest available stage. We prove that a single processing stage
+cannot be refined without bound, since the cost of sharpening a separator
+diverges while its return is bounded by the extent of the space, and that fine
+resolution is therefore reached by composing ordinary stages in series; the
+crossover is measured, with composition overtaking sharpening at a target of
+$0.95$ and exceeding it twentyfold by $0.999$. We give a type system carrying
+resolution and separator thickness in the type, in which a target stating no
+resolution is rejected, a target finer than the declared ambient floor is
+rejected as an over-claim, and a stage whose separator engulfs the assembly is
+statically unobservable and therefore refused rather than rendered and found
+silent. Physical constraints---headroom against a declared ceiling, latency
+accumulation, and negotiation between a program's floor and the render path's
+numeric resolution---are enforced as rules, while everything above them is
+composable and unjudged, because a language that refused on taste would enforce
+its author's present opinions. We give the complete grammar of the \texttt{.sgn}
+file, a worked program, a prototype compiler, and thirteen deterministic
+experiments. Nothing outside this paper is required to read it.
+\end{minipage}
+
+\vspace{8pt}
+\noindent\textbf{Keywords:}
+domain-specific language, sound design, constructor calculus, reachability,
+separator, detectability, headroom, type system, static diagnostics
+
+\vspace{18pt}
+\end{center}
+\end{@twocolumnfalse}
+]
+
+%──────────────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{Why a target and not a procedure}
+
+A producer building a bass sound has, at any moment, a great many plugins
+available and no way to know in advance whether the chain they are assembling can
+reach the sound they want. They find out by rendering. If it does not, they
+adjust and render again, and the loop is the ordinary experience of sound design.
+
+We take the position that this loop is not intrinsic to the work but an artefact
+of describing chains procedurally. A procedure is a poor specification for two
+reasons, and they pull in opposite directions.
+
+It \emph{over-determines}. Many chains reach the same sound; naming one excludes
+the rest, including the ones that are cheaper, shorter, or more robust to the
+material changing. A specification that names a procedure has committed to a
+route before the destination has been stated.
+
+It \emph{under-determines}. A chain that cannot reach the intended sound is
+syntactically indistinguishable from one that can. Nothing in the description
+carries the information that would settle it, so nothing can warn, and the
+producer learns by rendering.
+
+Sangoma therefore declares a \emph{target}: what the finished sound must satisfy,
+and the resolution at which each requirement is asserted. The compiler then
+decides reachability (\Cref{prop:reach}), emits a chain when the target is
+reachable, and refuses with the required depth named when it is not. The loop
+above collapses into a compile-time diagnostic.
+
+\subsection{What the language will and will not judge}
+
+A language that refuses programs must be careful about the grounds on which it
+refuses, and this is the design decision we most want to state plainly.
+
+Some constraints in audio are physical. A chain whose summed gain drives the
+signal past a declared ceiling will clip; a chain of look-ahead stages incurs
+latency that must be compensated; a claim to resolve a difference finer than the
+render path can represent is a claim about an artefact. These are checkable and
+sangoma checks them (\S\ref{sec:physical}).
+
+Almost everything else in sound design is taste. Whether a compressor belongs
+before or after a saturator, whether a resample should precede a filter---these
+have no correct answer, and a language that refused on such grounds would encode
+its author's present opinions and then enforce them. Worse, it would obstruct
+exactly the misuse that produces new sounds: the genres this language is built
+for were made substantially by people using tools wrongly on purpose.
+
+Sangoma therefore refuses on physics and on unreachability, and is silent above
+that. The compiler will tell a producer that a chain cannot reach a stated
+target, or that it will clip, or that it claims a resolution nothing delivers. It
+will not tell them a chain is a bad idea.
+
+\subsection{Contributions}
+
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+\item A theory of processing stages as separators: thickness, additivity, and the
+  detectability criterion (\S\ref{sec:separators}).
+\item The divergence of refinement cost, the consequent necessity of composing
+  stages, and a measured crossover (\S\ref{sec:composition}).
+\item The reachability check, which decides a target statically and reports the
+  required depth on failure (\S\ref{sec:reachability}).
+\item A constructor calculus of species, stages and chains
+  (\S\ref{sec:calculus}).
+\item The grammar of \texttt{.sgn}, and a type system carrying resolution and
+  thickness (\S\ref{sec:grammar}).
+\item Physical rules: headroom, latency, and floor negotiation
+  (\S\ref{sec:physical}).
+\item A worked program, a prototype compiler, and thirteen experiments
+  (\S\ref{sec:worked}--\S\ref{sec:validation}).
+\end{enumerate}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Substrate}
+\label{sec:substrate}
+%──────────────────────────────────────────────────────────────────────
+
+We restate, self-containedly, the structure the language is defined over.
+
+\begin{definition}[Contact graph, medium, cut, residue, floor]
+\label{def:substrate}
+A \emph{contact graph} is $\Gph=(V,E,\wt)$ with $V$ finite and non-empty, $E$ a
+set of unordered pairs, and $\wt\colon E\to\Rpos$; terminology follows
+\citet{diestel2010graph}. A distinguished vertex $\med$, the \emph{medium}, is
+adjacent to every other vertex. For $S$ containing an item and omitting $\med$,
+the \emph{cut} is $\cut(S)=\{\{u,v\}\in E: u\in S,\ v\notin S\}$ and the
+\emph{residue} is $\res(S)=\sum_{e\in\cut(S)}\wt(e)$. The \emph{floor} is
+$\flo=\min_{e\in E}\wt(e)$ and the \emph{total} is $\Om=\sum_{e\in E}\wt(e)$.
+\end{definition}
+
+\begin{lemma}[Positive floor]
+\label{lem:floor}
+$\flo>0$ and every cut satisfies $\res(S)\ge\flo>0$.
+\end{lemma}
+
+\begin{proof}
+$\flo$ is the minimum of a finite non-empty set of positive reals. Since $S$
+contains an item and omits $\med$, and every item is adjacent to $\med$, the cut
+is non-empty and its weight is a sum of terms each at least $\flo$.
+\end{proof}
+
+\begin{remark}[The floor in a render path]
+\label{rem:audio-floor}
+The floor is an ordinary engineering quantity. A converter of $b$ bits over a
+range $D$ does not distinguish differences below $D/2^{b}$; a spectral analysis of
+window length $N$ at sample rate $f_s$ does not resolve frequencies closer than
+$f_s/N$ \citep{harris1978use}. These fix the weights of \Cref{def:substrate} in
+practice, and they are read from specifications rather than estimated.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Stages as Separators}
+\label{sec:separators}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Stage, thickness]
+\label{def:stage}
+A \emph{stage} is a processing operation together with its \emph{thickness}
+$\thick>0$: the resolution at which the stage's effect can be told from its
+absence. A stage of thickness $\thick$ makes no distinction finer than $\thick$.
+\end{definition}
+
+\begin{principle}[A stage must report]
+\label{prin:report}
+A stage is declared by what it does \emph{and} by what can be measured about what
+it did. A stage whose effect admits no measurement is a declaration error, not a
+permissible design.
+\end{principle}
+
+The principle has a practical reading. A producer who inserts a plugin and cannot
+tell, by any measurement or by ear, whether it is engaged has not added a stage
+to the chain; they have added an unfalsifiable belief about the chain.
+\Cref{thm:detect} makes the condition precise.
+
+\begin{proposition}[Thickness is additive along a chain]
+\label{prop:additive}
+A chain of stages of thicknesses $\thick_1,\dots,\thick_n$ has thickness
+$\sum_i \thick_i$, and no downstream stage is sharper than the chain that
+precedes it.
+\end{proposition}
+
+\begin{proof}
+Each stage introduces an uncertainty of $\thick_i$ in the attribution of the
+chain's output to its input, and these accumulate additively to first order since
+the stages act in series on the same signal. The sum is non-decreasing in $n$, so
+the chain's resolution never improves by the addition of a stage.
+\end{proof}
+
+\begin{remark}[Why nothing gets sharper downstream]
+\label{rem:no-sharpening}
+\Cref{prop:additive} is the formal content of a familiar studio fact: a
+measurement taken at the end of a chain cannot attribute a difference to a stage
+more precisely than the intervening stages permit. A chain is an instrument, and
+an instrument's resolution is set by all of it.
+\end{remark}
+
+The experiment \texttt{sangoma\_thickness\_additive} confirms additivity over a
+three-stage chain and that the running total never decreases.
+
+\begin{definition}[Detectability]
+\label{def:detect}
+Let an assembly have extent $\Lambda>0$---the range over which its behaviour
+varies. The \emph{detectability ratio} of a stage of thickness $\thick$ within
+that assembly is $\tau = \thick/\Lambda$.
+\end{definition}
+
+\begin{theorem}[Detectability criterion]
+\label{thm:detect}
+A stage is observable within an assembly if and only if $\tau<1$. A stage with
+$\tau\ge1$ is engulfed by its own separator: no measurement of the assembly
+distinguishes its presence from its absence.
+\end{theorem}
+
+\begin{proof}
+The assembly's behaviour varies over a range $\Lambda$. A stage of thickness
+$\thick$ makes no distinction finer than $\thick$ by \Cref{def:stage}. If
+$\thick\ge\Lambda$ then the whole range over which the assembly varies lies
+inside one indistinguishable band of the stage, so every configuration of the
+assembly falls in the same band and no measurement separates them. If
+$\thick<\Lambda$ there exist two configurations differing by more than $\thick$,
+which the stage distinguishes.
+\end{proof}
+
+\begin{remark}[Refused rather than rendered and found silent]
+\label{rem:refuse-silent}
+\Cref{thm:detect} is enforced by the type system (rule \textsc{(Obs)},
+\S\ref{sec:grammar}), so an engulfed stage is rejected statically. This is the
+difference between a compiler saying ``this stage cannot have an audible effect
+in this chain'' and a producer rendering, hearing nothing, and spending an hour
+deciding whether the plugin is broken.
+\end{remark}
+
+The experiment \texttt{sangoma\_detectability} sweeps $\tau$ across
+$\{0.1,0.5,1.0,2.0\}$ and finds the first two observable and the last two not.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Why Chains and not Sharper Stages}
+\label{sec:composition}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Refinement cost]
+\label{def:refinecost}
+Let $\Gamma(\thick)$ be the cost of realising a separator of thickness $\thick>0$,
+non-increasing in $\thick$ with $\Gamma(\thick)\to\infty$ as $\thick\to0^{+}$.
+\end{definition}
+
+\begin{theorem}[Refinement halts above zero]
+\label{thm:refine}
+With return bounded above by the extent $\Lambda$, marginal return per unit cost
+tends to zero as $\thick\to0^{+}$, and construction halts at a strictly positive
+thickness.
+\end{theorem}
+
+\begin{proof}
+Return is bounded by $\Lambda$ regardless of $\thick$, so the return available
+from further thinning is non-increasing in the thinning already done, while cost
+diverges by \Cref{def:refinecost}. A bounded non-increasing numerator over a
+divergent denominator tends to zero and falls below any positive threshold at
+some $\thick^{\ast}>0$.
+\end{proof}
+
+\begin{definition}[Rung, power, ladder]
+\label{def:rung}
+A \emph{rung} is a stage considered as closing part of the distance to a target;
+its \emph{power} $\pot\in[0,1]$ is the fraction of the above-floor gap it closes.
+A \emph{ladder} is a series composition of rungs.
+\end{definition}
+
+\begin{theorem}[Composition]
+\label{thm:compose}
+A ladder of powers $\pot_1,\dots,\pot_n$ attains composite power
+\[
+  \pot_{\mathrm{total}} = 1-\prod_{i=1}^{n}(1-\pot_i).
+\]
+\end{theorem}
+
+\begin{proof}
+Each rung leaves a fraction $1-\pot_i$ of the above-floor gap unclosed; series
+composition multiplies the surviving fractions.
+\end{proof}
+
+\begin{corollary}[Required depth]
+\label{cor:rungcount}
+Reaching composite power $\pot^{\star}<1$ with rungs of power $\pot$ requires
+$n^{\star}=\lceil \log(1-\pot^{\star})/\log(1-\pot)\rceil$ rungs.
+\end{corollary}
+
+\begin{proof}
+Solve $1-(1-\pot)^{n}\ge\pot^{\star}$ for $n$.
+\end{proof}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Composition against sharpening, per-rung power $\pot=0.35$ and cost
+$\Gamma(\thick)=1/\thick$ (\texttt{sangoma\_nesting\_beats\_sharpening}).}
+\label{tab:crossover}
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+Target & Single & Rungs & Ladder & Ratio \\
+\midrule
+$0.90$   & $10$   & $6$  & $17.1$ & $0.58$ \\
+$0.95$   & $20$   & $7$  & $20.0$ & $1.00$ \\
+$0.99$   & $100$  & $11$ & $31.4$ & $3.18$ \\
+$0.999$  & $1000$ & $17$ & $48.6$ & $20.6$ \\
+$0.9999$ & $10^4$ & $23$ & $65.7$ & $152$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[The crossover is honest about where it sits]
+\label{rem:crossover}
+\Cref{tab:crossover} shows composition losing at a loose target, tying exactly at
+$0.95$, and winning by two orders of magnitude at a tight one. We report the
+crossover rather than only the regime that flatters the design: a single stage is
+genuinely the right answer for a coarse target, and the case for chains is
+asymptotic. That it is asymptotic is not a weakness, because the targets that
+matter in sound design---a bass that survives a club system, a master that holds
+up against a reference---are the tight ones.
+\end{remark}
+
+\begin{remark}[What a resample chain is]
+\label{rem:resample}
+The practice of bouncing a sound, processing the bounce, bouncing again, and
+repeating---resampling, in the vernacular---is exactly a ladder in the sense of
+\Cref{def:rung}. Each pass is an ordinary stage of moderate power; the composite
+reaches a resolution no single stage of comparable cost reaches. This is why the
+genres built on that practice sound the way they do, and \Cref{thm:refine} is why
+no amount of care applied to a single plugin substitutes for it.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Reachability}
+\label{sec:reachability}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Target]
+\label{def:target}
+A \emph{target} is a finite set of requirements, each naming a measurable
+property, a relation, a magnitude, and the resolution at which the requirement is
+asserted. A requirement stating no resolution is ill-formed.
+\end{definition}
+
+\begin{proposition}[Reachability is decidable statically]
+\label{prop:reach}
+Given a target requiring composite power $\pot^{\star}$ and available stages of
+powers $\pot_1,\dots,\pot_m$, reachability is decided by \Cref{thm:compose}. If
+the best attainable composite is below $\pot^{\star}$, the program is rejected and
+the refusal reports the depth
+\[
+  n^{\star} = \left\lceil
+    \frac{\log(1-\pot^{\star})}{\log(1-\pot_{\max})}
+  \right\rceil
+\]
+required with the strongest available stage.
+\end{proposition}
+
+\begin{proof}
+Composite power is a computable function of the declared stage powers
+(\Cref{thm:compose}), so the comparison is decidable before rendering. The depth
+follows from \Cref{cor:rungcount} with $\pot=\pot_{\max}$, which minimises $n$
+since $n$ decreases in $\pot$.
+\end{proof}
+
+\begin{remark}[Unreachability is a diagnostic]
+\label{rem:diag}
+\Cref{prop:reach} is what distinguishes a target declaration from a procedural
+one. A chain that cannot reach its target is refused before any audio is
+rendered, and the refusal carries the required depth: the producer learns not
+merely that the target is out of reach but by how much.
+\end{remark}
+
+The experiment \texttt{sangoma\_reachability\_reports\_depth} confirms that the
+reported depth agrees with the closed form across three targets, and
+\texttt{sangoma\_reachability\_diagnostic} confirms that a weak chain is refused
+while a sufficient one is not.
+
+%──────────────────────────────────────────────────────────────────────
+\section{The Constructor Calculus}
+\label{sec:calculus}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Species]
+\label{def:species}
+A \emph{species} declares a sound-generating element by its source and its
+motion: the parameters fixing what it emits at rest, and those fixing how that
+emission varies. A species is not a preset; it is the smallest object the
+language individuates.
+\end{definition}
+
+\begin{definition}[Chain, assembly]
+\label{def:chain}
+A \emph{chain} is a series composition of stages applied to a species. An
+\emph{assembly} is a chain considered together with the target it is required to
+satisfy.
+\end{definition}
+
+\begin{remark}[Why the calculus is small]
+\label{rem:small}
+There is one composition rule---series application of a stage---and no
+user-defined functions, lambdas, loops or recursion. The only iteration is the
+implicit one inside a ladder, whose length the compiler derives from the target
+by \Cref{cor:rungcount}. This is a deliberate restriction: a language rich enough
+to express arbitrary computation over chains would be rich enough to defeat the
+static reachability check, which is the one thing the language exists to provide.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Grammar and Type System}
+\label{sec:grammar}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{Lexical structure}
+
+Source is UTF-8 with extension \texttt{.sgn}. Comments run from \texttt{--} to
+end of line; the language is not layout-sensitive. Identifiers are
+\texttt{[A-Za-z\_][A-Za-z0-9\_]*}; numbers are
+\texttt{-?[0-9]+(.[0-9]+)?([eE][+-]?[0-9]+)?}.
+
+Keywords: \texttt{floor}, \texttt{medium}, \texttt{species}, \texttt{source},
+\texttt{motion}, \texttt{construct}, \texttt{stage}, \texttt{chain},
+\texttt{assemble}, \texttt{from}, \texttt{target}, \texttt{via}, \texttt{rung},
+\texttt{at}, \texttt{observe}, \texttt{assert}, \texttt{emit}, \texttt{let},
+\texttt{as}, \texttt{ceiling}, \texttt{expresses}, \texttt{couples},
+\texttt{by}.
+
+A numeric literal may carry an explicit resolution by the suffix
+\texttt{value\#floor}. A literal without one inherits the ambient floor, and
+\emph{no literal of zero resolution is writable}: the lexer rejects a
+non-positive floor suffix.
+
+\subsection{Context-free grammar}
+
+\begin{lstlisting}[caption={Sangoma grammar (EBNF).},label={lst:ebnf}]
+program    ::= { decl }
+decl       ::= floorDecl | mediumDecl | speciesDecl
+             | construct | stmt
+floorDecl  ::= "floor" num
+mediumDecl ::= "medium" ident "{" { field } "}"
+speciesDecl::= "species" ident "{"
+                 "source" "{" { field } "}"
+                 "motion" "{" { field } "}"
+               "}"
+
+construct  ::= "construct" ident "{"
+                 { compose }
+                 "target" "{" { targetItem } "}"
+               [ "via" "{" ladder "}" ]
+               "}"
+compose    ::= "stage" ident [ ":=" expr ]
+             | "assemble" ident "from" identList
+targetItem ::= ident relop num
+ladder     ::= rungExpr { ">>" rungExpr }
+rungExpr   ::= "rung" ident [ "at" num ]
+
+stmt       ::= "observe" expr [ "as" ident ]
+             | "assert" cond [ "emit" str ]
+             | bind
+bind       ::= [ "let" ] ident ":=" expr
+field      ::= ident ":" (num | str)
+expr       ::= ident | num | str | call | "(" expr ")"
+call       ::= ident "(" [ argList ] ")"
+argList    ::= arg { "," arg }
+arg        ::= [ ident ":" ] expr
+cond       ::= expr relop expr
+relop      ::= "<" | ">" | "<=" | ">=" | "==" | "!="
+identList  ::= ident { "," ident }
+num        ::= NUM [ "#" NUM ]
+\end{lstlisting}
+
+\subsection{Types}
+
+\begin{definition}[Types and judgement]
+\label{def:types}
+\[
+  \tau ::= \textsf{Species} \mid \textsf{Stage} \mid \textsf{Assembly}
+        \mid \textsf{Scalar} \mid \textsf{Target} \mid \textsf{Plan}
+\]
+The judgement, in the style of \citet{pierce2002types} with soundness after
+\citet{wright1994syntactic}, is $\Gamma\vdash e:\tau\,@\,\flo\,/\,\thick$: the
+expression $e$ has type $\tau$, resolution $\flo>0$, and separator thickness
+$\thick\ge\flo$.
+\end{definition}
+
+\[
+\frac{\Gamma \vdash n \quad \flo > 0}
+     {\Gamma \vdash n\#\flo : \textsf{Scalar} \,@\, \flo \,/\, \flo}
+\ \textsc{(Lit)}
+\]
+
+\[
+\frac{\Gamma \vdash s : \textsf{Species} \,@\, \flo \,/\, \thick_s}
+     {\Gamma \vdash \texttt{stage}(s) : \textsf{Stage} \,@\, \flo \,/\, \thick_s}
+\ \textsc{(Stg)}
+\]
+
+\[
+\frac{\Gamma \vdash c_1, c_2 : \textsf{Stage} \,@\, \flo \,/\, \thick_i}
+     {\Gamma \vdash \texttt{chain}(c_1,c_2) :
+      \textsf{Assembly} \,@\, \flo \,/\, \thick_1 + \thick_2}
+\ \textsc{(Chn)}
+\]
+
+\[
+\frac{\Gamma \vdash A : \textsf{Assembly} \,@\, \flo \,/\, \thick \quad
+      \tau(A) < 1}
+     {\Gamma \vdash \texttt{observe}(A) :
+      \textsf{Assembly} \,@\, \flo \,/\, \thick}
+\ \textsc{(Obs)}
+\]
+
+Rule \textsc{(Chn)} is \Cref{prop:additive} at the type level; rule
+\textsc{(Obs)} is \Cref{thm:detect}, so an engulfed assembly is rejected
+statically rather than measured and found silent.
+
+\begin{theorem}[No zero-resolution value]
+\label{thm:no-zero}
+There is no well-typed sangoma expression of resolution $0$; a claim of exact
+measurement is not expressible.
+\end{theorem}
+
+\begin{proof}
+Every value-introducing rule carries the side condition $\flo>0$, and no rule
+lowers a resolution annotation: \textsc{(Stg)} and \textsc{(Obs)} carry $\flo$
+through and \textsc{(Chn)} increases the thickness. Induction on the derivation
+gives the result.
+\end{proof}
+
+\subsection{Static diagnostics}
+
+\begin{proposition}[Resolution required on a target]
+\label{prop:target-res}
+A target requirement whose magnitude carries no resolution annotation is
+rejected at parse time.
+\end{proposition}
+
+\begin{proof}
+By \Cref{def:target} a requirement asserts a property at a resolution; a
+magnitude without one asserts a distinction of unstated width, which by
+\Cref{thm:no-zero} the language does not express.
+\end{proof}
+
+\begin{proposition}[Over-claim]
+\label{prop:overclaim}
+A target asserting a resolution finer than the ambient floor is rejected, with
+both quantities named.
+\end{proposition}
+
+\begin{proof}
+The ambient floor is the finest distinction the declared instruments support
+(\Cref{lem:floor}); a requirement asserting a finer one asserts a distinction no
+instrument delivers, and the comparison is decidable statically.
+\end{proof}
+
+\begin{principle}[Every refusal carries a remedy]
+\label{prin:remedy}
+Each diagnostic names the rule that fired, what is wrong, and what to do about
+it. The checker emits no refusal without a way forward.
+\end{principle}
+
+The experiments \texttt{sangoma\_target\_needs\_resolution},
+\texttt{sangoma\_over\_claim\_refused} and
+\texttt{sangoma\_diagnostics\_carry\_remedy} confirm these; the last checks that
+every diagnostic produced across three malformed programs carries a non-empty
+remedy.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Physical Rules}
+\label{sec:physical}
+%──────────────────────────────────────────────────────────────────────
+
+These are the constraints the language enforces, and they are enforced because
+they are facts about signals rather than opinions about music.
+
+\begin{proposition}[Headroom]
+\label{prop:headroom}
+A chain whose declared stage gains sum to a peak above the declared ceiling is
+refused.
+\end{proposition}
+
+\begin{proof}
+Peak level after a series of gain stages is the sum of the gains in decibels
+applied to the input peak. If that exceeds the ceiling the signal is not
+representable in the output format and will clip
+\citep{lund2006stop}.
+\end{proof}
+
+\begin{proposition}[Latency]
+\label{prop:latency}
+The latency of a chain is the sum of its stages' declared latencies, and must be
+reported so that it can be compensated.
+\end{proposition}
+
+\begin{proof}
+Stages act in series, so their delays compose additively.
+\end{proof}
+
+\begin{definition}[Numeric resolution]
+\label{def:numres}
+The \emph{numeric resolution} $\varepsilon_T$ of a render path is the greatest
+absolute error it may introduce: accumulated floating-point rounding
+\citep{goldberg1991what} plus the quantisation step of the output format.
+\end{definition}
+
+\begin{theorem}[Floor negotiation]
+\label{thm:negotiate}
+A program of ambient floor $\flo$ may render on a path of numeric resolution
+$\varepsilon_T$, against a reference of resolution $\varepsilon_R$, only if
+$\varepsilon_R+\varepsilon_T\le\flo$. Otherwise the distinctions it asserts are
+not separable from the errors it incurs, and it must be refused before rendering.
+\end{theorem}
+
+\begin{proof}
+Two magnitudes differing by less than $\varepsilon_R+\varepsilon_T$ are not
+distinguishable by computation on that path, since each may be perturbed by up to
+its resolution. The floor asserts that differences of size $\flo$ are meaningful;
+if $\varepsilon_R+\varepsilon_T>\flo$ then a difference the program treats as
+meaningful lies inside the machinery's error, and a reported distinction may be
+an artefact.
+\end{proof}
+
+\begin{remark}[The two quantities are independent]
+\label{rem:indep}
+It is tempting to suppose the render path's error is automatically bounded by the
+floor. It is not: the floor is a property of the weights the author declared,
+$\varepsilon_T$ a property of the arithmetic and output format. Nothing couples
+them, which is why the check must be performed rather than assumed.
+\end{remark}
+
+The experiments \texttt{sangoma\_headroom\_refusal},
+\texttt{sangoma\_latency\_accounted} and \texttt{sangoma\_floor\_negotiation}
+confirm these, the last checking that the refusal names both the program's floor
+and the path's resolution.
+
+\begin{remark}[Where the rules stop]
+\label{rem:rules-stop}
+The list above is complete. There is no rule about stage ordering, none about
+which processor suits which material, and none that prefers one topology to
+another. \S\ref{sec:intro} gives the reason: those questions have no answer the
+language is entitled to enforce, and a compiler that answered them would be
+obstructing the misuse that the idiom is largely made of.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Worked Program}
+\label{sec:worked}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{lstlisting}[caption={A sangoma program constructing a bass.},label={lst:prog}]
+-- reese.sgn
+floor 0.02
+
+medium air {
+  ceiling: -1.0
+}
+
+species reese {
+  source { operators: 2, ratio: 1.0, index: 3.5 }
+  motion { rate: 0.3, depth: 0.8 }
+}
+
+construct bass {
+  stage fm_source
+  stage resample
+  stage saturate
+
+  target {
+    crest     >= 6.0#0.5
+    midrange  >= 0.40#0.05
+    width     <= 0.85#0.02
+  }
+
+  via { rung fm_source at 0.40
+     >> rung resample  at 0.35
+     >> rung saturate  at 0.55 }
+}
+
+observe bass as result
+assert result.tau < 1.0
+  emit "a stage is engulfed by its own separator"
+\end{lstlisting}
+
+The ladder attains composite power
+$1-(1-0.40)(1-0.35)(1-0.55)=1-0.60\times0.65\times0.45=0.8245$. Three stages of
+differing power are used rather than three of one, per \Cref{rem:crossover}. The
+final assertion writes out the detectability check of \Cref{thm:detect}, which
+rule \textsc{(Obs)} enforces regardless.
+
+The experiment \texttt{sangoma\_parses\_worked\_example} recovers from this
+source a floor of $0.02$, two declared species, three stages, three target
+requirements, and a composite power of $0.8245$.
+
+\begin{remark}[Reading the targets]
+\label{rem:targets}
+Each requirement carries the resolution at which it is asserted, and the
+resolutions are not decorative. \texttt{crest >= 6.0\#0.5} asserts a crest factor
+of at least $6$\,dB, resolved to half a decibel---which is what an ordinary meter
+delivers. Writing \texttt{6.0\#0.001} instead would be refused by
+\Cref{prop:overclaim}, because no instrument in the declared chain resolves a
+thousandth of a decibel and the program would be asserting a distinction that
+does not exist.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Prototype and Validation}
+\label{sec:validation}
+%──────────────────────────────────────────────────────────────────────
+
+A prototype compiler accompanies this paper---lexer, recursive-descent parser,
+type checker and static diagnostics---in \texttt{hkcore.py}, with experiments in
+\texttt{exp\_sangoma.py}. It uses the Python standard library only. The suite
+across all three papers reports \textbf{40 run, 40 passed, 0 failed} in
+$0.16$\,s, of which thirteen experiments belong to this paper; every seed is
+fixed and re-running reproduces each record bit-identically.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Experiments for this paper.}
+\label{tab:experiments}
+\begin{tabular}{@{}lp{4.2cm}@{}}
+\toprule
+Experiment & Establishes \\
+\midrule
+\texttt{parses\_worked\_example} & \Cref{lst:prog}; $\pot=0.8245$ \\
+\texttt{target\_needs\_resolution} & \Cref{prop:target-res} at parse time \\
+\texttt{over\_claim\_refused} & \Cref{prop:overclaim} with remedy \\
+\texttt{reachability\_reports\_depth} & \Cref{prop:reach}; 3 targets agree \\
+\texttt{reachability\_diagnostic} & weak chain refused, strong accepted \\
+\texttt{detectability} & \Cref{thm:detect}; $\tau$ swept over $4$ values \\
+\texttt{thickness\_additive} & \Cref{prop:additive}; total $0.10$ \\
+\texttt{headroom\_refusal} & \Cref{prop:headroom} \\
+\texttt{latency\_accounted} & \Cref{prop:latency}; $2560$ samples \\
+\texttt{floor\_negotiation} & \Cref{thm:negotiate}; both figures named \\
+\texttt{nesting\_beats\_sharpening} & \Cref{tab:crossover}; crossover at $0.95$ \\
+\texttt{target\_required} & a construct with no target is refused \\
+\texttt{diagnostics\_carry\_remedy} & \Cref{prin:remedy}; all non-empty \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[A claim withdrawn]
+\label{rem:withdrawn}
+\texttt{sangoma\_nesting\_beats\_sharpening} was first written to assert that a
+ladder is cheaper than a single sharp stage at a target of $0.95$. Under the
+reciprocal cost law the two are exactly equal there, and the equality is an
+artefact of that cost law rather than a result. The experiment was rewritten to
+report the crossover table, and \Cref{rem:crossover} states the weaker asymptotic
+claim that survives. We record this because the original claim would have been
+easy to state and impossible to defend.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Related Notions}
+\label{sec:related}
+%──────────────────────────────────────────────────────────────────────
+
+\emph{Unit-generator languages.} Music-DSP environments
+\citep{puckette1996pure,mccartney2002rethinking} describe signal flow
+procedurally: a patch names its processors and their connections. Sangoma names
+neither, and derives a chain from a target instead; the reachability check of
+\Cref{prop:reach} has no analogue in a patch language, because a patch carries no
+statement of what it is trying to achieve.
+
+\emph{Synthesis by analysis and by optimisation.} Automatic synthesiser
+programming \citep{horner1993machine} searches parameter space for a match to a
+recorded target. The difference is in what is declared: such a system takes an
+audio exemplar and returns parameters, while sangoma takes stated properties with
+stated resolutions and returns a chain or a refusal. Neither subsumes the other,
+and a producer with an exemplar should use the former.
+
+\emph{Constraint and target-driven design.} Declaring an object by the properties
+it must satisfy is the ordinary form in constraint programming
+\citep{rossi2006handbook}. What is added here is resolution: every requirement
+carries the width at which it is asserted, and \Cref{prop:overclaim} refuses a
+constraint finer than the instruments support.
+
+\emph{Loudness and headroom practice.} The physical rules of
+\S\ref{sec:physical} formalise established mastering practice
+\citep{lund2006stop} rather than proposing anything new; the contribution is that
+they are checked before rendering rather than discovered after.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Limits}
+\label{sec:limits}
+%──────────────────────────────────────────────────────────────────────
+
+\emph{Stage powers must be calibrated.} \Cref{def:rung} takes a stage's power as
+declared. Establishing what a particular saturator actually closes, on particular
+material, is a measurement problem this paper does not solve. A miscalibrated
+registry yields a well-typed program that reaches the wrong sound, and the
+compiler cannot detect this.
+
+\emph{Additivity is first-order.} \Cref{prop:additive} treats thicknesses as
+summing, which holds when stages act approximately independently. Strongly
+interacting stages---a compressor feeding a distortion whose drive changes the
+compressor's own detection---violate it. We regard this as the most serious open
+problem in the design, and note that the interacting case is common in exactly
+the chains the language is meant for.
+
+\emph{No claim about audibility.} Detectability (\Cref{thm:detect}) is a
+statement about measurement, not about hearing. A stage may be measurable and
+inaudible, or---more troublingly---audible in ways no declared measurement
+captures. The language's guarantees stop at the declared instruments.
+
+\emph{Nothing here composes music.} Sangoma builds sounds against stated targets.
+It does not choose the targets, and the choice is the interesting part.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+%──────────────────────────────────────────────────────────────────────
+
+We have specified a language in which a sound is declared by what it must
+satisfy, at a stated resolution, rather than by the steps that produce it; in
+which reachability is decided before rendering and unreachability is a diagnostic
+carrying the depth required (\Cref{prop:reach}); in which a single stage cannot
+be sharpened without bound, so that resolution is reached by composition
+(\Cref{thm:refine}, \Cref{thm:compose}); and in which a stage engulfed by its own
+separator is refused statically rather than rendered and found silent
+(\Cref{thm:detect}).
+
+The rules it enforces are physical---headroom, latency, resolution---and it is
+deliberately silent above them. What it offers a producer is not judgement about
+their chain but two facts they cannot presently obtain: whether a target is
+reachable with the stages they have, and by how much they fall short if it is
+not.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,8 @@
+{
+  "chain_robust": false,
+  "experiment": "mishima_triangle",
+  "pair_robust": false,
+  "passed": true,
+  "suite": "mishima",
+  "triangle_robust": true
+}

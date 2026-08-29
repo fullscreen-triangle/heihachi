@@ -1,0 +1,17 @@
+{
+  "composite_power": 0.8245,
+  "experiment": "sangoma_parses_worked_example",
+  "floor": 0.02,
+  "passed": true,
+  "species": [
+    "air",
+    "reese"
+  ],
+  "stages": [
+    "fm_source",
+    "resample",
+    "saturate"
+  ],
+  "suite": "sangoma",
+  "targets": 3
+}

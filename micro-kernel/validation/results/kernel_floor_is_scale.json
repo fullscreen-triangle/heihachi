@@ -1,0 +1,14 @@
+{
+  "experiment": "kernel_floor_is_scale",
+  "passed": true,
+  "ratios": [
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5
+  ],
+  "scales": 5,
+  "spread": 0.0,
+  "suite": "kernel"
+}

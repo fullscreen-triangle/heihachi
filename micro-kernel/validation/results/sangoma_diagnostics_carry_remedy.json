@@ -1,0 +1,7 @@
+{
+  "diagnostics": 4,
+  "experiment": "sangoma_diagnostics_carry_remedy",
+  "passed": true,
+  "suite": "sangoma",
+  "with_remedy": 4
+}

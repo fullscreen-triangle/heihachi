@@ -1,0 +1,45 @@
+{
+  "experiment": "sangoma_nesting_beats_sharpening",
+  "final_ratio": 159.091,
+  "passed": true,
+  "per_rung_power": 0.35,
+  "ratio_increases_with_target": true,
+  "rows": [
+    {
+      "ladder_cost": 17.14,
+      "ladder_rungs": 6,
+      "ratio": 0.583,
+      "single_cost": 10.0,
+      "target": 0.9
+    },
+    {
+      "ladder_cost": 20.0,
+      "ladder_rungs": 7,
+      "ratio": 1.0,
+      "single_cost": 20.0,
+      "target": 0.95
+    },
+    {
+      "ladder_cost": 31.43,
+      "ladder_rungs": 11,
+      "ratio": 3.182,
+      "single_cost": 100.0,
+      "target": 0.99
+    },
+    {
+      "ladder_cost": 48.57,
+      "ladder_rungs": 17,
+      "ratio": 20.588,
+      "single_cost": 1000.0,
+      "target": 0.999
+    },
+    {
+      "ladder_cost": 62.86,
+      "ladder_rungs": 22,
+      "ratio": 159.091,
+      "single_cost": 10000.0,
+      "target": 0.9999
+    }
+  ],
+  "suite": "sangoma"
+}

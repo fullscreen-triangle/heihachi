@@ -1,0 +1,9 @@
+{
+  "experiment": "sangoma_headroom_refusal",
+  "passed": true,
+  "safe_clears": true,
+  "safe_peak_db": -3.0,
+  "suite": "sangoma",
+  "unsafe_clears": false,
+  "unsafe_peak_db": 3.0
+}

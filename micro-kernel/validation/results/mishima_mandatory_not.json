@@ -1,0 +1,8 @@
+{
+  "empty_list_refused": true,
+  "experiment": "mishima_mandatory_not",
+  "passed": true,
+  "refused": true,
+  "rule": "rule:mandatory-not",
+  "suite": "mishima"
+}

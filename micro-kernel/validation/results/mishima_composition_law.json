@@ -1,0 +1,41 @@
+{
+  "cases": [
+    {
+      "composite": 0.82675,
+      "rungs": [
+        0.45,
+        0.3,
+        0.55
+      ]
+    },
+    {
+      "composite": 0.8245,
+      "rungs": [
+        0.4,
+        0.35,
+        0.55
+      ]
+    },
+    {
+      "composite": 0.67232,
+      "rungs": [
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2
+      ]
+    },
+    {
+      "composite": 0.91,
+      "rungs": [
+        0.9,
+        0.1
+      ]
+    }
+  ],
+  "experiment": "mishima_composition_law",
+  "max_abs_difference": 0.0,
+  "passed": true,
+  "suite": "mishima"
+}

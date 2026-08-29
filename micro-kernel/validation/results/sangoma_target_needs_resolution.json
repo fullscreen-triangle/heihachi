@@ -1,0 +1,8 @@
+{
+  "annotated_accepted": true,
+  "experiment": "sangoma_target_needs_resolution",
+  "passed": true,
+  "refused": true,
+  "rule": "rule:floor-on-target",
+  "suite": "sangoma"
+}

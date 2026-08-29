@@ -1,0 +1,15 @@
+{
+  "diagnostics_by_length": {
+    "1": [
+      "rule:coherence",
+      "rule:saturation"
+    ],
+    "2": [
+      "rule:coherence"
+    ],
+    "3": []
+  },
+  "experiment": "mishima_coherence_diagnostic",
+  "passed": true,
+  "suite": "mishima"
+}

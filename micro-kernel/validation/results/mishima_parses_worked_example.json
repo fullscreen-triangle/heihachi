@@ -1,0 +1,14 @@
+{
+  "composite_power": 0.8267,
+  "exclusions": [
+    "thin",
+    "undistorted",
+    "mono"
+  ],
+  "experiment": "mishima_parses_worked_example",
+  "floor": 0.02,
+  "passed": true,
+  "rungs": 3,
+  "seeks": 1,
+  "suite": "mishima"
+}

@@ -1,0 +1,29 @@
+{
+  "depth_matches_closed_form": true,
+  "experiment": "sangoma_reachability_reports_depth",
+  "passed": true,
+  "rows": [
+    {
+      "attainable": 0.4,
+      "closed_form": 9,
+      "reachable": false,
+      "reported_depth": 9,
+      "target": 0.9
+    },
+    {
+      "attainable": 0.4,
+      "closed_form": 11,
+      "reachable": false,
+      "reported_depth": 11,
+      "target": 0.95
+    },
+    {
+      "attainable": 0.4,
+      "closed_form": 17,
+      "reachable": false,
+      "reported_depth": 17,
+      "target": 0.99
+    }
+  ],
+  "suite": "sangoma"
+}

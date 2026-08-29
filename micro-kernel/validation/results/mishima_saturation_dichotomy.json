@@ -1,0 +1,9 @@
+{
+  "experiment": "mishima_saturation_dichotomy",
+  "geometric_residual_gap": 0.2887880950866024,
+  "harmonic_residual_gap": 0.00024993751562107924,
+  "passed": true,
+  "rungs": 4000,
+  "separation_orders": 3.06,
+  "suite": "mishima"
+}

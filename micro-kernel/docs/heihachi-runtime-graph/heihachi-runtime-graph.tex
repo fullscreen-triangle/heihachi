@@ -1,0 +1,1044 @@
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+% ─── Packages ─────────────────────────────────────────────────────────
+\usepackage[margin=2.0cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,
+            citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{cleveref}
+
+% ─── Page Style ───────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Heihachi: A Runtime Graph for Music Production}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+% ─── Theorem Environments ─────────────────────────────────────────────
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{principle}[theorem]{Principle}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ─── Custom Commands ──────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Rpos}{\R_{>0}}
+\newcommand{\flo}{\beta}
+\newcommand{\med}{\mathcal{M}}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\cut}{\operatorname{cut}}
+\newcommand{\wt}{w}
+\newcommand{\res}{\varrho}
+\newcommand{\rec}{\mu}
+\newcommand{\Nodes}{\mathcal{N}}
+\newcommand{\Chunks}{\operatorname{Ch}}
+\newcommand{\Vals}{\operatorname{Val}}
+\newcommand{\Traj}{\mathcal{T}}
+\newcommand{\node}{n}
+\newcommand{\dispatch}{\textsc{Run}}
+\newcommand{\Modules}{\mathcal{M}\!od}
+
+% ─── Listings ─────────────────────────────────────────────────────────
+\lstdefinestyle{hk}{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape\color{gray!80!black},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{gray!50},
+  morekeywords={node,chunk,value,module,emit,read,run,commit,identify,
+                transform,for,in,do,end,if,then,else,return,let}
+}
+\lstset{style=hk}
+
+\captionsetup{font=small,labelfont=bf}
+
+% ══════════════════════════════════════════════════════════════════════
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\begin{center}
+
+{\LARGE\bfseries Heihachi: A Runtime Graph for Music Production\\[4pt]
+A Kernel that Executes, Records, and Judges Nothing}
+
+\vspace{12pt}
+
+{\large Kundai Farai Sachikonye}
+
+\vspace{6pt}
+
+{\small\itshape Independent Researcher \\[0.3em]
+\texttt{kundai.sachikonye@wzw.tum.de}}
+
+\vspace{6pt}{\small August 2026}
+
+\vspace{16pt}
+
+\begin{minipage}{0.92\textwidth}
+\textbf{Abstract.}
+We specify \emph{heihachi}, a runtime for music production organised as an
+accumulating record of authored decisions rather than as a pipeline of
+processing steps. The runtime manages a graph whose nodes are \emph{subtasks} of
+production---``the transient of this bass,'' ``the width of this pad''---each
+carrying a bag of executable realisations and a growing collection of values. Its
+entire semantic content is one operation: execute every realisation attached to a
+node and increment a counter once per emission. It does not schedule, does not
+select among realisations, does not inspect what they produce, and cannot report
+success or failure. We prove that this last incapacity is structural rather than
+elective: a verdict presupposes a comparison against an expectation, the graph
+provides no vocabulary in which an expectation can be written, and consequently
+no quantity the runtime computes can carry the meaning of an exit code. Three
+consequences follow and we establish each. Runs reach completion in the presence
+of anomalies, because nothing branches on emission content---measured over a
+sweep of forty-eight chain-length and anomaly-density combinations, the runtime
+completes every node in every cell while a halt-on-error runtime falls to
+$9.4\%$ of the work and abandons up to twenty-nine nodes. The trajectory of a run
+is constituted by the reads and emissions that occurred and is therefore not
+storable as a schedule; over one fixed six-node catalogue, thirty-six runs induce
+six distinct causal edge relations, so no single fixed relation describes them
+all. And relevance is constituted by being read, so an emission nothing consumes
+leaves the trajectory without any actor having rejected it. We give the value
+type and prove that no value of non-positive resolution is constructible; we give
+the record and prove it admits no cached recomputation, so that re-measuring is a
+new commitment at a strictly higher record; and we give a hierarchical address
+space in which an edit at depth $k$ of a $b$-ary tree of depth $D$ affects exactly
+$b^{D-k}$ leaves, measured across branching factors two, three and four. A
+reference implementation and forty deterministic experiments accompany the paper.
+Nothing outside this paper is required to read it.
+\end{minipage}
+
+\vspace{8pt}
+\noindent\textbf{Keywords:}
+runtime graph, micro-kernel, music production, provenance, exit code,
+run to completion, causal edges, monotone record, resolution floor
+
+\vspace{18pt}
+\end{center}
+\end{@twocolumnfalse}
+]
+
+%──────────────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{What is lost between sessions}
+
+A producer working on a record makes some thousands of decisions. A bass is
+synthesised, resampled, mangled, resampled again; a version is bounced and set
+aside; another is bounced and kept. Six months later the kept version is the only
+survivor, and the decisions that produced it are gone---not archived somewhere
+inconvenient, but genuinely absent, because nothing recorded them.
+
+This is ordinarily described as a documentation problem, to be fixed by better
+naming conventions or more disciplined session hygiene. We think that
+description is wrong, and the argument against it is short. A session file stores
+\emph{state}: which devices are present, what their parameters are. A bounce
+stores \emph{output}: what the state produced. Neither stores the relation between
+them, and the relation is what a later question is about. ``Why does this one
+sound right and the other twenty not'' is a question about the twenty, and the
+twenty were discarded.
+
+The asymmetry is sharper still. A bounce can be regenerated from a session; a
+session cannot be regenerated from a bounce. The processing chain is not
+invertible, and no amount of analysis of the output recovers the sequence of
+authored choices that produced it. Whatever a production tool is for, it cannot
+be for reconstructing that sequence after the fact, because the reconstruction is
+not available.
+
+Heihachi therefore records the relation while it is being made. This paper
+specifies the runtime that does the recording. Two companion languages---one for
+computing over the record, one for constructing new material---are specified
+separately; this paper defines the substrate both run on, and is self-contained.
+
+\subsection{Three refusals}
+
+The design is easiest to state by what the runtime declines to do, because in
+each case something structural does the job that the declined machinery would
+have done.
+
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{No schedule.} Nodes are individuated by the subtask they name, not
+  by the agent that raised them. Two analyses that decompose different problems
+  and arrive at the same subtask converge on one node
+  (\Cref{def:convergence}). There is consequently no ordering decision for a
+  scheduler to make.
+\item \textbf{No orchestration.} An emission that nothing reads forms no causal
+  edge and does not enter the trajectory (\Cref{thm:nonprop}). Because relevance
+  is constituted by being read, no actor is required to reject the irrelevant.
+\item \textbf{No exit code.} The graph has no vocabulary for ``expected'' and
+  stores no expectation. The runtime therefore holds nothing against which an
+  achieved value could be measured, and cannot issue a verdict
+  (\Cref{thm:no-exit}).
+\end{itemize}
+
+What replaces the missing machinery is a single premise---that telling one thing
+from another costs a strictly positive amount---from which the value type, the
+record, and the addressing scheme all follow.
+
+\subsection{Why the third refusal matters here}
+
+The no-exit-code result is the one that sounds like a defect and is in fact the
+reason the design suits its domain.
+
+Consider what a conventional runtime does with an anomaly. It compares the
+anomalous value against an expectation, finds a mismatch, and halts. In a
+compiler or a build system this is correct: a type error is not a result, it is
+the absence of one. In a recording studio it is not correct, because an
+unexpected reading is frequently the point. A resample that came out wrong, a
+compressor that pumped in an unplanned way, a filter that self-oscillated---these
+are the events a producer builds a record out of. A runtime that halted on them
+would be halting on the material.
+
+The wet-lab discipline is the right analogy. An unexpected reading does not abort
+the assay; it is written in the notebook and becomes the thing the analysis has to
+explain. \Cref{cor:completion} establishes the same discipline formally: an
+anomaly is a first-class value on a node, available to any module that reads it
+and to the final report, and the report---not an exit code---is the runtime's
+output.
+
+\subsection{Contributions}
+
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+\item The positive floor, the value type it induces, and a proof that no value of
+  non-positive resolution is constructible (\S\ref{sec:floor}).
+\item The node, the chunk bag, and convergence by subtask identity
+  (\S\ref{sec:node}).
+\item The kernel's single operation, the no-exit-code theorem, and run to
+  completion, with the abandoned-work measurement (\S\ref{sec:runtime}).
+\item The monotone record, its use as an internal arrow of time, and the
+  no-memoisation corollary (\S\ref{sec:record}).
+\item Run-induced edges, trajectory emergence, and non-propagation without
+  rejection (\S\ref{sec:trajectory}).
+\item Accountability as a minimum cut, checked against an independent
+  computation (\S\ref{sec:accountability}).
+\item Resolution as a depth in one address space, with the blast-radius law
+  (\S\ref{sec:resolution}).
+\item Floor negotiation between a program and a render path
+  (\S\ref{sec:negotiation}).
+\item A reference implementation and forty deterministic experiments
+  (\S\ref{sec:validation}).
+\end{enumerate}
+
+%──────────────────────────────────────────────────────────────────────
+\section{The Floor}
+\label{sec:floor}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{Contact graphs}
+
+\begin{definition}[Contact graph, medium, cut, residue]
+\label{def:substrate}
+A \emph{contact graph} is $\Gph=(V,E,\wt)$ with $V$ finite and non-empty, $E$ a
+set of unordered pairs, and $\wt\colon E\to\Rpos$; graph terminology follows
+\citet{diestel2010graph}. A distinguished vertex $\med\in V$, the \emph{medium},
+is adjacent to every other vertex; the remaining vertices are \emph{items}. For
+$S\subseteq V$ containing an item and omitting $\med$, the \emph{cut} is
+$\cut(S)=\{\{u,v\}\in E: u\in S,\, v\notin S\}$ and the \emph{residue} is
+$\res(S)=\sum_{e\in\cut(S)}\wt(e)$. The \emph{floor} is
+$\flo=\min_{e\in E}\wt(e)$.
+\end{definition}
+
+The medium is the vertex standing for everything not yet told apart. In a
+production context it is the unstructured remainder: the material that has not
+been distinguished from anything, against which a first distinction is drawn.
+
+\begin{lemma}[Positive floor, positive residue]
+\label{lem:floor}
+$\flo>0$, and every cut as in \Cref{def:substrate} satisfies
+$\res(S)\ge\flo>0$.
+\end{lemma}
+
+\begin{proof}
+$\flo$ is the minimum of a finite non-empty set of strictly positive reals and is
+therefore positive. Since $S$ contains an item $v$ and omits $\med$, and
+$\{v,\med\}\in E$ by the medium property, $\cut(S)$ is non-empty; its weight is a
+sum of terms each at least $\flo$.
+\end{proof}
+
+\begin{remark}[Where the floor comes from in audio]
+\label{rem:audio-floor}
+\Cref{lem:floor} is a graph fact, but the quantity it names is an ordinary
+engineering one. A spectral measurement resolves no better than its bin width; a
+level meter with $N$ output states over a range $D$ distinguishes nothing below
+$D/N$; a converter of $b$ bits over a $5$\,V span does not resolve differences
+below $5/2^{b}$ volts. These are statements about instrument specifications, not
+about noise, and they set the weights of \Cref{def:substrate} in practice.
+\end{remark}
+
+\subsection{Values}
+
+\begin{definition}[Value]
+\label{def:value}
+A \emph{value} is a datum attached to a node, carrying a magnitude, a strictly
+positive \emph{floor} recording the resolution at which it was obtained, a unit,
+a kind, and the record index at which it was committed. A value of non-positive
+floor is not constructible.
+\end{definition}
+
+\begin{theorem}[No zero-resolution value]
+\label{thm:no-zero}
+There is no constructible value whose floor is zero or negative. Equivalently, a
+claim of exact measurement is not expressible.
+\end{theorem}
+
+\begin{proof}
+Immediate from \Cref{def:value}, whose introduction rule carries the side
+condition $\flo>0$; there is no other value-introducing rule. The content of the
+restriction is \Cref{lem:floor}: a value is the record of a distinction, a
+distinction is a cut, and every cut has residue at least $\flo>0$. A value of
+zero floor would be the record of a distinction drawn at no cost, and no such cut
+exists.
+\end{proof}
+
+The experiment \texttt{kernel\_floor\_positivity} attempts three
+non-positive floors and records three refusals, with a positive floor accepted.
+
+\begin{remark}[What the floor is not]
+\label{rem:not-clamp}
+The floor is the unit in which residues are expressed, not a clamp applied after
+the fact. If residues are multiples of the floor, rescaling the floor rescales
+them and leaves the ratio $\res/\flo$ unchanged. The experiment
+\texttt{kernel\_floor\_is\_scale} sweeps the floor over a sixteen-fold range and
+finds the ratio constant to $0$ in double precision---which is the operational
+test that an implementation treats the floor as a scale rather than a truncation.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{The Node}
+\label{sec:node}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{Modules, subtasks, chunks}
+
+The system is a set of \emph{modules}: a spectral analyser, a groove estimator, a
+loudness meter, an annotation store, a model that reads the graph. A module is a
+competence rather than a procedure, and it solves nothing directly. Given a
+problem it decomposes it into \emph{subtasks}, and this decomposition is the only
+source of structure in the system. There is no global plan.
+
+A subtask is not private to the module that raised it. When a decomposition
+arrives at a subtask, that subtask is published: it becomes a node readable by
+every module.
+
+\begin{definition}[Node]
+\label{def:node}
+A \emph{node} is a triple
+\[
+\node=\bigl(\tau,\ \Chunks(\node),\ \Vals(\node)\bigr),
+\]
+where $\tau$ is the identity of a subtask; $\Chunks(\node)=\{c_1,\dots,c_r\}$ is
+a finite \emph{bag} of chunks, each an executable realisation of $\tau$; and
+$\Vals(\node)$ is the time-varying collection of values the node carries.
+\end{definition}
+
+\begin{definition}[Chunk]
+\label{def:chunk}
+A \emph{chunk} is an executable fragment realising a subtask. The runtime
+requires only that a chunk can be executed and that its execution produces a
+finite collection of value emissions. The runtime does not parse, type-check,
+interpret or compare chunks.
+\end{definition}
+
+\begin{remark}[Why a bag]
+\label{rem:bag}
+The multiplicity of $\Chunks(\node)$ is essential. A subtask of production can be
+realised in more than one way: ``the transient of this bass'' may be realised by
+a spectral onset detector, by a stored annotation from a previous session, and by
+a model's reading of the graph. These are not competing candidates among which
+the runtime must choose. They are co-resident realisations, and by
+\Cref{def:exec} the runtime executes all of them. Selecting among them would
+require a criterion; a criterion is a judgement; and judgements do not belong to
+the runtime.
+\end{remark}
+
+\subsection{Convergence}
+
+\begin{definition}[Convergence]
+\label{def:convergence}
+Two subtask realisations \emph{converge} when they share subtask identity $\tau$.
+Convergence merges their chunk bags and unifies their value collections onto the
+single node bearing $\tau$. The graph therefore grows by convergence: raising a
+subtask that already exists adds chunks and values to an existing node rather
+than creating a new one.
+\end{definition}
+
+\begin{remark}[A node is a meeting point]
+\label{rem:meeting}
+A node is not owned by the module that first raised it. Because the subtask
+individuates the node, and because many modules converge on the same subtask, a
+node accretes chunks and values from every module that reaches it. Its content is
+the union of what converged there. This is the mechanism by which a heterogeneous
+set of analyses accumulates shared structure with no central registry of who
+computes what.
+\end{remark}
+
+The experiment \texttt{kernel\_convergence} raises one subtask from two modules
+and records a single node bearing two chunks and two values.
+
+\subsection{The graph vocabulary}
+
+\begin{definition}[Graph vocabulary]
+\label{def:vocab}
+A module's interface to the graph consists of exactly four operations:
+\emph{identify} (locate the node bearing a subtask identity, raising it if it
+does not exist), \emph{read} (retrieve the values on a node), \emph{transform}
+(alter its own internal state), and \emph{emit} (attach new values to a node).
+There is no fifth operation.
+\end{definition}
+
+\begin{principle}[The value contract]
+\label{prin:contract}
+Every module emits values onto nodes and reads values from nodes. A module reads
+the values on a node, makes internal changes on the strength of what it read, and
+emits new values---possibly onto the same node, possibly onto others. There is no
+other channel of inter-module communication. No module reads another module's
+internal state, and no module is required to interpret another module's chunks.
+\end{principle}
+
+\begin{remark}[The vocabulary is a closure claim]
+\label{rem:closure}
+\Cref{def:vocab} is not an inventory but a closure claim, and it is what forces
+adjudication out of the runtime. There is no operation \textsc{IsCorrect}, no
+operation \textsc{Expected}, and no operation \textsc{Compare}. The graph stores
+what was emitted, never what should have been emitted. A module cannot ask the
+graph whether a bass sounds right, because the graph represents no such property;
+it can only read what is there and emit on the strength of it. Taste therefore
+remains in the modules, where it belongs, and the runtime never enforces
+anybody's current opinion.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{The Runtime}
+\label{sec:runtime}
+%──────────────────────────────────────────────────────────────────────
+
+\subsection{Execution is the only responsibility}
+
+\begin{definition}[Node execution]
+\label{def:exec}
+To \emph{execute} a node $\node$ is to run every chunk in its bag:
+\[
+\dispatch(\node)=\bigl\langle \textsc{Eval}(c) : c\in\Chunks(\node)\bigr\rangle,
+\]
+each chunk producing whatever value emissions it produces, all of which are
+attached to the graph. The runtime performs $\dispatch(\node)$ and nothing else.
+It does not select among chunks; it does not order the graph; it does not inspect
+the values that result.
+\end{definition}
+
+\begin{lstlisting}[caption={The kernel's entire semantic content.},label={lst:kernel}]
+run(node):
+  for chunk in node.chunks do
+    execute(chunk)      -- emissions land on the graph
+    commit()            -- record += 1
+  end
+\end{lstlisting}
+
+\begin{principle}[Semantic inertia]
+\label{prin:inert}
+The runtime is a device for turning nodes into value emissions by running their
+code. It holds no representation of an expected value, no comparison operator
+against one, and no policy over emission content.
+\end{principle}
+
+\subsection{No exit code}
+
+\begin{theorem}[No exit code]
+\label{thm:no-exit}
+The runtime cannot emit an exit code, because an exit code presupposes a
+comparison the runtime is structurally unable to make.
+\end{theorem}
+
+\begin{proof}
+An exit code is a verdict: success against a class of failure. To issue one, the
+issuer must compare an achieved state to an expected one. The runtime's entire
+interface with meaning is the value collection $\Vals$, and by \Cref{rem:closure}
+the graph has no verb for ``expected'' and stores no expectation against which an
+achieved value could be measured. The runtime therefore has no expected state to
+compare against and no comparison operator in its vocabulary. Whatever a chunk
+emits is emitted; there is no state in which the runtime holds a belief about
+what should have been emitted. Hence there is no quantity the runtime could
+compute carrying the meaning of an exit code. Adjudication is possible only
+downstream, in a consumer holding an expectation of its own, and a consumer's
+judgement is that consumer's, not the runtime's.
+\end{proof}
+
+The experiment \texttt{kernel\_no\_exit\_code} inspects the runtime's report and
+finds its keys to be \texttt{record}, \texttt{nodes\_executed},
+\texttt{emissions}, \texttt{anomalies} and \texttt{induced\_edges}: no key
+carrying a verdict, with the anomaly recorded as a value alongside the ordinary
+result.
+
+\begin{corollary}[Run to completion]
+\label{cor:completion}
+The runtime does not halt on an unexpected result or on an error emitted by a
+chunk. It runs each node's chunks and moves on; anomalous emissions are recorded
+as values like any other.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:no-exit} the runtime has no notion of ``unexpected,'' so there is no
+event of that type on which to halt. A chunk that raises produces a value---an
+error record---emitted onto the graph exactly as a numeric result would be.
+Nothing in $\dispatch(\node)$ branches on the \emph{content} of an emission, so
+the presence of an error value cannot alter control flow.
+\end{proof}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Work abandoned by halting. Measured over eight chain lengths
+$L\in\{4,\dots,32\}$ and six anomaly densities $d\in\{0.0,\dots,0.5\}$
+(\texttt{kernel\_run\_to\_completion}, 48 cells).}
+\label{tab:completion}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Quantity & Value \\
+\midrule
+Cells swept & 48 \\
+Cells in which heihachi completed every node & 48 \\
+Worst-case fraction completed by halting runtime & $0.094$ \\
+Greatest number of nodes abandoned by halting & 29 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[Where errors are handled]
+\label{rem:errors-elsewhere}
+\Cref{cor:completion} does not say errors are ignored. It says they are not
+handled \emph{by the runtime}. A module that reads an error value may do anything
+it likes with it: retry through a different chunk, emit a diagnostic, degrade a
+downstream estimate, or raise a finding for the report. That is a module's
+semantic prerogative. The runtime's refusal to act on error content is what keeps
+the semantics in the modules.
+\end{remark}
+
+\begin{proposition}[Total chunk execution]
+\label{prop:total}
+For every node execution, every chunk in the node's bag is executed exactly once,
+and no chunk is skipped on the basis of the values produced by any other chunk.
+\end{proposition}
+
+\begin{proof}
+Immediate from \Cref{def:exec}, whose iteration ranges over the whole bag and
+whose body does not read the emissions of previous iterations.
+\end{proof}
+
+The experiment \texttt{kernel\_total\_chunk\_execution} places a raising chunk
+second in a bag of four and records all four as having fired.
+
+%──────────────────────────────────────────────────────────────────────
+\section{The Record}
+\label{sec:record}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Record]
+\label{def:record}
+Let $\rec$ assign to each emission the value of a global strictly monotone
+counter, incremented once per emission. Emission $u$ \emph{precedes} $v$, written
+$u\prec v$, if there is a directed provenance path from $u$ to $v$.
+\end{definition}
+
+\begin{theorem}[Internal arrow of time]
+\label{thm:arrow}
+$\prec$ is a strict partial order and $\rec$ is a linear extension of it.
+Consequently, for any two provenance-connected emissions, deciding which caused
+which requires only the internal counter and no external clock.
+\end{theorem}
+
+\begin{proof}
+Provenance paths are directed and acyclic, since an emission's provenance names
+values that existed before it was committed and $\rec$ strictly increases at each
+commitment; hence $\prec$ is irreflexive and transitive. If $u\prec v$ then $u$
+was committed before $v$ and so $\rec(u)<\rec(v)$, which is the linear-extension
+property. The argument follows the logical-clock construction of
+\citet{lamport1978time}.
+\end{proof}
+
+\begin{theorem}[Monotonicity and non-return]
+\label{thm:monotone}
+The record is strictly increasing along any execution. A system state that
+repeats a prior \emph{configuration} of values does not return to a prior
+\emph{state}: the configuration recurs but the record has strictly grown.
+\end{theorem}
+
+\begin{proof}
+Each emission increments $\rec$ by one and no operation decrements it. To
+decrease $\rec$ a committed emission would have to be withdrawn; a withdrawal is
+itself an emission---a value recording the retraction---which increments $\rec$
+rather than decrementing it.
+\end{proof}
+
+\begin{corollary}[No cached recomputation]
+\label{cor:no-cache}
+Re-evaluating a measurement is a new emission at a strictly higher record, never
+a cached recomputation. A stored reading returned later is a determination made
+against the graph \emph{as it was} at the earlier record; since no operation
+restores that earlier graph, returning it would present a determination of a
+state the system has irreversibly left.
+\end{corollary}
+
+The experiment \texttt{kernel\_monotone\_record} performs four hundred
+measurements, records zero decreases, then repeats an identical measurement three
+times and obtains three distinct records---$401$, $402$, $403$---confirming that
+no memoisation occurred.
+
+\begin{remark}[What this buys a producer]
+\label{rem:record-producer}
+\Cref{cor:no-cache} sounds like a restriction and is in fact the property that
+makes a session history usable. If re-analysing a bounce could return a cached
+answer, the history would contain determinations whose relation to the material
+is unstated: was this measured before or after the resample? Because every
+determination sits at a record index, and the index orders every commitment in the
+session, that question always has an answer.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{The Trajectory}
+\label{sec:trajectory}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{proposition}[Edges are induced, not declared]
+\label{prop:edges}
+An edge $u\to v$ obtains in a run if and only if, in that run, a value emitted at
+$u$ was read by a module that then emitted at $v$. The edge set is therefore a
+product of a run, not an input to it, and two runs over the same node set may
+induce different edge sets.
+\end{proposition}
+
+Nodes are the durable objects; edges are records of causation that occurred, not
+declarations of dependency to be scheduled. This is the sense in which the graph
+is causal.
+
+\begin{definition}[Trajectory]
+\label{def:trajectory}
+The \emph{trajectory} $\Traj$ of a run is the set of nodes that carried
+propagated information---the nodes at which some module read a value and, on the
+strength of it, emitted a value that another module later read---together with
+the values as they stood when read.
+\end{definition}
+
+\begin{theorem}[Trajectory emergence]
+\label{thm:emergence}
+The trajectory of a run is not knowable before the run and is not storable as a
+schedule. It can only be produced by running.
+\end{theorem}
+
+\begin{proof}
+Membership of a node in $\Traj$ depends on whether some module read a value there
+and emitted onward. Whether a module reads a given value is a decision the module
+makes on the strength of values it has already read in this run
+(\Cref{prin:contract}). Thus the trajectory at step $t$ is a function of the
+values present at step $t$, which are the emissions of steps $<t$, which depend
+on the trajectory up to $t-1$. The relation is a fixed point of a map taking a
+partial trajectory to its own extension, and because the map's action at each
+step consults run-produced values---not any datum available before the run---no
+evaluation is possible without executing the steps it depends on.
+\end{proof}
+
+The experiment \texttt{kernel\_trajectory\_emergence} runs one fixed six-node
+catalogue thirty-six times under varying seeds and magnitudes and recovers six
+distinct induced edge relations, so no single fixed relation describes them all.
+
+\begin{corollary}[What is durable]
+\label{cor:durable}
+The node set---``what can be computed''---is durable and may be catalogued,
+imported and frozen. The trajectory---``what was computed''---cannot.
+Reproducibility must therefore attach to the former.
+\end{corollary}
+
+\begin{theorem}[Non-propagation without rejection]
+\label{thm:nonprop}
+Let $\node$ be a node whose emissions no module reads. Then no causal edge
+incident to $\node$ is formed and $\node\notin\Traj$. Moreover no actor performed
+a rejection.
+\end{theorem}
+
+\begin{proof}
+By \Cref{prop:edges} an edge incident to $\node$ requires a module to have read a
+value at $\node$ and emitted onward; by hypothesis none did, so no such edge
+exists, and by \Cref{def:trajectory} $\node\notin\Traj$. The construction of
+$\Traj$ consults only reads that occurred; nothing in it evaluates a value and
+declines it.
+\end{proof}
+
+\begin{remark}[Relevance is constituted, not detected]
+\label{rem:constituted}
+There is no true-but-faint signal being discarded here, because relevance is
+constituted by being read rather than being a prior property that a filter might
+fail to detect. This is why the design needs no orchestrator: the question
+``which of these emissions matter?'' is answered by what the modules did, not by
+an authority that ruled on it.
+\end{remark}
+
+The experiment \texttt{kernel\_non\_propagation} emits at two nodes, reads onward
+from one, and finds the other absent from the trajectory with zero rejections
+performed.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Accountability}
+\label{sec:accountability}
+%──────────────────────────────────────────────────────────────────────
+
+The runtime issues no verdict, but a consumer may still ask why something
+happened. That question has a precise answer.
+
+\begin{definition}[Separation cost]
+\label{def:sep}
+For items $u,v$ of a contact graph, the \emph{separation cost} $\sigma(u,v)$ is
+the minimum weight of a cut separating them, computable by maximum flow
+\citep{ford1956maximal,edmonds1972theoretical}. The \emph{strength} of an item is
+its separation from the medium, $\sigma(v)=\sigma(v,\med)$.
+\end{definition}
+
+\begin{theorem}[Accountability is a minimum cut]
+\label{thm:mincut}
+Let $s$ be a virtual source joined to every exogenous emission of a run and let
+$v^{\star}$ be the node bearing an outcome of interest. The set of emissions
+jointly necessary for $v^{\star}$---those whose removal would remove the
+outcome---is a minimum-weight $s$--$v^{\star}$ cut in the provenance graph with
+capacities $\wt$.
+\end{theorem}
+
+\begin{proof}
+A set of emissions whose removal disconnects $v^{\star}$ from $s$ is exactly an
+$s$--$v^{\star}$ cut, since provenance paths from exogenous inputs to
+$v^{\star}$ are the routes by which influence reached it. Among such sets the
+jointly necessary one is of minimum weight, since any lighter cut would
+disconnect $v^{\star}$ at lower cost and the heavier set would contain a
+member whose removal leaves $v^{\star}$ connected---hence not necessary. Minimum
+cut equals maximum flow \citep{ford1956maximal}.
+\end{proof}
+
+\begin{remark}[Why a cut and not a correlation]
+\label{rem:mincut-why}
+The cut formulation answers ``which decisions were \emph{jointly} necessary for
+this outcome?'' Correlational attribution answers a different question---which
+decisions co-varied with it---and offers no guarantee that removing the
+attributed set would remove the outcome. For a producer asking why one bounce
+works and another does not, joint necessity is the question being asked.
+\end{remark}
+
+The experiment \texttt{kernel\_mincut\_brute\_force} checks the maximum-flow
+implementation against a brute-force minimum over all source--sink bipartitions
+across three hundred random graphs, finding zero mismatches with a greatest
+absolute difference of $8.9\times 10^{-16}$. The theorem is therefore checked
+against an independent computation rather than against itself.
+
+\begin{remark}[Cost and placement]
+\label{rem:offline}
+The minimum cut is a post-hoc query, polynomial but not constant-time. It belongs
+in a report, not in a render loop.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Resolution as Depth}
+\label{sec:resolution}
+%──────────────────────────────────────────────────────────────────────
+
+A production tool must let a user work at many scales: the whole arrangement, one
+section, one bar, one transient. Conventional tools implement these as separate
+modes with separate interfaces. Heihachi treats them as depths in one address
+space.
+
+\begin{definition}[Hierarchical address]
+\label{def:address}
+An \emph{address} is a finite sequence $a=\langle a_1,\dots,a_k\rangle$ read
+coarse to fine. The \emph{resolution} of a determination is the depth $k$ at
+which it is expressed. Addresses form a tree of branching factor $b$ and depth
+$D$; a prefix names an interior node and every extension of it a descendant.
+\end{definition}
+
+\begin{proposition}[Blast radius]
+\label{prop:blast}
+In a uniform address tree of branching factor $b$ and depth $D$, an edit applied
+at depth $k$ affects exactly $b^{D-k}$ leaf objects.
+\end{proposition}
+
+\begin{proof}
+The subtree rooted at a depth-$k$ address has height $D-k$, and a uniform tree of
+height $h$ and branching factor $b$ has exactly $b^{h}$ leaves. An edit at the
+root of that subtree applies to its leaves and to no others.
+\end{proof}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Dynamic range of control, $D=4$
+(\texttt{kernel\_blast\_radius}).}
+\label{tab:blast}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Branching $b$ & Surgical edit & Coarsest edit \\
+\midrule
+$2$ & $1$ leaf & $16$ leaves \\
+$3$ & $1$ leaf & $81$ leaves \\
+$4$ & $1$ leaf & $256$ leaves \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[One space, not two artefacts]
+\label{rem:one-space}
+The payoff is that a stock setting and a hand-tuned one are the same object at
+two depths rather than two artefacts. In a conventional tool a preset and the
+patch it expands to are different things touched at different times; here they
+are one address space traversed to whatever depth a decision requires, and the
+blast radius of an edit is known before it is made.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Floor Negotiation}
+\label{sec:negotiation}
+%──────────────────────────────────────────────────────────────────────
+
+A program declares a floor; a render path has a numeric resolution. These are
+independent quantities---the first chosen by the author, the second fixed by the
+machinery---and if the second is coarser than the first, the program's
+distinctions are not representable.
+
+\begin{definition}[Numeric resolution]
+\label{def:numres}
+The \emph{numeric resolution} $\varepsilon_T$ of a back end is the largest
+absolute error it may introduce in computing a residue: accumulated rounding for
+a floating-point evaluator \citep{goldberg1991what,higham2002accuracy}, plus the
+quantisation step where results are read back from a discretised buffer.
+\end{definition}
+
+\begin{theorem}[Floor negotiation]
+\label{thm:negotiate}
+A program with ambient floor $\flo$ may execute on a back end of numeric
+resolution $\varepsilon_T$, against a reference of resolution $\varepsilon_R$,
+only if $\varepsilon_R+\varepsilon_T\le\flo$. Otherwise the residues it computes
+are not distinguishable from the errors it incurs, and the program must be
+refused before execution.
+\end{theorem}
+
+\begin{proof}
+Two values whose residues differ by less than $\varepsilon_R+\varepsilon_T$
+cannot be told apart by comparing computed residues, since the computation may
+perturb each by up to its resolution. The program's floor asserts that
+differences of size $\flo$ are meaningful. If $\varepsilon_R+\varepsilon_T>\flo$
+then a difference the program treats as meaningful lies within the machinery's
+error, so a reported distinction may be an artefact.
+\end{proof}
+
+\begin{corollary}[Refusal, not silent disagreement]
+\label{cor:refuse}
+A program whose floor is finer than its render path can resolve is refused, with
+both quantities named in the refusal.
+\end{corollary}
+
+\begin{remark}[The two quantities are independent]
+\label{rem:indep}
+It is tempting to argue that the back end's error is automatically bounded by the
+floor, on the grounds that the floor is the coarsest resolvable distinction. The
+argument is invalid. The floor is a property of the weights the author chose;
+$\varepsilon_T$ is a property of the arithmetic and buffer format the render path
+fixes. Nothing couples them, which is exactly why the check must be performed
+rather than assumed.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Interfaces}
+\label{sec:interfaces}
+%──────────────────────────────────────────────────────────────────────
+
+\begin{lstlisting}[caption={The complete module interface.},label={lst:module}]
+module M:
+  identify(tau)      -> node
+  read(node)         -> values
+  transform(values)  -> internal   -- private
+  emit(node, values) -> ()
+\end{lstlisting}
+
+\begin{lstlisting}[caption={The complete chunk contract.},label={lst:chunk}]
+chunk c:
+  execute(context) -> emissions
+  -- must terminate within its declared budget
+  -- may raise: a raise produces an error value
+\end{lstlisting}
+
+A chunk that exceeds its budget is pre-empted and an emission recording the
+pre-emption is appended. This is a timing act, not a judgement: no expectation
+about the chunk's output is consulted, only the fact that its budget elapsed.
+
+\begin{principle}[Separation of content and timing]
+\label{prin:separation}
+The runtime may not compare a value to an expectation. It may nonetheless
+guarantee that operations complete within a bounded interval. These are
+independent: a deadline is a fact about elapsed duration and contains no
+reference to emission content.
+\end{principle}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Validation}
+\label{sec:validation}
+%──────────────────────────────────────────────────────────────────────
+
+A reference implementation accompanies this paper: \texttt{hkcore.py} (contact
+graphs, maximum flow and minimum cut, the runtime, values and the record),
+\texttt{exp\_kernel.py}, and \texttt{run\_all.py}. It uses the Python standard
+library only. Each experiment fixes its seed and writes a JSON record; the suite
+reports \textbf{40 run, 40 passed, 0 failed} in $0.16$\,s, of which eleven
+experiments belong to this paper. Re-running reproduces every experiment record
+bit-identically.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Experiments for this paper.}
+\label{tab:experiments}
+\begin{tabular}{@{}lp{4.3cm}@{}}
+\toprule
+Experiment & Establishes \\
+\midrule
+\texttt{floor\_positivity} & \Cref{thm:no-zero}: three refusals of three attempts \\
+\texttt{mincut\_brute\_force} & \Cref{thm:mincut} against brute force; 0/300 mismatches \\
+\texttt{run\_to\_completion} & \Cref{cor:completion}; 48 cells, 29 nodes recovered \\
+\texttt{no\_exit\_code} & \Cref{thm:no-exit}: no verdict key in the report \\
+\texttt{monotone\_record} & \Cref{thm:monotone}, \Cref{cor:no-cache}: 0 decreases \\
+\texttt{convergence} & \Cref{def:convergence}: two modules, one node \\
+\texttt{total\_chunk\_execution} & \Cref{prop:total}: 4 of 4 chunks fired \\
+\texttt{trajectory\_emergence} & \Cref{thm:emergence}: 6 relations over 36 runs \\
+\texttt{non\_propagation} & \Cref{thm:nonprop}: 0 rejections performed \\
+\texttt{blast\_radius} & \Cref{prop:blast}: spans $1$--$256$ at $b=4$ \\
+\texttt{floor\_is\_scale} & \Cref{rem:not-clamp}: ratio spread $0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[What the suite does not establish]
+\label{rem:suite-limits}
+The suite establishes that the definitions are coherent and implementable and
+that an implementation behaves as the theorems predict. It does not establish
+that the model is adequate for any particular studio, that the floors chosen for
+audio measurements are the right ones, or that the runtime performs acceptably at
+session scale. \Cref{sec:limits} states where the design should not be used.
+\end{remark}
+
+%──────────────────────────────────────────────────────────────────────
+\section{Related Notions}
+\label{sec:related}
+%──────────────────────────────────────────────────────────────────────
+
+The runtime resembles several established models and differs from each in a way
+worth stating.
+
+\emph{Dataflow and stream processing.} Kahn process networks
+\citep{kahn1974semantics} and synchronous dataflow \citep{lee1987synchronous}
+schedule computation over a declared dependency graph. Heihachi declares no such
+graph: by \Cref{prop:edges} edges are induced by a run, so the topology is an
+output rather than an input.
+
+\emph{Actors and message passing.} The actor model \citep{hewitt1973universal}
+gives each actor private state and an address. Heihachi's modules likewise hold
+private state, but they do not address one another at all: the only channel is
+the graph (\Cref{prin:contract}), and a node is individuated by a subtask rather
+than by an identity a sender must know.
+
+\emph{Tuple spaces.} Linda \citep{gelernter1985generative} shares the property
+that producers and consumers are decoupled through a medium. The difference is
+that a tuple is consumed by being read, whereas a value on a node persists and
+accretes, and that heihachi's medium is structured by subtask identity rather
+than by pattern matching.
+
+\emph{Provenance systems.} Workflow provenance \citep{davidson2008provenance} and
+logical clocks \citep{lamport1978time} supply the record's ancestry. The
+departure is that provenance here is not an audit trail attached to a
+computation but the computation's own output, since by \Cref{thm:no-exit} there
+is no other result to report.
+
+\emph{Audio processing graphs.} Music-DSP environments
+\citep{puckette1996pure,mccartney2002rethinking} represent signal flow as a graph
+of unit generators evaluated in a topologically sorted order. That graph and this
+one are different objects: theirs carries samples between processors at audio
+rate, this one carries authored decisions between analyses at whatever rate they
+occur. A production system needs both, and they should not be conflated.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Limits and Non-Applicability}
+\label{sec:limits}
+%──────────────────────────────────────────────────────────────────────
+
+\emph{This is not an audio processing graph.} The runtime carries values, not
+samples. It schedules nothing and guarantees no sample-accurate timing. A system
+that renders audio needs a separate real-time path, and \Cref{prin:separation}
+is what keeps the two from contaminating each other.
+
+\emph{Storage grows without bound.} The record is monotone and the log is
+append-only, so a long session accumulates. \Cref{rem:audio-floor}'s floors and
+the contact floor bound what is retained, but the growth is real and an
+implementation must plan for it.
+
+\emph{Do not use this where bit-identical replay is the product.} A system whose
+value is exact reproduction of a computation---a mastering render that must match
+last week's byte for byte, a regression oracle, a delivery pipeline under
+contract---should not adopt this architecture at its centre. By
+\Cref{cor:durable} what repeats is the node catalogue and the setup, never the
+trajectory. The runtime is for the part of production that measures a world it
+does not control; the final render is not that part.
+
+\emph{The runtime cannot make anything sound good.} It has no verdict
+(\Cref{thm:no-exit}) and holds no expectation. It records what was decided and
+what followed. Every judgement remains with the producer and with the modules
+they choose to trust.
+
+%──────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+%──────────────────────────────────────────────────────────────────────
+
+We have specified a runtime whose whole semantic content is
+\Cref{lst:kernel}: execute every chunk in a node's bag, and increment a counter
+per emission. From that and one premise---that telling one thing from another
+costs a strictly positive floor---follow the value type
+(\Cref{thm:no-zero}), the impossibility of a verdict (\Cref{thm:no-exit}), run to
+completion (\Cref{cor:completion}), the emergence of the trajectory
+(\Cref{thm:emergence}), non-propagation without rejection (\Cref{thm:nonprop}),
+accountability as a minimum cut (\Cref{thm:mincut}), and the blast-radius law
+(\Cref{prop:blast}).
+
+What the design offers a producer is narrow and, we think, the right narrow
+thing. It does not generate material, evaluate it, or recommend anything. It
+records the decisions as they are made, in an order that survives, with the
+resolution of every claim carried in the claim itself---so that the question
+asked six months later, about the twenty versions that were discarded and the one
+that was not, has somewhere to be asked.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

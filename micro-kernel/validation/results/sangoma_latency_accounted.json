@@ -1,0 +1,11 @@
+{
+  "experiment": "sangoma_latency_accounted",
+  "passed": true,
+  "stage_latencies": [
+    0,
+    2048,
+    512
+  ],
+  "suite": "sangoma",
+  "total_samples": 2560
+}

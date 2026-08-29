@@ -1,0 +1,9 @@
+{
+  "experiment": "sangoma_over_claim_refused",
+  "passed": true,
+  "remedy": "coarsen the target or declare a finer floor your tools support",
+  "rules": [
+    "rule:over-claim"
+  ],
+  "suite": "sangoma"
+}

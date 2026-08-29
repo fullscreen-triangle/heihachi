@@ -1,0 +1,10 @@
+{
+  "experiment": "sangoma_reachability_diagnostic",
+  "passed": true,
+  "strong_rules": [],
+  "suite": "sangoma",
+  "weak_remedy": "8 rungs at the strongest available power would reach it",
+  "weak_rules": [
+    "rule:reachability"
+  ]
+}

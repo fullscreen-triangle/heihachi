@@ -1,0 +1,7 @@
+{
+  "combinations": 20,
+  "experiment": "mishima_depth_closed_form",
+  "mismatches": 0,
+  "passed": true,
+  "suite": "mishima"
+}

@@ -1,0 +1,20 @@
+{
+  "experiment": "kernel_blast_radius",
+  "passed": true,
+  "rows": 15,
+  "spans": {
+    "2": [
+      1,
+      16
+    ],
+    "3": [
+      1,
+      81
+    ],
+    "4": [
+      1,
+      256
+    ]
+  },
+  "suite": "kernel"
+}
