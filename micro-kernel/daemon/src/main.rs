@@ -127,6 +127,12 @@ async fn serve(
         backend_resolution: 1e-9,
     });
 
+    // Take the port before announcing it. The banner asserts the daemon is
+    // listening, so it must not be printed until that is true -- otherwise
+    // a conflict prints a working-looking address that another program is
+    // answering on.
+    let listener = server::listener(addr).await?;
+
     if let Some(dir) = watch.clone() {
         spawn_watcher(dir, Arc::clone(&state));
     }
@@ -152,7 +158,7 @@ async fn serve(
     println!("  everything stays on this machine.");
     println!();
 
-    server::bind(state, addr).await
+    server::serve_on(state, listener).await
 }
 
 /// Watch a render folder and commit what appears.
@@ -201,9 +207,12 @@ fn spawn_watcher(dir: PathBuf, state: Arc<AppState>) {
 }
 
 async fn commit_render(path: PathBuf, state: Arc<AppState>) {
+    // Claim it before doing any slow work. A single write raises more than
+    // one filesystem event, and measurement plus the model rung take long
+    // enough that the second event would otherwise pass an unclaimed check.
     {
-        let studio = state.studio.lock().await;
-        if studio.already_seen(&path) {
+        let mut studio = state.studio.lock().await;
+        if !studio.claim(&path) {
             return;
         }
     }

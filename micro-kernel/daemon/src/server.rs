@@ -601,18 +601,60 @@ async fn send(socket: &mut WebSocket, message: &ServerMessage) -> Result<(), ()>
     socket.send(Message::Text(text)).await.map_err(|_| ())
 }
 
+/// Take the port, or explain why it could not be taken.
+///
+/// Separated from `serve_on` so the caller can acquire the socket *before*
+/// announcing an address. Printing "listening" and then failing to bind
+/// reports a success that did not happen, and sends the reader looking for
+/// a bug in the wrong program -- the address in the banner is answering,
+/// just not from here.
+pub async fn listener(addr: SocketAddr) -> anyhow::Result<tokio::net::TcpListener> {
+    match tokio::net::TcpListener::bind(addr).await {
+        Ok(l) => Ok(l),
+        Err(e) if e.kind() == std::io::ErrorKind::AddrInUse => Err(anyhow::anyhow!(
+            "port {} is already held by another process.\n  Something else is listening \
+             there -- possibly another heihachi, possibly an unrelated program.\n  \
+             Pass a different port: --addr 127.0.0.1:{}",
+            addr.port(),
+            addr.port().wrapping_add(1)
+        )),
+        Err(e) => Err(e.into()),
+    }
+}
+
+pub async fn serve_on(
+    state: Arc<AppState>,
+    listener: tokio::net::TcpListener,
+) -> anyhow::Result<()> {
+    axum::serve(listener, router(state)).await?;
+    Ok(())
+}
+
 pub async fn bind(
     state: Arc<AppState>,
     addr: SocketAddr,
 ) -> anyhow::Result<()> {
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, router(state)).await?;
-    Ok(())
+    serve_on(state, listener(addr).await?).await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn a_held_port_is_refused_with_a_remedy_not_a_bare_os_error() {
+        // Hold a port, then ask for the same one. The second attempt must
+        // fail, and must say what to do about it -- an unexplained bind
+        // failure after a printed banner is how a port conflict gets
+        // mistaken for a bug in this program.
+        let first = listener("127.0.0.1:0".parse().unwrap()).await.unwrap();
+        let addr = first.local_addr().unwrap();
+
+        let err = listener(addr).await.expect_err("second bind must fail");
+        let text = err.to_string();
+        assert!(text.contains("already held"), "message was: {text}");
+        assert!(text.contains("--addr"), "message must name the remedy: {text}");
+    }
 
     #[test]
     fn token_comparison_rejects_wrong_and_short_tokens() {

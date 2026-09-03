@@ -1,0 +1,46 @@
+-- master.sgn
+-- The mastering target for the remix.
+--
+-- These numbers are not aspirations. They were measured off the Neonlight
+-- 2020 remaster with `heihachi observe`, which is the only honest way to
+-- set them: the reference tells you what the genre actually does, and the
+-- floors tell you how precisely you are entitled to say it.
+--
+--   reference:  peak -0.200 dBFS   crest 8.798 dB   corr 0.853
+--               centroid 5264.8 Hz   low_ratio 0.130   sounding 0.965
+
+-- The ambient floor is the FINEST resolution any declared target uses.
+-- Every target is checked against this one number, so it has to be at
+-- least as fine as your sharpest instrument -- here the level floor of a
+-- 32-bit float render, 0.0001 dB.
+floor 0.0001
+
+medium air {
+  ceiling: -1.0            -- the contest asked for 24-bit; leave true-peak room
+}
+
+construct master {
+  stage glue_bus
+  stage tonal_balance
+  stage limiter
+
+  target {
+    -- Sit within a decibel of the reference rather than chasing it exactly.
+    crest      >= 8.0#0.02      -- reference 8.80; the floor is the crest floor
+    crest      <= 10.0#0.02
+    peak       <= -1.0#0.01     -- the declared ceiling, at the level floor
+
+    -- Spectral balance, at the analysis bin width. Claiming finer than
+    -- 10.77 Hz would be claiming something no FFT here resolves.
+    centroid   >= 4200.0#10.77
+    centroid   <= 6300.0#10.77
+
+    -- Mono compatibility. The reference sits at 0.853; a club system will
+    -- punish anything much lower.
+    correlation >= 0.75#0.0003
+  }
+
+  via { rung glue_bus      at 0.35
+     >> rung tonal_balance at 0.45
+     >> rung limiter       at 0.55 }
+}

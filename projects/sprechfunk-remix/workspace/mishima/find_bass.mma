@@ -1,0 +1,21 @@
+-- find_bass.mma
+-- "Which of my bass bounces sits closest to the Neonlight mid layer?"
+--
+-- The `not` clause is the specification. These are the properties of the
+-- versions you rejected, and naming them is what makes the target precise.
+
+floor 0.0001
+
+seek remix_bass
+  not    { thin, sub_only, mono_top, undistorted }
+  toward { region(mid_layer) }
+  via    { rung spectral   at 0.45     -- measures the bounce
+        >> rung annotation at 0.30     -- what you wrote at the time
+        >> rung model      at 0.55 }   -- reads the graph
+  until  closure
+  otherwise decline
+  yield  found
+
+observe found as result
+assert result.residue >= 0.0001
+  emit "residue fell below the declared floor"

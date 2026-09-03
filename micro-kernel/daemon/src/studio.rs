@@ -39,7 +39,7 @@ pub struct ExportEvent {
 pub struct Studio {
     watching: Option<PathBuf>,
     exports: Vec<ExportEvent>,
-    seen: BTreeSet<PathBuf>,
+    seen: BTreeSet<String>,
 }
 
 impl Studio {
@@ -59,14 +59,42 @@ impl Studio {
         &self.exports
     }
 
-    /// Whether this path has already been committed, so a filesystem event
-    /// fired twice does not commit twice.
+    /// Whether this exact version of this render has already been committed.
+    ///
+    /// Keyed on path *and* modification time, for two reasons. A single
+    /// write raises more than one filesystem event, and committing on each
+    /// would record the same render twice. But re-rendering to the same
+    /// filename is the normal way to work -- a producer bounces
+    /// `bass_v1.wav`, changes something, and bounces it again -- and that
+    /// must commit, or the record misses exactly the revisions it exists
+    /// to hold.
     pub fn already_seen(&self, path: &Path) -> bool {
-        self.seen.contains(path)
+        self.seen.contains(&Self::key(path))
+    }
+
+    fn key(path: &Path) -> String {
+        let stamp = std::fs::metadata(path)
+            .and_then(|m| m.modified())
+            .ok()
+            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_millis())
+            .unwrap_or(0);
+        format!("{}|{stamp}", path.display())
+    }
+
+    /// Claim a render for commitment, returning false if it is already
+    /// claimed.
+    ///
+    /// Check and mark happen together, under one lock, because measuring a
+    /// render and asking the model about it takes seconds -- long enough
+    /// for the second filesystem event of the same write to arrive and pass
+    /// a check that had not yet recorded anything.
+    pub fn claim(&mut self, path: &Path) -> bool {
+        self.seen.insert(Self::key(path))
     }
 
     pub fn record_export(&mut self, path: PathBuf, event: ExportEvent) {
-        self.seen.insert(path);
+        self.seen.insert(Self::key(&path));
         self.exports.push(event);
         // keep the live list bounded; the graph holds the durable record
         if self.exports.len() > 500 {
@@ -313,7 +341,8 @@ mod tests {
     fn a_studio_does_not_commit_the_same_render_twice() {
         let mut studio = Studio::new();
         let path = PathBuf::from("bounce.wav");
-        assert!(!studio.already_seen(&path));
+        assert!(studio.claim(&path), "first claim succeeds");
+        assert!(!studio.claim(&path), "second claim of the same version is refused");
         studio.record_export(path.clone(), observe_export(&path));
         assert!(studio.already_seen(&path));
     }

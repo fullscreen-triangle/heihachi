@@ -67,6 +67,11 @@ is required to read it. Citations are to external literature only.
 
 ---
 
+A step-by-step walkthrough for a first project — bringing in one-shots,
+comparing versions, writing targets — is in [TUTORIAL.md](TUTORIAL.md).
+
+---
+
 ## Validation
 
 ```bash

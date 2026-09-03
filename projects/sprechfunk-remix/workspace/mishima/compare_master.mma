@@ -1,0 +1,19 @@
+-- compare_master.mma
+-- "Which of my master bounces sits nearest the reference remaster?"
+--
+-- A decline here is the useful outcome: if two bounces are both close and
+-- differ in ways the rungs cannot separate, you want to be told that and
+-- told which measurement would settle it -- not handed one of them.
+
+floor 0.0001
+
+seek master_candidate
+  not    { over_limited, dull, narrow, clipping }
+  toward { region(reference_remaster) }
+  via    { rung level      at 0.40
+        >> rung spectral   at 0.45
+        >> rung stereo     at 0.35
+        >> rung model      at 0.50 }
+  until  closure
+  otherwise decline
+  yield  chosen

@@ -1,0 +1,61 @@
+-- bass.sgn
+-- The bass stack, targeted from the stems Neonlight actually shipped.
+--
+-- Measured off the source stems:
+--   Sub Bass            centroid   59.5 Hz   corr 1.000   crest  7.44 dB
+--   Sub Bass FAT HOOK   centroid   59.4 Hz   corr 1.000   crest 10.02 dB
+--   High Voltage Bass   centroid 1066.9 Hz   corr 0.847   crest 18.27 dB
+--   Mid + Top FAT HOOK  centroid 1615.5 Hz   corr 0.807   crest 17.07 dB
+--
+-- The split is the whole design: sub is mono and low, mid/top is wide and
+-- has all the movement. Keeping those two facts true is most of what makes
+-- a neurofunk bass translate.
+
+floor 0.0001
+
+medium air { ceiling: -1.0 }
+
+species reese {
+  source { operators: 2, ratio: 1.0, index: 3.5 }
+  motion { rate: 0.35, depth: 0.8 }
+}
+
+-- The sub layer. Mono, and nothing above the low band.
+construct sub_layer {
+  stage sine_source
+  stage saturate_gentle
+  stage mono_below_120
+  stage tighten            -- added: three rungs attained 0.769 of 0.8
+
+  target {
+    centroid    <= 120.0#10.77   -- source sits at 59.5; stay in that region
+    correlation >= 0.98#0.0003   -- sub must be mono or it will not translate
+    low_ratio   >= 0.90#0.0005
+  }
+
+  via { rung sine_source      at 0.45
+     >> rung saturate_gentle  at 0.30
+     >> rung mono_below_120   at 0.40
+     >> rung tighten          at 0.35 }
+}
+
+-- The mid/top layer. This is where the movement lives.
+construct mid_layer {
+  stage reese_source
+  stage resample
+  stage formant_shape
+  stage width
+
+  target {
+    centroid    >= 900.0#10.77   -- sources sit at 1067 and 1616
+    centroid    <= 2200.0#10.77
+    correlation >= 0.70#0.0003   -- wide, but still mono-safe
+    correlation <= 0.90#0.0003
+    low_ratio   <= 0.10#0.0005   -- leave the low band to the sub
+  }
+
+  via { rung reese_source   at 0.40
+     >> rung resample       at 0.35
+     >> rung formant_shape  at 0.45
+     >> rung width          at 0.30 }
+}

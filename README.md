@@ -13,7 +13,9 @@ Heihachi is an audio analysis and synthesis framework that implements the Catego
 
 The system expresses audio as a thermodynamic gas ensemble, where oscillatory modes are molecular degrees of freedom, partition coordinates $(n, \ell, m, s)$ encode the categorical state at each temporal position, and S-entropy coordinates $(S_k, S_t, S_e)$ provide a continuous representation on a three-dimensional manifold. This representation enables a key result: **similarity between audio signals is computed as interference** between their categorical spectra, not as distance in an embedding space.
 
-The framework comprises three layers: a Rust-accelerated signal processing core, a Python analysis and distillation pipeline, and a browser-based GPU observation apparatus (WebGL/WebGPU shaders) that renders categorical state in real time. A companion web application ([honbasho](./honbasho)) provides a search-engine-style player with liquid-distortion visualization, Spotify integration, and an interference-based track similarity system.
+The framework comprises three layers: a Rust-accelerated signal processing core, a Python analysis and distillation pipeline, and a browser-based GPU observation apparatus (WebGL/WebGPU shaders) that renders categorical state in real time. A companion web application (honbasho) provides a search-engine-style player with liquid-distortion visualization, Spotify integration, and an interference-based track similarity system.
+
+A separate subsystem, [micro-kernel](./micro-kernel), addresses production rather than analysis. It records the decisions taken while a record is made — what was tried, what was measured, and what was rejected — in a runtime graph that accumulates across sessions. Two domain-specific languages run on that graph: `mishima` (`.mma`) for querying accumulated work, and `sangoma` (`.sgn`) for declaring a sound by the properties it must satisfy rather than by the steps that produce it. The subsystem ships a Rust daemon and a browser-based editor, and is documented in three self-contained manuscripts with an accompanying validation suite. See [§10](#10-micro-kernel-production-runtime).
 
 ## 1. Theoretical Foundation
 
@@ -334,11 +336,136 @@ heihachi/
 │   │       ├── useSpotify.js            # Spotify auth hook
 │   │       └── useTrackObserver.js      # Per-track categorical state accumulator
 │   └── public/             # Static assets (GLB models, audio, album art)
+├── micro-kernel/           # Production runtime (see §10)
+│   ├── docs/               # Three manuscripts: runtime, mishima, sangoma
+│   ├── daemon/             # Rust: kernel, language front ends, integrations
+│   │   ├── src/graph/      # Nodes, values, the record, min-cut accountability
+│   │   ├── src/lang/       # .mma and .sgn lexer, parsers, checkers
+│   │   └── src/integrations/  # Render analysis, FL project parsing, Ollama
+│   ├── web/                # TypeScript editor, runtime graph and studio views
+│   └── validation/         # 40 deterministic experiments
 ├── publication/            # LaTeX sources for CAT specification paper
 ├── configs/                # Processing configuration files
 ├── api_server.py           # REST API server
 └── scripts/                # Setup and utility scripts
 ```
+
+## 10. Micro-Kernel: Production Runtime
+
+The framework described above analyses finished audio. The [micro-kernel](./micro-kernel) subsystem addresses a different problem: recording the decisions taken while audio is made.
+
+### 10.1 Motivation
+
+A session file stores the terminal state of a set of decisions; a rendered bounce stores their output. Neither stores the relation between them, and the relation is what a later question concerns. The asymmetry is one-directional: a bounce can be regenerated from a session, but a session cannot be recovered from a bounce, because the processing chain is not invertible. A record of authored decisions therefore has to be written while the decisions are being made, not reconstructed afterwards.
+
+The subsystem records that relation in a runtime graph whose nodes are subtasks of production, each carrying a bag of executable realisations and an accumulating collection of measured values.
+
+### 10.2 Runtime Properties
+
+The kernel's semantic content is one operation: execute every realisation attached to a node, and increment a monotone record once per emission. Three properties follow.
+
+**No scheduling.** Nodes are individuated by subtask identity rather than by author, so two analyses that decompose different problems and arrive at the same subtask converge on one node. There is no ordering decision for a scheduler to make.
+
+**No orchestration.** An emission that no module reads induces no causal edge and does not enter the run's trajectory. Relevance is constituted by being read, so no actor is required to reject the irrelevant.
+
+**No exit code.** The graph provides no vocabulary for an expected value and stores no expectation, so no quantity the runtime computes can carry the meaning of success or failure. A realisation that fails emits an error value and execution continues; anomalies are recorded rather than raised. This is the appropriate discipline for a domain in which an unexpected result is frequently the material.
+
+Measured over a sweep of forty-eight chain-length and anomaly-density combinations, the runtime completes every node in every cell, while a halt-on-error runtime completes as little as 9.4% of the work and abandons up to twenty-nine nodes.
+
+### 10.3 Languages
+
+Two domain-specific languages run on the graph. Both carry the resolution of every measurement in the type, and neither can express a claim of exact measurement: a literal of zero resolution is rejected by the lexer.
+
+**`mishima` (`.mma`)** queries accumulated work. A search states what it excludes as well as what it seeks, and the exclusion clause is mandatory at parse time on the grounds that a region individuated against nothing is not a region. Searches terminate on *closure* — no remaining probe reaches a new class — rather than on a confidence threshold, and a search that reaches several irreconcilable classes returns a typed decline carrying them, together with the probe that would discriminate between them.
+
+```
+floor 0.02
+
+seek reese_growl
+  not    { thin, undistorted, mono }
+  toward { region(that_2019_growl) }
+  via    { rung spectral   at 0.45
+        >> rung annotation at 0.30
+        >> rung model      at 0.55 }
+  until  closure
+  otherwise decline
+  yield  found
+```
+
+**`sangoma` (`.sgn`)** declares a sound by the properties it must satisfy and the resolution at which each is asserted. The compiler decides reachability before anything is rendered; an unreachable target is refused with the depth that would be required, $\lceil\log(1-\kappa^{\star})/\log(1-\kappa)\rceil$ rungs at the strongest available stage.
+
+```
+floor 0.02
+medium air { ceiling: -1.0 }
+
+construct bass {
+  stage fm_source
+  stage resample
+  stage saturate
+
+  target {
+    crest    >= 6.0#0.5
+    midrange >= 0.40#0.05
+  }
+
+  via { rung fm_source at 0.40
+     >> rung resample  at 0.35
+     >> rung saturate  at 0.55 }
+}
+```
+
+The rules the compiler enforces are physical: headroom against a declared ceiling, latency accumulation, and negotiation between a program's declared floor and the numeric resolution of the render path. It is deliberately silent above that. Stage ordering and processor selection are matters of taste, and a compiler that refused on those grounds would encode its author's present opinions.
+
+### 10.4 Integrations
+
+**FL Studio** is integrated by watching a render folder and reading the project file beside each render. FL exposes no general remote-control API; this approach requires nothing to be installed into FL and does not break when FL updates. A render is measured, its `.flp` is parsed for the device chain, and a node is committed to the graph. Each measurement carries a floor derived from the instrument rather than asserted — the spectral floor is the analysis bin width $f_s/N$, the level floor the quantisation step of the source format.
+
+**Ollama** participates as a constructor rung, confined to drawing distinctions: given the measurements of a render it returns the properties the material draws, and nothing else. It does not rank, score, or adjudicate, and no path exists by which its output overrides another rung. Quality terms are filtered at the boundary. The confinement is what makes a local model safe to use here: an inaccurate distinction adds a contact to the graph, so the cut computed over it remains correct and the resulting cell is coarser rather than wrong. A second endpoint composes `.mma` and `.sgn` source from a natural-language request; composed source is checked before it is returned and is presented for review rather than executed.
+
+### 10.5 Components
+
+```
+micro-kernel/
+├── docs/
+│   ├── heihachi-runtime-graph/          Paper I: the runtime
+│   ├── mishima-propagator/              Paper II: the query language
+│   └── sangoma-instrument-synthesizer/  Paper III: the constructor language
+├── daemon/                 Rust: kernel, both front ends, integrations, server
+├── web/                    TypeScript: three-column editor and graph views
+└── validation/             40 deterministic experiments; reference implementation
+```
+
+Each manuscript is self-contained. The validation suite reports 40 of 40 experiments passing, and a separate check confirms that all 39 figures quoted in the manuscripts match the records of the experiments they are attributed to.
+
+### 10.6 Usage
+
+```bash
+cd micro-kernel/daemon
+cargo run --release -- serve --watch "D:\FL Renders" --workspace ../workspace
+
+cd ../web
+npm install && npm run dev
+```
+
+The daemon binds to loopback and prints a pairing token, which is entered in the browser to connect. Analysis, the runtime graph, and the model all run locally.
+
+```bash
+heihachi check workspace/mishima/recall.mma   # diagnostics; non-zero exit if refused
+heihachi observe "D:\FL Renders\bounce_v17.wav"
+```
+
+A step-by-step walkthrough of a first project — measuring one-shots, comparing processed versions against their sources, and declaring targets — is in [micro-kernel/TUTORIAL.md](./micro-kernel/TUTORIAL.md).
+
+### 10.7 Status
+
+The daemon and editor are implemented and verified end to end: a render placed in a watched folder is measured, described, and committed to the graph. 48 Rust tests pass; the editor typechecks under `strict`.
+
+Four capabilities are specified but not yet implemented, and each is a substantive gap:
+
+- No audio is processed. `sangoma` checks a chain and reports reachability; it does not render one. Plugin hosting (CLAP or VST3) is not attempted.
+- Stage and rung powers are declared rather than calibrated. The reachability check is only as reliable as those figures.
+- `mishima` detects contested closure but does not implement the full reachability-then-necessity computation the manuscript specifies.
+- The runtime graph is held in memory and does not survive a restart, so the accumulating record is not yet accumulating. Persistence is the next requirement.
 
 ## License
 

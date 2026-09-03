@@ -31,6 +31,9 @@ pub struct AudioSummary {
 }
 
 const WINDOW: usize = 4096;
+/// Most spectral windows examined, spread across the whole file. Bounds the
+/// work on a long stem without measuring only its opening.
+const MAX_WINDOWS: usize = 256;
 
 /// Decode a WAV render and measure it.
 ///
@@ -113,9 +116,19 @@ pub fn analyse(path: &Path) -> AudioSummary {
 
     let mut measurements = Vec::new();
 
-    // peak and rms, at the format's quantisation step
+    // Peak and RMS, at the format's quantisation step.
+    //
+    // RMS is taken over the sounding part of the file, not the whole of it.
+    // A stem is silent wherever it has not entered the arrangement, and
+    // averaging that silence in reports a level the material never has --
+    // which would make crest factor meaningless for exactly the files a
+    // remix is built from. `sounding_frames` records how much was measured.
     let peak = mono.iter().fold(0.0_f64, |a, s| a.max(s.abs()));
-    let rms = (mono.iter().map(|s| s * s).sum::<f64>() / mono.len() as f64).sqrt();
+    let gate = (peak * 1e-4).max(level_floor);
+    let sounding: Vec<f64> = mono.iter().copied().filter(|s| s.abs() > gate).collect();
+    let measured = if sounding.is_empty() { &mono } else { &sounding };
+    let rms = (measured.iter().map(|s| s * s).sum::<f64>() / measured.len() as f64)
+        .sqrt();
     let db = |x: f64| if x > 0.0 { 20.0 * x.log10() } else { -144.0 };
     // a floor in dB at the quantisation step, evaluated near the signal
     let level_floor_db = (20.0 * (1.0 + level_floor / peak.max(level_floor)).log10())
@@ -141,6 +154,15 @@ pub fn analyse(path: &Path) -> AudioSummary {
             unit: "dB".into(),
         });
     }
+    // How much of the file was above the gate. A stem that plays in one
+    // section reads low here, and that is a fact worth having when
+    // comparing its level against a stem that plays throughout.
+    measurements.push(Measurement {
+        channel: "level.sounding".into(),
+        value: measured.len() as f64 / mono.len().max(1) as f64,
+        floor: 1.0 / mono.len().max(1) as f64,
+        unit: "".into(),
+    });
 
     // spectral centroid, at the bin width of the analysis window
     if mono.len() >= WINDOW {
@@ -207,8 +229,21 @@ fn spectrum(samples: &[f64]) -> Option<Vec<f64>> {
 
     let mut acc = vec![0.0_f64; WINDOW / 2];
     let mut windows = 0usize;
-    // cap the work so a long render does not stall the daemon
-    for chunk in samples.chunks_exact(WINDOW).take(64) {
+
+    // Sample across the whole file rather than its head. A stem commonly
+    // opens with silence -- the part that has not entered the arrangement
+    // yet -- and measuring only the first seconds reports the silence and
+    // drops the spectrum entirely. Work is still capped, by striding.
+    let available = samples.len() / WINDOW;
+    let stride = available.div_ceil(MAX_WINDOWS).max(1);
+
+    for chunk in samples.chunks_exact(WINDOW).step_by(stride) {
+        // Skip windows that carry nothing: an empty window contributes no
+        // spectral information and biases the mean toward zero.
+        let energy: f64 = chunk.iter().map(|s| s * s).sum();
+        if energy <= f64::EPSILON {
+            continue;
+        }
         let mut buf: Vec<Complex<f64>> = chunk
             .iter()
             .enumerate()
@@ -220,6 +255,8 @@ fn spectrum(samples: &[f64]) -> Option<Vec<f64>> {
         }
         windows += 1;
     }
+    // Every window was silent: the file has no spectrum to report, which
+    // is a fact about it rather than a failure to measure.
     if windows == 0 {
         return None;
     }

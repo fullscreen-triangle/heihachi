@@ -1,0 +1,39 @@
+-- reese.sgn
+-- Declaring a sound by what it must satisfy, not by the steps that make it.
+-- The compiler answers a question a procedure never poses: is this
+-- reachable with the stages I have, and if not, by how much do I fall short?
+
+floor 0.02
+
+medium air {
+  ceiling: -1.0
+}
+
+species reese {
+  source { operators: 2, ratio: 1.0, index: 3.5 }
+  motion { rate: 0.3, depth: 0.8 }
+}
+
+construct bass {
+  stage fm_source
+  stage resample
+  stage saturate
+
+  target {
+    crest    >= 6.0#0.5      -- half a decibel is what a meter delivers
+    midrange >= 0.40#0.05
+    width    <= 0.85#0.02
+  }
+
+  via { rung fm_source at 0.40
+     >> rung resample  at 0.35
+     >> rung saturate  at 0.55 }
+}
+
+observe bass as result
+assert result.tau < 1.0
+  emit "a stage is engulfed by its own separator"
+
+-- Composite power is 1 - (0.60)(0.65)(0.45) = 0.8245. Writing
+-- crest >= 6.0#0.001 instead would be refused: no instrument in this chain
+-- resolves a thousandth of a decibel.

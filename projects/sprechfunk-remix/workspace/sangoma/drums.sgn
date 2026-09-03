@@ -1,0 +1,41 @@
+-- drums.sgn
+-- Drum bus, targeted from the source stems.
+--
+--   Kick (clipped)     peak  +2.70 dBFS  crest 11.21  centroid 2095.9  corr 1.000
+--   Snare              peak  -4.20 dBFS  crest 18.39  centroid 5938.7  corr 0.967
+--   sticky Hi Hat      peak -14.55 dBFS  crest 21.92  centroid 10368.2 corr 0.770
+--   jungle Hat loop    peak  -8.04 dBFS  crest 23.30  centroid 7425.1  corr 0.965
+--
+-- Note the kick peaks at +2.70 dBFS. Neonlight named the file "(clipped)"
+-- and the measurement agrees: it is over full scale in the source. If you
+-- use it as shipped you are working with a clipped kick on purpose, which
+-- is a legitimate choice in this genre and a deliberate one to make.
+
+floor 0.0001
+
+medium air { ceiling: -1.0 }
+
+construct drum_bus {
+  stage transient_shape
+  stage parallel_compress
+  stage saturate
+  stage bus_glue
+
+  target {
+    -- Keep transients. Sources run 11 to 23 dB; a bus that flattens below
+    -- 9 has lost the thing the genre is built on.
+    crest      >= 9.0#0.0002
+    crest      <= 16.0#0.0002
+
+    -- Drums live above the bass. The snare sits at 5939 Hz.
+    centroid   >= 3000.0#10.77
+    low_ratio  <= 0.35#0.0005
+
+    correlation >= 0.85#0.0003    -- kick and snare are near-mono in the source
+  }
+
+  via { rung transient_shape    at 0.45
+     >> rung parallel_compress  at 0.35
+     >> rung saturate           at 0.40
+     >> rung bus_glue           at 0.30 }
+}

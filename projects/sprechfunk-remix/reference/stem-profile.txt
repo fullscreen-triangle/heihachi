@@ -1,0 +1,56 @@
+Neonlight - Sprech Funk : stem profile
+Measured with heihachi observe. Every figure carries the resolution
+it was obtained at; see the papers for why that matters.
+
+STEM                                         PEAK      RMS   CREST    SND  CENTROID   CORR
+----                                         dBFS     dBFS      dB   frac        Hz       
+Djembe DRUMS                                -9.36   -33.19   23.83  0.114    3772.2  0.925
+Duuh+ahhh+Send Reverb                      -14.10   -26.50   12.41  0.286    2818.9  0.786
+Error Sign SFX                              -8.54   -27.43   18.90  0.311    3064.5  0.991
+FM8 Flute Pad + Send Reverb                -15.26   -28.98   13.72  0.802     729.2  0.304
+FM8 Flute Pad_dry                          -10.19   -23.73   13.54  0.917     706.5  0.421
+High Voltage Bass                           -8.30   -26.57   18.27  0.132    1066.9  0.847
+Impact Crash DRUMS                         -11.43   -29.88   18.45  0.640    6948.6  1.000
+Impact SFX                                  -7.76   -24.83   17.07  0.443    1106.9  0.731
+Kick Drum (clipped) Drums                    2.70    -8.51   11.21  0.283    2095.9  1.000
+Killer Atmo PAD                            -17.69   -30.89   13.20  0.965    1041.6  0.187
+Low Synth Bass layer modulation            -12.49   -27.59   15.10  0.466    1071.9  0.972
+Metal Drone                                -14.19   -30.17   15.98  0.980    5445.8  0.767
+Mid + Top FÄT HOOK                         -10.66   -27.74   17.07  0.135    1615.5  0.807
+Mid + Top Synth Bass ALL                    -4.23   -22.13   17.90  0.628    2936.8  0.871
+Muupf SFX                                   -3.15   -18.35   15.20  0.584    1712.6  0.912
+Noise Hit SFX                               -5.97   -18.85   12.88  0.001       0.0  1.000
+Noise filter down SFX                      -13.33   -28.29   14.96  0.019    9023.6  0.960
+REVerence SEND FX STEM                     -21.88   -45.66   23.78  0.736    1890.4  0.291
+Radiation Drone SFX                        -23.82   -43.76   19.94  0.956    1130.5 -0.293
+Snare Drum DRUMS                            -4.20   -22.59   18.39  0.377    5938.7  0.967
+Stems_Stab Duuh_dry                        -10.47   -22.43   11.96  0.011    1864.0  0.434
+Sub Bass FÄT HOOK                           -2.95   -12.97   10.02  0.149      59.4  1.000
+Sub Bass                                    -4.15   -11.60    7.44  0.414      59.5  1.000
+Surge Lead Synth_dry                        -5.59   -22.13   16.54  0.485    5521.6  0.976
+Surge Lead+Send Reverb                     -11.36   -27.57   16.21  0.657    5271.0  0.953
+Tele Funken SFX                             -6.89   -24.04   17.15  0.213    3215.6  0.999
+Top Synth Bass layer filtered              -20.10   -39.97   19.86  0.518    5671.9  0.508
+Wheels SFX                                 -15.13   -37.31   22.18  0.959    1861.3  0.690
+ahhh_kathaHmt_dry                          -13.27   -17.28    4.01  0.677    2713.1  1.000
+breath SFX                                 -11.68   -31.06   19.38  0.063    3558.8  0.909
+chopped Radiovoice                          -9.54   -27.34   17.80  0.132    3681.6  1.000
+cutting edges SFX                          -16.76   -38.88   22.12  0.158    6448.4  0.413
+fast Shaker Loop DRUMS                     -13.93   -37.85   23.92  0.451    9099.5  1.000
+filtered saw Synth                         -22.73   -40.84   18.11  0.163    5730.7  0.173
+filtered sweep engine                      -22.99   -45.17   22.18  0.447    6836.8  0.028
+jungle Hi Hat loop DRUMS                    -8.04   -31.34   23.30  0.557    7425.1  0.965
+jungle Hi Hat loop filterd DRUMS            -9.32   -36.20   26.88  0.662    3129.2  0.240
+long Outro Swoooooosh SFX                  -16.24   -33.37   17.13  0.936    2893.5  0.090
+looped Crash DRUMS                         -19.15   -35.75   16.60  0.984    7324.4  1.000
+looped reversed male rhythm voice SFX      -11.25   -32.35   21.10  0.713    3216.9  0.491
+low Bass                                   -17.18   -35.08   17.90  0.416    1948.1  0.999
+more Rides DRUMS                           -26.32   -43.66   17.34  0.993    7331.7  0.585
+odd Ride loop DRUMS                        -19.23   -37.15   17.92  0.983    5374.6  1.000
+old funk Drum loop DRUMS                   -17.41   -35.78   18.38  0.951    8028.8  1.000
+reverse Impact hard cut SFX                -12.22   -32.20   19.98  0.974    5406.6  0.020
+reversed Drone SFX                          -8.25   -27.48   19.23  0.588    1063.5  0.765
+reversed male rhythm voice SFX              -7.78   -25.53   17.75  0.287    2570.8  0.739
+sticky Hi Hat 2 DRUMS                      -18.49   -37.03   18.54  0.431   10797.1  0.745
+sticky Hi Hat DRUMS                        -14.55   -36.47   21.92  0.410   10368.2  0.770
+washed Rides DRUMS                         -27.20   -44.43   17.23  0.981    9172.5  0.713
