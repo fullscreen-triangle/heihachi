@@ -95,6 +95,7 @@ API, so the integration is: you render, the daemon notices.
 daemon starts will not be picked up.
 
 ```powershell
+# from the repository root -- cargo must be run from this directory
 cd micro-kernel\daemon
 cargo run --release -- serve `
   --watch "C:\path\to\my-project\renders" `
@@ -517,6 +518,22 @@ not on your path -- see the top of §1. Either add
 `micro-kernel\daemon\target\release` to `$env:Path`, `cargo install --path
 micro-kernel\daemon`, or run it via `cargo run --release --` from
 `micro-kernel/daemon`.
+
+**`can't find library heihachi, rename file to src/lib.rs`.** You ran cargo
+from somewhere other than `micro-kernel\daemon`. Cargo searches *parent*
+directories for a manifest, and the repository root used to hold a stub one
+left over from the Python-era project. That file is now
+`Cargo.toml.disabled`; if you see this error, you are on an older checkout.
+Either way the fix is the same -- run cargo from `micro-kernel\daemon`, or
+call the built binary by its full path from anywhere:
+
+```powershell
+C:\...\heihachi\micro-kernel\daemon\target\release\heihachi.exe serve --addr 127.0.0.1:7750
+```
+
+**`could not find Cargo.toml in ... or any parent directory`.** Same cause,
+clearer message: there is no Rust project where you are standing. `cd` into
+`micro-kernel\daemon`.
 
 **`port 7749 is already held by another process`.** Something else is
 listening there. The daemon refuses rather than starting -- it will not

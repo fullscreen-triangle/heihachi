@@ -82,6 +82,7 @@ the silence in would report a level the material never has.
 ### 1. Start the daemon, then render
 
 ```powershell
+# from the repository root -- cargo must be run from this directory
 cd micro-kernel\daemon
 cargo run --release -- serve `
   --watch "C:\Users\kunda\Documents\audio\heihachi\projects\sprechfunk-remix\renders" `
@@ -91,6 +92,11 @@ cargo run --release -- serve `
 The line continuation in PowerShell is a backtick, not a backslash. If a
 paste loses them you get `Ausdruck fehlt nach dem unären Operator "--"` --
 put the whole command on one line instead.
+
+If you get `can't find library heihachi` instead, you are not in
+`micro-kernel\daemon`: cargo searches parent directories for a manifest
+and finds the wrong one. `cd` there first, or call
+`daemon\target\release\heihachi.exe` by its full path from anywhere.
 
 **Start the daemon before rendering.** It watches for changes, so a file
 already sitting in the folder is not picked up.

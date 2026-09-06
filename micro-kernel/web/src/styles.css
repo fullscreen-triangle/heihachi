@@ -377,6 +377,7 @@ svg.graph .node text { fill: var(--text-dim); font-size: 10px; font-family: var(
 }
 .pair-card input:focus { outline: none; border-color: var(--accent); }
 .pair-error { color: var(--error); font-size: 12px; margin-bottom: 10px; }
+.pair-hint { color: var(--text-dim); font-size: 11px; line-height: 1.5; margin: -4px 0 10px; }
 
 /* ── compose ─────────────────────────────────────────────────────── */
 

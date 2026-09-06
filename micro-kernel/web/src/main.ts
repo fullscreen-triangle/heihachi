@@ -142,6 +142,9 @@ function renderPairScreen(): HTMLElement {
     submit.setAttribute('disabled', 'true');
     try {
       await daemon.pair(tokenInput.value, endpointInput.value);
+      // pair() may have found the daemon on a neighbouring port; show where
+      // it actually landed rather than the address that failed
+      endpointInput.value = daemon.endpoint;
       await loadEverything();
     } catch (error) {
       state.pairError = error instanceof Error ? error.message : String(error);
@@ -165,6 +168,11 @@ function renderPairScreen(): HTMLElement {
       el('pre', {}, ['heihachi serve --watch "D:\\Renders"']),
       el('label', {}, ['Daemon address']),
       endpointInput,
+      el('p', { class: 'pair-hint' }, [
+        'Must match the address on the daemon banner "listening" line. It differs ',
+        'from the default whenever you passed --addr, which is what you do ',
+        'when the usual port is already taken.',
+      ]),
       el('label', {}, ['Pairing token']),
       tokenInput,
       state.pairError ? el('div', { class: 'pair-error' }, [state.pairError]) : null,

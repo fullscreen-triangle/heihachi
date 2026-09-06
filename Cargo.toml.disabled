@@ -1,3 +1,18 @@
+# Disabled: this manifest never built and broke cargo elsewhere in the tree.
+#
+# It declares a Rust library at src/lib.rs and a binary at src/main.rs.
+# Neither exists -- src/ is the Python package. The only .rs under it is
+# src/core/autobahn_bridge.rs, which nothing compiles.
+#
+# Because cargo searches parent directories for a manifest, this file made
+# *every* cargo command run from anywhere above micro-kernel/daemon fail with
+#
+#     can't find library `heihachi`, rename file to `src/lib.rs`
+#
+# including `cargo run` from micro-kernel/ itself. Renamed rather than
+# deleted: it records what the Rust core was intended to be. The working
+# Rust project is micro-kernel/daemon.
+
 [package]
 name = "heihachi"
 version = "0.1.0"
