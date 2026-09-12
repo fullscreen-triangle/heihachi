@@ -9,5 +9,6 @@ pub mod compose;
 pub mod graph;
 pub mod integrations;
 pub mod lang;
+pub mod persist;
 pub mod server;
 pub mod studio;

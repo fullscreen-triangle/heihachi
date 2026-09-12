@@ -43,6 +43,9 @@ pub struct Stage {
     pub gain_db: Option<f64>,
     /// Declared latency in samples, when stated.
     pub latency: Option<u32>,
+    /// The CLAP plugin id this stage renders through, when bound. A stage
+    /// with no binding is reachability-checked but not renderable.
+    pub clap_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -199,17 +202,20 @@ fn parse_construct(p: &mut Parser) -> Result<Construct, Diagnostic> {
                 let sname = p.next().text;
                 let mut gain_db = None;
                 let mut latency = None;
-                // optional trailing declarations: gain <db>, latency <samples>
+                let mut clap_id = None;
+                // optional trailing declarations: gain <db>, latency <samples>, clap <plugin-id>
                 loop {
                     if p.accept("gain") {
                         gain_db = p.next().value;
                     } else if p.accept("latency") {
                         latency = p.next().value.map(|v| v as u32);
+                    } else if p.accept("clap") {
+                        clap_id = Some(p.next().text);
                     } else {
                         break;
                     }
                 }
-                stages.push(Stage { name: sname, gain_db, latency });
+                stages.push(Stage { name: sname, gain_db, latency, clap_id });
             }
             "target" => {
                 p.next();

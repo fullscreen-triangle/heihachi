@@ -13,6 +13,7 @@
 //!     graph stores no expectation against which one could be computed.
 
 pub mod cut;
+pub mod reach;
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -292,6 +293,52 @@ impl Runtime {
     pub fn drain_deltas(&mut self) -> Vec<Delta> {
         std::mem::take(&mut self.pending)
     }
+
+    // ── persistence ─────────────────────────────────────────────────────
+
+    /// Capture the durable parts of the record.
+    ///
+    /// `log` and `pending` are excluded: `log` is redundant with the union of
+    /// `node.values` (reconstructed on restore), and `pending` is a live-view
+    /// cursor with nothing to catch up to before a first client connects.
+    pub fn snapshot(&self) -> RuntimeSnapshot {
+        RuntimeSnapshot {
+            nodes: self.nodes.clone(),
+            record: self.record,
+            edges: self.edges.iter().cloned().collect(),
+            executed: self.executed.clone(),
+        }
+    }
+
+    /// Rebuild a runtime from a snapshot. `log` is reconstructed from node
+    /// values sorted by record, so `report()`/`anomalies()` behave exactly as
+    /// they would for a runtime built by replaying the original `emit` calls.
+    pub fn restore(snapshot: RuntimeSnapshot) -> Self {
+        let mut log: Vec<Value> = snapshot
+            .nodes
+            .values()
+            .flat_map(|n| n.values.iter().cloned())
+            .collect();
+        log.sort_by_key(|v| v.record);
+
+        Self {
+            nodes: snapshot.nodes,
+            record: snapshot.record,
+            log,
+            edges: snapshot.edges.into_iter().collect(),
+            executed: snapshot.executed,
+            pending: Vec::new(),
+        }
+    }
+}
+
+/// The durable subset of [`Runtime`]'s state, for persistence across restarts.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RuntimeSnapshot {
+    pub nodes: BTreeMap<String, Node>,
+    pub record: u64,
+    pub edges: Vec<(String, String)>,
+    pub executed: Vec<String>,
 }
 
 #[cfg(test)]
@@ -379,6 +426,45 @@ mod tests {
         rt.run("bass.transient", ok_chunk);
         assert_eq!(rt.node_count(), 1);
         assert_eq!(rt.read("bass.transient").len(), 2);
+    }
+
+    #[test]
+    fn snapshot_then_restore_preserves_record_and_nodes() {
+        let mut rt = Runtime::new();
+        rt.attach_chunk("a", "m");
+        rt.run("a", ok_chunk);
+        rt.emit(
+            "b",
+            Value::reading("b.v", 1.0, 0.1, "dB", "m").unwrap(),
+            Some("a"),
+        );
+
+        let snap = rt.snapshot();
+        let restored = Runtime::restore(snap);
+
+        assert_eq!(restored.record(), rt.record());
+        assert_eq!(restored.node_count(), rt.node_count());
+        assert_eq!(restored.read("a").len(), rt.read("a").len());
+        assert_eq!(restored.read("b").len(), rt.read("b").len());
+        assert_eq!(restored.report().emissions, rt.report().emissions);
+        assert_eq!(
+            restored.edges().collect::<Vec<_>>(),
+            rt.edges().collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn restored_runtime_continues_the_monotone_sequence() {
+        let mut rt = Runtime::new();
+        rt.attach_chunk("a", "m");
+        rt.run("a", ok_chunk);
+        let before = rt.record();
+
+        let mut restored = Runtime::restore(rt.snapshot());
+        restored.attach_chunk("a", "m");
+        restored.run("a", ok_chunk);
+
+        assert!(restored.record() > before);
     }
 
     #[test]

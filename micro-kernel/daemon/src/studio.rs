@@ -210,6 +210,39 @@ pub fn commit_export(rt: &mut Runtime, event: &ExportEvent) {
     }
 }
 
+/// Commit a rendered construct's measurements to the runtime graph.
+///
+/// Uses the same `tau = "construct.{name}"` that the `/api/run` handler
+/// already emits reachability-check values under, so a rendered construct's
+/// measurements land on the same node as its static check -- two different
+/// rungs (the check, the render) meeting on one subtask rather than each
+/// claiming a node of its own.
+pub fn commit_render_construct(rt: &mut Runtime, construct_name: &str, summary: &AudioSummary) {
+    let tau = format!("construct.{construct_name}");
+    rt.attach_chunk(&tau, "clap_render");
+
+    for m in &summary.measurements {
+        if let Ok(value) =
+            Value::reading(m.channel.clone(), m.value, m.floor, m.unit.clone(), "clap_render")
+        {
+            rt.emit(&tau, value, Some(&tau));
+        }
+    }
+
+    if let Some(note) = &summary.note {
+        if let Ok(value) = Value::new(
+            format!("{tau}.note"),
+            serde_json::json!(note),
+            f64::MIN_POSITIVE,
+            "",
+            Kind::Anomaly,
+            "clap_render",
+        ) {
+            rt.emit(&tau, value, Some(&tau));
+        }
+    }
+}
+
 /// A one-line description of the material, for the model prompt.
 pub fn describe(event: &ExportEvent) -> String {
     let mut lines = Vec::new();

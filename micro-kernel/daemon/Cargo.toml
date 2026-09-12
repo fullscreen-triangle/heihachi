@@ -44,6 +44,8 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 directories = "5"
 byteorder = "1"
+clack-host = "0.1.1"
+clack-extensions = { version = "0.1.1", features = ["clack-host", "params"] }
 
 [profile.release]
 opt-level = 3

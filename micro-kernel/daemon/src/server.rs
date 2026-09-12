@@ -24,10 +24,12 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::graph::{Delta, Kind, Report, Runtime, Value};
+use crate::graph::{self, Delta, Kind, Report, Runtime, Value};
+use crate::integrations::clap_host;
+use crate::integrations::fl_control::{Command, FlLink};
 use crate::integrations::ollama::{self, Ollama};
 use crate::lang::{self, mishima, sangoma, CheckResult};
-use crate::studio::{ExportEvent, Studio};
+use crate::studio::{self, ExportEvent, Studio};
 
 pub struct AppState {
     pub token: String,
@@ -38,6 +40,11 @@ pub struct AppState {
     pub tx: broadcast::Sender<ServerMessage>,
     /// Numeric resolution of the analysis path, for floor negotiation.
     pub backend_resolution: f64,
+    /// The socket an FL MIDI Controller Script dials into, for the narrow
+    /// transport/mixer/pattern acts FL's scripting API exposes.
+    pub fl_link: Arc<FlLink>,
+    /// Directories scanned for `.clap` bundles.
+    pub plugin_dirs: Vec<PathBuf>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -78,6 +85,10 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/exports", get(exports))
         .route("/api/compose", post(compose))
         .route("/api/accountability", post(accountability))
+        .route("/api/act", post(act))
+        .route("/api/fl_link/status", get(fl_link_status))
+        .route("/api/plugins", get(plugins))
+        .route("/api/render", post(render_construct))
         .route("/ws", get(ws_upgrade))
         .layer(cors)
         .with_state(state)
@@ -256,14 +267,16 @@ async fn run(
                 rt.emit(&tau, v, Some(&tau));
             }
 
-            // Each rung reaches a class. A seek whose rungs reach more than
-            // one irreconcilable class terminates contested, and that is a
-            // legal outcome carrying what it found -- not an error.
-            let classes = reached_classes(&rt, s);
-            if classes.len() > 1 {
+            // Each rung reaches a class, determined by walking the ladder to
+            // closure over the live graph (`graph::reach::seek_to_closure`).
+            // A seek whose rungs reach more than one irreconcilable class
+            // terminates contested, and that is a legal outcome carrying
+            // what it found -- not an error.
+            let det = graph::reach::seek_to_closure(&rt, s, 0.99);
+            if det.status == graph::reach::DeterminationStatus::Declined {
                 if let Ok(v) = Value::new(
                     format!("{tau}.decline"),
-                    serde_json::json!(classes.clone()),
+                    serde_json::json!(det.classes.clone()),
                     floor,
                     "",
                     Kind::Decline,
@@ -272,8 +285,8 @@ async fn run(
                     rt.emit(&tau, v, Some(&tau));
                 }
                 decline = Some(Decline {
-                    classes,
-                    probes_invoked: s.ladder.iter().map(|r| r.name.clone()).collect(),
+                    classes: det.classes,
+                    probes_invoked: det.probes_invoked,
                     discriminating_probe: s
                         .ladder
                         .iter()
@@ -294,6 +307,12 @@ async fn run(
         .collect();
     let deltas = rt.drain_deltas();
     let report = rt.report();
+    // Persistence failure must not turn a successful run into a failed
+    // response -- log and continue, matching the "never fails" discipline
+    // used throughout the analysis path.
+    if let Err(e) = crate::persist::save(&state.workspace, &rt.snapshot()) {
+        tracing::warn!("could not persist runtime: {e}");
+    }
     drop(rt);
 
     if !deltas.is_empty() {
@@ -303,25 +322,223 @@ async fn run(
     Json(RunResponse { report, emissions, check: checked, decline }).into_response()
 }
 
-/// Which classes a seek's rungs reach, read off the graph.
+#[derive(Deserialize)]
+struct ActRequest {
+    command: Command,
+}
+
+#[derive(Serialize)]
+struct ActResponse {
+    dispatched: bool,
+}
+
+/// Dispatch a transport/mixer/pattern command to the connected FL script.
 ///
-/// A rung whose name matches a node's subtask reaches that node's class;
-/// rungs that reach nothing contribute nothing rather than being counted as
-/// agreement.
-fn reached_classes(rt: &Runtime, seek: &mishima::Seek) -> Vec<String> {
-    let mut classes: Vec<String> = Vec::new();
-    for rung in &seek.ladder {
-        let hit = rt
-            .nodes()
-            .find(|n| n.tau.contains(&rung.name))
-            .map(|n| n.tau.clone());
-        if let Some(class) = hit {
-            if !classes.contains(&class) {
-                classes.push(class);
+/// This does not wait for FL's state to actually change: it attaches a
+/// chunk, emits a value recording what was requested, and returns. A
+/// dispatch failure (nothing connected) is recorded as an anomaly value,
+/// not an HTTP error -- the runtime holds no expectation to compare against,
+/// so an unreachable script is a fact about the run, not a failure of it.
+async fn act(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<ActRequest>,
+) -> impl IntoResponse {
+    if !authorised(&headers, &state.token) {
+        return unauthorised().into_response();
+    }
+
+    let tau = format!("act.{}", body.command.kind_name());
+    let dispatch = state.fl_link.send(&body.command).await;
+
+    let deltas = {
+        let mut rt = state.runtime.lock().await;
+        rt.attach_chunk(&tau, "fl_control");
+        let value = match &dispatch {
+            Ok(()) => Value::new(
+                format!("{tau}.dispatched"),
+                serde_json::json!(body.command),
+                1.0,
+                "",
+                Kind::Reading,
+                "fl_control",
+            ),
+            Err(e) => Value::new(
+                format!("{tau}.anomaly"),
+                serde_json::json!(e.to_string()),
+                f64::MIN_POSITIVE,
+                "",
+                Kind::Anomaly,
+                "fl_control",
+            ),
+        };
+        if let Ok(v) = value {
+            rt.emit(&tau, v, Some(&tau));
+        }
+        let deltas = rt.drain_deltas();
+        if let Err(e) = crate::persist::save(&state.workspace, &rt.snapshot()) {
+            tracing::warn!("could not persist runtime: {e}");
+        }
+        deltas
+    };
+
+    if !deltas.is_empty() {
+        let _ = state.tx.send(ServerMessage::Delta { deltas });
+    }
+
+    Json(ActResponse { dispatched: dispatch.is_ok() }).into_response()
+}
+
+async fn fl_link_status(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if !authorised(&headers, &state.token) {
+        return unauthorised().into_response();
+    }
+    Json(serde_json::json!({ "connected": state.fl_link.is_connected().await })).into_response()
+}
+
+async fn plugins(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if !authorised(&headers, &state.token) {
+        return unauthorised().into_response();
+    }
+    let dirs = state.plugin_dirs.clone();
+    let found = tokio::task::spawn_blocking(move || clap_host::scan(&dirs))
+        .await
+        .unwrap_or_default();
+    Json(found).into_response()
+}
+
+#[derive(Deserialize)]
+struct RenderRequest {
+    source: String,
+    construct: String,
+    #[serde(default = "default_sample_rate")]
+    sample_rate: u32,
+    #[serde(default = "default_frames")]
+    frames: usize,
+}
+
+fn default_sample_rate() -> u32 {
+    48_000
+}
+
+fn default_frames() -> usize {
+    48_000 * 2 // 2 seconds
+}
+
+#[derive(Serialize)]
+struct RenderResponse {
+    rendered: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error: Option<String>,
+}
+
+/// Render one `sangoma` construct through its bound CLAP plugin chain and
+/// commit the measured result. A construct with no `clap_id` bound on any
+/// stage, or a stage whose plugin cannot be found, does not fail the
+/// request -- it reports what happened as the response and as an anomaly
+/// value on the construct's node, consistent with the runtime holding no
+/// verdict to compare against.
+async fn render_construct(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<RenderRequest>,
+) -> impl IntoResponse {
+    if !authorised(&headers, &state.token) {
+        return unauthorised().into_response();
+    }
+
+    let prog = match sangoma::parse(&body.source) {
+        Ok(p) => p,
+        Err(d) => {
+            return Json(RenderResponse { rendered: false, error: Some(d.message) })
+                .into_response()
+        }
+    };
+    let Some(construct) = prog.constructs.iter().find(|c| c.name == body.construct) else {
+        return Json(RenderResponse {
+            rendered: false,
+            error: Some(format!("no construct named {:?}", body.construct)),
+        })
+        .into_response();
+    };
+
+    let dirs = state.plugin_dirs.clone();
+    let construct = construct.clone();
+    let frames = body.frames;
+    let sample_rate = body.sample_rate;
+
+    let result = tokio::task::spawn_blocking(move || -> Result<Vec<f32>, String> {
+        let available = clap_host::scan(&dirs);
+        let mut buffer: Option<Vec<f32>> = None;
+        for stage in &construct.stages {
+            let Some(clap_id) = &stage.clap_id else {
+                return Err(format!("stage {:?} has no clap binding", stage.name));
+            };
+            let descriptor = available
+                .iter()
+                .find(|d| &d.id == clap_id)
+                .ok_or_else(|| format!("plugin {clap_id:?} not found for stage {:?}", stage.name))?;
+            let mut plugin = clap_host::HostedPlugin::load(descriptor)
+                .map_err(|e| format!("stage {:?}: {e}", stage.name))?;
+            if let Some(gain) = stage.gain_db {
+                // Stage 0's declared gain parameter, if the plugin exposes
+                // one at that id -- a coarse first mapping, not a general
+                // parameter scheme.
+                plugin.set_param(0, gain);
+            }
+            let rendered = plugin
+                .render(frames, sample_rate)
+                .map_err(|e| format!("stage {:?}: {e}", stage.name))?;
+            buffer = Some(rendered);
+        }
+        buffer.ok_or_else(|| "construct has no stages".to_string())
+    })
+    .await
+    .unwrap_or_else(|e| Err(format!("render task panicked: {e}")));
+
+    let (rendered, error, summary) = match result {
+        Ok(samples) => {
+            let summary = crate::integrations::analysis::write_and_measure(&samples, sample_rate, 2);
+            (true, None, Some(summary))
+        }
+        Err(e) => (false, Some(e), None),
+    };
+
+    let deltas = {
+        let mut rt = state.runtime.lock().await;
+        if let Some(summary) = &summary {
+            studio::commit_render_construct(&mut rt, &body.construct, summary);
+        } else if let Some(e) = &error {
+            let tau = format!("construct.{}", body.construct);
+            rt.attach_chunk(&tau, "clap_render");
+            if let Ok(v) = Value::new(
+                format!("{tau}.note"),
+                serde_json::json!(e),
+                f64::MIN_POSITIVE,
+                "",
+                Kind::Anomaly,
+                "clap_render",
+            ) {
+                rt.emit(&tau, v, Some(&tau));
             }
         }
+        let deltas = rt.drain_deltas();
+        if let Err(e) = crate::persist::save(&state.workspace, &rt.snapshot()) {
+            tracing::warn!("could not persist runtime: {e}");
+        }
+        deltas
+    };
+    if !deltas.is_empty() {
+        let _ = state.tx.send(ServerMessage::Delta { deltas });
     }
-    classes
+
+    Json(RenderResponse { rendered, error }).into_response()
 }
 
 async fn graph(

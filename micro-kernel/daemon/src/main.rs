@@ -52,6 +52,15 @@ enum Command {
         /// Use this token instead of generating one. For scripts.
         #[arg(long)]
         token: Option<String>,
+        /// Loopback address the FL MIDI Controller Script dials into. A
+        /// second port, distinct from `--addr`, because FL's scripting
+        /// sandbox speaks raw sockets, not HTTP.
+        #[arg(long, default_value = "127.0.0.1:7750")]
+        fl_addr: String,
+        /// Extra directories to scan for `.clap` plugin bundles, beyond the
+        /// platform's standard install locations.
+        #[arg(long)]
+        clap_dir: Vec<PathBuf>,
     },
     /// Check a program without running it.
     Check {
@@ -75,8 +84,8 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     match Cli::parse().command {
-        Command::Serve { addr, watch, workspace, ollama, model, token } => {
-            serve(addr, watch, workspace, ollama, model, token).await
+        Command::Serve { addr, watch, workspace, ollama, model, token, fl_addr, clap_dir } => {
+            serve(addr, watch, workspace, ollama, model, token, fl_addr, clap_dir).await
         }
         Command::Check { file, backend_resolution } => check(file, backend_resolution),
         Command::Observe { render } => observe(render),
@@ -99,9 +108,14 @@ async fn serve(
     ollama_endpoint: String,
     model: String,
     token: Option<String>,
+    fl_addr: String,
+    clap_dir: Vec<PathBuf>,
 ) -> anyhow::Result<()> {
     let addr: SocketAddr = addr.parse()?;
+    let fl_addr: SocketAddr = fl_addr.parse()?;
     let token = token.unwrap_or_else(generate_token);
+    let mut plugin_dirs = heihachi_daemon::integrations::clap_host::standard_dirs();
+    plugin_dirs.extend(clap_dir);
 
     // make the workspace so the file tree is never empty on first run
     for sub in ["mishima", "sangoma"] {
@@ -115,9 +129,21 @@ async fn serve(
         studio.watch(dir.clone());
     }
 
+    let (runtime, restored) = match heihachi_daemon::persist::load(&workspace) {
+        Some(snap) => {
+            let rt = Runtime::restore(snap);
+            let info = (rt.record(), rt.node_count());
+            (rt, Some(info))
+        }
+        None => (Runtime::new(), None),
+    };
+
+    let (fl_link, _fl_accept_handle) =
+        heihachi_daemon::integrations::fl_control::FlLink::listen(fl_addr);
+
     let state = Arc::new(AppState {
         token: token.clone(),
-        runtime: Mutex::new(Runtime::new()),
+        runtime: Mutex::new(runtime),
         studio: Mutex::new(studio),
         ollama: Ollama::new(ollama_endpoint.clone(), model.clone()),
         workspace: workspace.clone(),
@@ -125,6 +151,8 @@ async fn serve(
         // the analysis path is f64 throughout, so its error is far below
         // any floor an audio measurement will declare
         backend_resolution: 1e-9,
+        fl_link,
+        plugin_dirs,
     });
 
     // Take the port before announcing it. The banner asserts the daemon is
@@ -145,10 +173,15 @@ async fn serve(
     println!("  listening   http://{addr}");
     println!("  token       {token}");
     println!("  workspace   {}", workspace.display());
+    match restored {
+        Some((record, nodes)) => println!("  restored    record {record} ({nodes} nodes)"),
+        None => println!("  restored    (nothing -- fresh runtime)"),
+    }
     match &watch {
         Some(d) => println!("  watching    {}", d.display()),
         None => println!("  watching    (nothing -- pass --watch <render folder>)"),
     }
+    println!("  fl-link     {fl_addr} (device_heihachi.py dials in here)");
     println!(
         "  ollama      {ollama_endpoint} [{model}] {}",
         if reachable { "reachable" } else { "UNREACHABLE" }
@@ -233,7 +266,14 @@ async fn commit_render(path: PathBuf, state: Arc<AppState>) {
     let deltas = {
         let mut rt = state.runtime.lock().await;
         studio::commit_export(&mut rt, &event);
-        rt.drain_deltas()
+        let deltas = rt.drain_deltas();
+        // Persistence failure must not turn a successful commit into a
+        // failed one -- log and continue, matching the "never fails"
+        // discipline used throughout the analysis path.
+        if let Err(e) = heihachi_daemon::persist::save(&state.workspace, &rt.snapshot()) {
+            tracing::warn!("could not persist runtime: {e}");
+        }
+        deltas
     };
 
     tracing::info!(

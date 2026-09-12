@@ -1,15 +1,22 @@
 //! FL Studio integration by watching exports and reading projects.
 //!
-//! FL exposes no general remote-control API, so this is deliberately
-//! read-only and requires nothing to be installed into FL. You render as
-//! normal; the daemon notices the file, analyses it, and commits a node to
-//! the runtime graph. A `.flp` beside the render is parsed for the device
-//! chain that produced it.
+//! This module is read-only and requires nothing to be installed into FL.
+//! You render as normal; the daemon notices the file, analyses it, and
+//! commits a node to the runtime graph. A `.flp` beside the render is
+//! parsed for the device chain that produced it.
 //!
 //! The `.flp` format is undocumented. What is parsed here is the outer
 //! event stream, which is stable enough to recover plugin and channel
 //! names; anything not recognised is skipped rather than guessed at, and
 //! an unreadable project yields an anomaly value rather than a failure.
+//!
+//! FL exposes no general remote-control API. `integrations::fl_control`
+//! adds the one real two-way channel that exists -- an FL MIDI Controller
+//! Script -- but it is narrow by construction: transport, mixer track
+//! volume/pan, and pattern/channel selection, because that is the entire
+//! surface FL's scripting API exposes. Plugin insertion, piano-roll
+//! editing, automation curves, and rendering remain permanently out of
+//! reach from outside FL, and nothing added here changes that.
 
 use std::path::{Path, PathBuf};
 

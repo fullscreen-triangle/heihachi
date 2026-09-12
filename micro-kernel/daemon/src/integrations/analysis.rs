@@ -35,6 +35,48 @@ const WINDOW: usize = 4096;
 /// work on a long stem without measuring only its opening.
 const MAX_WINDOWS: usize = 256;
 
+/// Write interleaved samples to a scratch WAV and measure them through
+/// [`analyse`], so a rendered construct is measured through the same code
+/// path as an FL export -- one measurement rung, not two.
+pub fn write_and_measure(samples: &[f32], sample_rate: u32, channels: u16) -> AudioSummary {
+    let scratch = std::env::temp_dir().join(format!(
+        "heihachi-render-{}.wav",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0)
+    ));
+
+    let spec = hound::WavSpec {
+        channels,
+        sample_rate,
+        bits_per_sample: 32,
+        sample_format: hound::SampleFormat::Float,
+    };
+    let write_result = (|| -> Result<(), hound::Error> {
+        let mut writer = hound::WavWriter::create(&scratch, spec)?;
+        for &s in samples {
+            writer.write_sample(s)?;
+        }
+        writer.finalize()
+    })();
+
+    if let Err(e) = write_result {
+        return AudioSummary {
+            sample_rate,
+            channels,
+            frames: 0,
+            duration_seconds: 0.0,
+            measurements: Vec::new(),
+            note: Some(format!("could not write render to a scratch WAV: {e}")),
+        };
+    }
+
+    let summary = analyse(&scratch);
+    std::fs::remove_file(&scratch).ok();
+    summary
+}
+
 /// Decode a WAV render and measure it.
 ///
 /// Only WAV is decoded here. Other formats yield a summary carrying a note,
